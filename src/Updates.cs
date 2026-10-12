@@ -79,7 +79,7 @@ namespace YouTubeDownloader {
             return temp;
         }
         private static string Literal(string value) { return "'"+value.Replace("'","''")+"'"; }
-        public static void InstallAndRestart(string prepared) {
+        public static void InstallAndRestart(string prepared,string failureMessage=null,string failureTitle=null) {
             string current=Assembly.GetExecutingAssembly().Location,dir=Path.GetDirectoryName(current);
             // Verify write access before closing the app. Keep the installed app if replacement fails.
             string probe=Path.Combine(dir,".update-write-"+Guid.NewGuid().ToString("N")); File.WriteAllText(probe,""); File.Delete(probe);
@@ -89,7 +89,7 @@ namespace YouTubeDownloader {
                 "try {\n  Copy-Item -LiteralPath $target -Destination $backup -Force\n  Copy-Item -LiteralPath (Join-Path $package 'YouTubeDownloader.exe') -Destination $target -Force\n"+
                 "  foreach($file in @('SetupTools.cmd','README.txt')) { Copy-Item -LiteralPath (Join-Path $package $file) -Destination (Join-Path (Split-Path -Parent $target) $file) -Force }\n"+
                 "  Remove-Item -LiteralPath $backup -Force\n  foreach($file in @('YouTubeDownloader.exe','SetupTools.cmd','README.txt','update.zip')) { Remove-Item -LiteralPath (Join-Path $package $file) -Force }; Remove-Item -LiteralPath $package\n"+
-                "} catch { if(Test-Path -LiteralPath $backup) { Copy-Item -LiteralPath $backup -Destination $target -Force }; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('The update could not be installed. The previous app will reopen.','YouTube Downloader') | Out-Null }\n"+
+                "} catch { if(Test-Path -LiteralPath $backup) { Copy-Item -LiteralPath $backup -Destination $target -Force }; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show("+Literal(failureMessage??"The update could not be installed. The previous app will reopen.")+","+Literal(failureTitle??"YouTube Downloader")+") | Out-Null }\n"+
                 "Start-Process -FilePath $target\n";
             string shell=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"WindowsPowerShell","v1.0","powershell.exe");
             Process.Start(new ProcessStartInfo(shell,"-NoProfile -NonInteractive -EncodedCommand "+Convert.ToBase64String(Encoding.Unicode.GetBytes(script))) { UseShellExecute=false,CreateNoWindow=true });

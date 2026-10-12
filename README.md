@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.png" width="128" alt="YouTube Downloader YD logo"></p>
+<p align="center"><img src="assets/header-logo.png" width="128" alt="YouTube Downloader YD logo"></p>
 
 # YouTube Downloader for Windows
 
@@ -10,9 +10,13 @@ A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a 
 | --- | --- |
 | ![Downloader in light theme](assets/screenshot-light.png) | ![Downloader in dark theme](assets/screenshot-dark.png) |
 
+| Arabic · light | Arabic · dark |
+| --- | --- |
+| ![Arabic RTL in light theme](assets/screenshot-ar-light.png) | ![Arabic RTL in dark theme](assets/screenshot-ar-dark.png) |
+
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.1-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.2-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe`, paste a video link, and wait for its available qualities to appear.
@@ -30,8 +34,13 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - Separate video filenames for different quality selections.
 - Existing completed files are preserved.
 - Dark by default, with a sun/moon icon toggle and your theme choice remembered.
-- Styled MP4 / MP3 radio buttons and a matching quality control.
-- A larger transparent YD mark in the app header.
+- English with an LTR layout or Arabic with an RTL layout, selectable from the header and remembered.
+- Immediate theme repaint with a brief 120 ms icon transition that respects Windows animation settings.
+- Equal-width MP4 / MP3 / quality controls filling the row, with rounded inputs and buttons.
+- Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
+- Clear feedback when the app is up to date or an update check fails.
+- Theme-matched scrolling and a dismissible up-to-date confirmation that clears automatically.
+- A larger transparent YD mark in the app header and taskbar.
 - Link cleared after a successful download; every launch starts with an empty link.
 - Recent-download history and saved preferences.
 - Checks GitHub for a new app version on launch; install it from inside the app.

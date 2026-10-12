@@ -240,7 +240,7 @@ namespace YouTubeDownloader {
                     } else if(line.StartsWith("YTDL_POST:")) Emit(options.Audio ? "Making MP3" : "Preparing MP4", "Finishing your file. This can take a moment…",100,true);
                 },token);
             } catch(OperationCanceledException) { return new DownloadResult { Cancelled=true }; }
-            if(String.IsNullOrWhiteSpace(saved) || !File.Exists(saved)) throw new InvalidOperationException("The downloader did not produce a completed file. Check the details and try again.");
+            if(String.IsNullOrWhiteSpace(saved) || !File.Exists(saved)) throw new InvalidOperationException("The downloader did not produce a completed file. Try again or choose another quality.");
             string root=Path.GetFullPath(options.Folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             if(!Path.GetFullPath(saved).StartsWith(root,StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("The downloaded file is outside the selected folder.");
             Emit("Download complete",Path.GetFileName(saved),100,false); return new DownloadResult { FilePath=saved };

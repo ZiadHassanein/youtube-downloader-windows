@@ -14,16 +14,37 @@ internal static class InterfaceChecks {
         string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"settings.json");
         string prior=File.Exists(path) ? File.ReadAllText(path) : null;
         try {
+            double wheelRemainder=0; int wheelDistance=0;
+            for(int step=0;step<8;step++) wheelDistance+=ThemeScrollHost.WheelDistance(15,3,200,16,ref wheelRemainder);
+            Assert(wheelDistance==48,"Small trackpad wheel deltas accumulate to the same distance as one wheel notch");
+            Assert(ThemeScrollHost.WheelDistance(120,0,200,16,ref wheelRemainder)==0,"The scrollbar respects Windows zero-line wheel scrolling");
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"LastUrl\":\"https://youtu.be/jNQXAC9IVRw\",\"Format\":0,\"Recent\":[]}");
             using(var window=new MainWindow()) {
                 var url=Field<TextBox>(window,"url"); var theme=Field<CheckBox>(window,"theme");
                 var video=Field<RadioButton>(window,"video"); var audio=Field<RadioButton>(window,"audio"); var quality=Field<ComboBox>(window,"quality");
                 Assert(url.Text=="","A legacy saved link is not restored");
                 Assert(theme.Checked,"Dark is the default theme");
+                Assert(window.RightToLeft==RightToLeft.No && !window.RightToLeftLayout,"English starts with an LTR layout");
+                typeof(MainWindow).GetField("checkedInfo",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,new VideoInfo { HasAudio=true,Qualities=new System.Collections.Generic.List<VideoQuality> { new VideoQuality { Resolution=1080,Selector="137" },new VideoQuality { Resolution=720,Selector="22" } } });
+                Call(window,"UpdateQualityChoices"); quality.SelectedIndex=1; Call(window,"SetLanguage","ar");
+                Assert(window.RightToLeft==RightToLeft.Yes && window.RightToLeftLayout && window.Text=="منزّل يوتيوب" && url.RightToLeft==RightToLeft.No && Field<TextBox>(window,"folder").RightToLeft==RightToLeft.No,"Arabic translates the app and uses RTL while technical fields stay LTR");
+                Assert(((VideoQuality)quality.SelectedItem).Resolution==720 && File.ReadAllText(path).Contains("\"Language\":\"ar\""),"Language changes preserve the chosen quality and save the preference");
+                Call(window,"SetStatus","Download failed","Couldn't reach YouTube. Check your internet connection, then try again.",true);
+                Assert(Field<Label>(window,"stage").Text=="تعذّر التنزيل" && !Field<Label>(window,"progressDetail").Text.Contains("YouTube"),"Arabic errors include translated recovery guidance");
+                Call(window,"SetLanguage","en"); typeof(MainWindow).GetField("checkedInfo",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,null); Call(window,"UpdateQualityChoices");
                 var dark=window.BackColor; theme.Checked=false;
                 Assert(window.BackColor!=dark,"Icon toggle switches to light theme"); theme.Checked=true;
                 Assert(window.BackColor==dark,"Icon toggle switches back to dark theme");
                 Assert(File.ReadAllText(path).Contains("\"Theme\":\"Dark\""),"Theme preference is saved");
+                Call(window,"ReportUpdateCheck",null,true);
+                Assert(Field<Label>(window,"updateHeading").Text=="You're up to date" && Field<Label>(window,"updateMessage").Text.Contains("latest release"),"A manual current-version check provides clear visible feedback");
+                Assert(Field<Timer>(window,"updateNoticeTimer").Enabled && Field<Timer>(window,"updateNoticeTimer").Interval<=5000,"Up-to-date confirmation has a bounded automatic dismissal");
+                Call(window,"HideUpdateNotice");
+                Assert(!Field<Timer>(window,"updateNoticeTimer").Enabled && Field<Label>(window,"updateHeading").Text=="","Dismissal clears the update message and its timer");
+                Call(window,"ReportUpdateCheck",new AppRelease { Version=new Version(1,1,0) },true);
+                Assert(Field<Button>(window,"update").Text=="Install v1.1.0" && Field<Label>(window,"updateHeading").Text=="A new version is ready","A newer release keeps the install action and shows update feedback");
+                string friendly=(string)typeof(MainWindow).GetMethod("FriendlyError",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,new object[]{"ERROR: [youtube] abc123: extractor failed at https://youtube.com/watch?v=abc123"});
+                Assert(!friendly.Contains("abc123") && !friendly.Contains("ERROR:") && friendly.Contains("try again"),"Unexpected downloader errors give a recovery step without raw technical output");
                 audio.Checked=true;
                 Assert(audio.Checked && !video.Checked,"MP3 radio selection is exclusive");
                 Assert(quality.Text=="192 kbps" && !quality.Enabled,"MP3 displays its encoding bitrate");
