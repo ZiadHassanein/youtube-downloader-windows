@@ -21,6 +21,7 @@ namespace YouTubeDownloader {
     }
     public sealed class SavedState {
         public string Folder;
+        public int FolderVersion;
         public string Theme = "Dark";
         public bool ThemeSelected;
         public string Language="en";
@@ -169,7 +170,7 @@ namespace YouTubeDownloader {
             quality.SelectedIndexChanged+=delegate { var bitrate=quality.SelectedItem as AudioQuality; if(bitrate!=null) state.AudioBitrate=bitrate.Bitrate; SaveState(); };
             quality.Dock=DockStyle.Fill; quality.Margin=new Padding(0); settings.Controls.Add(quality,4,1); Add(settings,18);
             Add(LabelFor("Save &to"),0);
-            folder.Text=String.IsNullOrWhiteSpace(state.Folder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads","YouTube") : state.Folder;
+            folder.Text=InitialFolder(state.Folder,state.FolderVersion==0); state.FolderVersion=1;
             folder.Font=new Font("Segoe UI",11f); folder.AccessibleName=T("Save folder"); folder.RightToLeft=RightToLeft.No; folder.TextChanged+=delegate { SaveState(); };
             ConfigureButton(browse,"&Browse…"); browse.Width=104; browse.Height=44; browse.Click+=delegate { using(var dialog=new FolderBrowserDialog { Description=T("Choose where to save your YouTube downloads"),SelectedPath=Directory.Exists(folder.Text) ? folder.Text : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),ShowNewFolderButton=true }) { if(dialog.ShowDialog(this)==DialogResult.OK) folder.Text=dialog.SelectedPath; } };
             ConfigureButton(openFolder,"Open &folder"); openFolder.Width=128; openFolder.Height=44; openFolder.Click+=delegate { OpenDestination(); };
@@ -371,6 +372,16 @@ namespace YouTubeDownloader {
         }
         private void ApplyProgress(DownloadProgress p) { statusRow.Visible=true; statusHeading=p.Stage; statusMessage=p.Detail; statusIsProgress=true; statusMood=0; statusIcon.Tone=StatusTone.Info; stage.Text=T(p.Stage); stage.ForeColor=Ink; progressDetail.Text=Texts.Progress(state.Language,p.Detail); progressDetail.ForeColor=Muted; progress.Visible=true; progress.Style=p.Indeterminate ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous; if(!p.Indeterminate) progress.Value=(int)Math.Max(0,Math.Min(1000,p.Percent*10)); }
         private void SetStatus(string heading,string message,bool error) { statusRow.Visible=error || heading!="Ready for a video link"; statusHeading=heading; statusMessage=message; statusIsProgress=false; statusMood=error ? 1 : 0; statusIcon.Tone=error ? StatusTone.Error : StatusTone.Info; stage.Text=T(heading); stage.ForeColor=error ? colors.Error : Ink; progressDetail.Text=T(message); progressDetail.ForeColor=Muted; progress.Visible=false; if(error) { progress.Style=ProgressBarStyle.Continuous; progress.Value=0; } }
+        private static string InitialFolder(string saved,bool migrateLegacy) {
+            string downloads=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads");
+            if(String.IsNullOrWhiteSpace(saved)) return downloads;
+            if(migrateLegacy) {
+                string previous=saved.Trim().TrimEnd('\\','/');
+                foreach(string parent in new[]{downloads,Path.Combine(Path.GetPathRoot(downloads),"Downloads")})
+                    if(String.Equals(previous,Path.Combine(parent,"YouTube"),StringComparison.OrdinalIgnoreCase)) return parent;
+            }
+            return saved;
+        }
         private string DownloadFolder() { if(String.IsNullOrWhiteSpace(folder.Text)) throw new ArgumentException("Choose a save folder with Browse."); try { return Path.GetFullPath(folder.Text.Trim()); } catch { throw new ArgumentException("Choose a valid folder on this computer with Browse."); } }
         private void SafeUi(Action action) { if(IsDisposed || !IsHandleCreated) return; try { BeginInvoke(action); } catch(InvalidOperationException) { } }
         private static string FriendlyError(string message) {

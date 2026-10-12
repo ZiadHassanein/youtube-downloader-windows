@@ -92,6 +92,20 @@ internal static class InterfaceChecks {
         string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"settings.json");
         string prior=File.Exists(path) ? File.ReadAllText(path) : null;
         try {
+            string downloads=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads");
+            var serializer=new System.Web.Script.Serialization.JavaScriptSerializer();
+            foreach(var sample in new[]{
+                new[]{"",downloads,"New settings default directly to Downloads"},
+                new[]{Path.Combine(downloads,"YouTube"),downloads,"The previous default migrates to Downloads"},
+                new[]{Path.Combine(Path.GetPathRoot(downloads),"Downloads","YouTube"),Path.Combine(Path.GetPathRoot(downloads),"Downloads"),"The previous example path drops its YouTube subfolder"},
+                new[]{@"D:\Custom\YouTube",@"D:\Custom\YouTube","Custom save folders are preserved"}
+            }) {
+                File.WriteAllText(path,serializer.Serialize(new SavedState { Folder=sample[0] }));
+                using(var sampleWindow=new MainWindow(false)) Assert(Field<TextBox>(sampleWindow,"folder").Text==sample[1],sample[2]);
+            }
+            string chosen=Path.Combine(downloads,"YouTube");
+            File.WriteAllText(path,serializer.Serialize(new SavedState { Folder=chosen,FolderVersion=1 }));
+            using(var sampleWindow=new MainWindow(false)) Assert(Field<TextBox>(sampleWindow,"folder").Text==chosen,"An explicitly chosen folder is not migrated again on later launches");
             double wheelRemainder=0; int wheelDistance=0;
             for(int step=0;step<8;step++) wheelDistance+=ThemeScrollHost.WheelDistance(15,3,200,16,ref wheelRemainder);
             Assert(wheelDistance==48,"Small trackpad wheel deltas accumulate to the same distance as one wheel notch");
