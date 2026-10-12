@@ -6,9 +6,11 @@ A desktop app for saving YouTube videos or whole playlists as MP4 or extracting 
 
 **[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
 
-| English · light | Arabic · dark |
+| English · light (v1.0.12 interface) | Arabic · dark (v1.0.12 interface) |
 | --- | --- |
 | ![Downloader in English light theme](assets/screenshot-light.png) | ![Downloader in Arabic dark theme](assets/screenshot-ar-dark.png) |
+
+Version 1.0.13 keeps this interface and moves playlist resume records into private app data.
 
 | Light option list · v1.0.7 | Dark option list · v1.0.7 |
 | --- | --- |
@@ -16,7 +18,7 @@ A desktop app for saving YouTube videos or whole playlists as MP4 or extracting 
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.12-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.13-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe` and paste a video or playlist link. For a video link that also contains a playlist, choose **This video** or **Whole playlist**.
@@ -71,7 +73,7 @@ Each playlist is saved in `Playlist [playlist-id]` inside the selected folder. M
 
 The playlist title list is read once per pasted link, without fetching every video's formats in advance. Videos are downloaded sequentially with bounded retries, request pacing, and cancellable waits. Progress shows the current video and an approximate overall percentage based on item count. Private, removed, unavailable, and live entries are reported as failures and skipped. Rate-limit, network, or disk errors pause the queue; three consecutive unexpected failures also pause it. The final summary separates saved, already downloaded, failed, and remaining entries. YouTube limits can still occur.
 
-The `.yd-completed-*.json` files in the playlist folder record completed paths separately for each format, resolution cap, or MP3 bitrate. Keep these files to skip completed downloads on later runs. Deleted media is downloaded again. Cancellation keeps completed and partial files, and the link stays available after cancellation or partial failure. Fully successful downloads clear it.
+Resume records are stored privately under `%LOCALAPPDATA%\YouTubeDownloader\PlaylistState`, separately for each playlist destination, format, resolution cap, or MP3 bitrate. Completed downloads leave only media files in the playlist folder. Existing `.yd-completed-*.json` records from v1.0.12, including other output profiles, migrate into private storage the next time that playlist is downloaded. Deleted media is downloaded again. Cancellation keeps completed and partial files, and the link stays available after cancellation or partial failure. Fully successful downloads clear it.
 
 ## App updates
 

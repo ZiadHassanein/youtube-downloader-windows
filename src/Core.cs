@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -82,6 +83,7 @@ namespace YouTubeDownloader {
         public int AudioBitrate = 320;
         public PlaylistInfo Playlist;
         public bool PlaylistItem;
+        internal string ResumeDirectory { get; set; }
     }
     public sealed class VideoInfo {
         public string Title, Uploader;
@@ -177,6 +179,56 @@ namespace YouTubeDownloader {
         }
     }
 
+    internal sealed class PlaylistRecords {
+        internal readonly string FilePath;
+        internal Dictionary<string,string> Completed;
+        private PlaylistRecords(string path) { FilePath=path; }
+        private static JavaScriptSerializer Json() { return new JavaScriptSerializer { MaxJsonLength=32*1024*1024 }; }
+        internal static string DefaultDirectory { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"YouTubeDownloader","PlaylistState"); } }
+        internal static string RecordPath(string folder,string profile,string directory) {
+            string key=Path.GetFullPath(folder).TrimEnd('\\','/').ToUpperInvariant()+"\n"+profile;
+            using(var hash=SHA256.Create()) return Path.Combine(directory,BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(key))).Replace("-","").ToLowerInvariant()+".json");
+        }
+        internal static PlaylistRecords Open(string folder,string profile,string directory=null) {
+            directory=directory ?? DefaultDirectory; Directory.CreateDirectory(directory);
+            foreach(string legacy in Directory.GetFiles(folder,".yd-completed-*.json")) {
+                string previousProfile=Path.GetFileNameWithoutExtension(legacy).Substring(".yd-completed-".Length);
+                if(Regex.IsMatch(previousProfile,@"^mp(?:4-\d{1,5}|3-(?:192|320))$")) Import(folder,previousProfile,directory);
+            }
+            return Load(folder,profile,directory);
+        }
+        private static PlaylistRecords Load(string folder,string profile,string directory) {
+            var records=new PlaylistRecords(RecordPath(folder,profile,directory));
+            records.Completed=Read(records.FilePath) ?? new Dictionary<string,string>();
+            return records;
+        }
+        private static void Import(string folder,string profile,string directory) {
+            var records=Load(folder,profile,directory);
+            string legacy=Path.Combine(folder,".yd-completed-"+profile+".json");
+            if(File.Exists(legacy)) {
+                var previous=Read(legacy);
+                if(previous!=null) {
+                    foreach(var entry in previous) if(!records.Completed.ContainsKey(entry.Key)) records.Completed[entry.Key]=entry.Value;
+                    records.Save();
+                } else File.Copy(legacy,records.FilePath+".legacy",true);
+                // Remove the old visible record only after its data is safely stored privately.
+                File.Delete(legacy);
+            }
+        }
+        private static Dictionary<string,string> Read(string file) {
+            if(!File.Exists(file)) return null;
+            try { return Json().Deserialize<Dictionary<string,string>>(File.ReadAllText(file,Encoding.UTF8)); }
+            catch(ArgumentException) { return null; } catch(InvalidOperationException) { return null; }
+        }
+        internal void Save() {
+            string temporary=FilePath+"."+Guid.NewGuid().ToString("N")+".tmp";
+            try {
+                File.WriteAllText(temporary,Json().Serialize(Completed),Encoding.UTF8);
+                if(File.Exists(FilePath)) File.Replace(temporary,FilePath,null); else File.Move(temporary,FilePath);
+            } finally { if(File.Exists(temporary)) File.Delete(temporary); }
+        }
+    }
+
     // The flat playlist is fetched once. Each item has bounded retries and a single active process.
     // Completed paths are recorded per output profile and revalidated before skipping on a later run.
     public static class PlaylistQueue {
@@ -198,9 +250,7 @@ namespace YouTubeDownloader {
         public static DownloadResult Run(DownloadOptions options,Func<DownloadOptions,CancellationToken,DownloadResult> download,Action<int,int,string> itemStarted,CancellationToken token,Action<CancellationToken> pace=null) {
             string folder=OutputFolder(options); Directory.CreateDirectory(folder);
             string profile=options.Audio ? "mp3-"+options.AudioBitrate : "mp4-"+options.Height;
-            string record=Path.Combine(folder,".yd-completed-"+profile+".json");
-            var json=new JavaScriptSerializer { MaxJsonLength=32*1024*1024 }; var completed=new Dictionary<string,string>();
-            try { if(File.Exists(record)) completed=json.Deserialize<Dictionary<string,string>>(File.ReadAllText(record,Encoding.UTF8)) ?? completed; } catch(ArgumentException) { } catch(InvalidOperationException) { }
+            var records=PlaylistRecords.Open(folder,profile,options.ResumeDirectory); var completed=records.Completed;
             var result=new DownloadResult { Total=options.Playlist.Entries.Count }; int done=0,consecutiveFailures=0;
             foreach(var entry in options.Playlist.Entries) {
                 if(token.IsCancellationRequested) { result.Cancelled=true; break; }
@@ -221,8 +271,7 @@ namespace YouTubeDownloader {
                     if(!Inside(folder,file) || !File.Exists(file)) throw new InvalidOperationException("The downloader did not produce a completed file.");
                     completed[entry.Id]=file; result.Files.Add(file); result.FilePath=file; result.Completed++; consecutiveFailures=0;
                     try {
-                        string temporary=record+".tmp"; File.WriteAllText(temporary,json.Serialize(completed),Encoding.UTF8);
-                        if(File.Exists(record)) File.Replace(temporary,record,null); else File.Move(temporary,record);
+                        records.Save();
                     } catch(IOException) { result.StopReason="Completed file saved, but resume information could not be saved."; break; }
                     catch(UnauthorizedAccessException) { result.StopReason="Completed file saved, but resume information could not be saved."; break; }
                 } catch(OperationCanceledException) { result.Cancelled=true; break; }
