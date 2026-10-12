@@ -12,15 +12,16 @@ A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a 
 
 | Arabic · light | Arabic · dark |
 | --- | --- |
-| ![Arabic RTL in light theme](assets/screenshot-ar-light.png) | ![Arabic RTL in dark theme](assets/screenshot-ar-dark.png) |
+| ![Arabic in light theme](assets/screenshot-ar-light.png) | ![Arabic in dark theme](assets/screenshot-ar-dark.png) |
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.2-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.3-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe`, paste a video link, and wait for its available qualities to appear.
 5. Choose MP4 video or MP3 audio, select a save folder, and click **Download**.
+6. Use **Recent downloads** beside Download to reopen completed files.
 
 Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the required framework. The first-time setup script requires WinGet.
 
@@ -29,27 +30,31 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - Automatic video inspection and actual available-resolution choices.
 - A sensible default: the highest available resolution up to 1080p.
 - Support for normal video links, Shorts, and shared links.
-- MP4 output and MP3 audio encoding at 192 kbps.
+- MP4 output and MP3 audio encoding at 192 or 320 kbps, with 320 kbps as the default.
 - Progress, speed, cancellation, and resumable partial files.
 - Separate video filenames for different quality selections.
 - Existing completed files are preserved.
 - Dark by default, with a sun/moon icon toggle and your theme choice remembered.
 - English with an LTR layout or Arabic with an RTL layout, selectable from the header and remembered.
+- Language changes repaint immediately and keep every active control visible.
+- The English app name stays on the left in both languages, with a simpler link-to-download layout.
 - Immediate theme repaint with a brief 120 ms icon transition that respects Windows animation settings.
 - Equal-width MP4 / MP3 / quality controls filling the row, with rounded inputs and buttons.
 - Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
 - Clear feedback when the app is up to date or an update check fails.
-- Theme-matched scrolling and a dismissible up-to-date confirmation that clears automatically.
+- Theme-matched scrolling, anchored folder/update popovers, and automatic message dismissal after five seconds.
 - A larger transparent YD mark in the app header and taskbar.
 - Link cleared after a successful download; every launch starts with an empty link.
-- Recent-download history and saved preferences.
+- A larger centered Download action, matching Browse/Open folder controls, and recent-download history in a themed modal.
+- Saved preferences and history; idle status stays out of the way while progress and errors remain visible.
+- The window fits its content, and all popovers stay within the app's borders.
 - Checks GitHub for a new app version on launch; install it from inside the app.
 
 Playlist-only links and sign-in-only videos are not supported. A video link containing a playlist downloads only the linked video. The app does not read browser cookies or automatically update its dependencies.
 
 ## App updates
 
-The app checks this repository's latest stable release in the background when it opens. You can also choose **Check for updates**. When a newer version is available, choose **Install v…**. It downloads the Windows package, verifies its SHA-256 checksum and executable version, then restarts the app. Preferences and recent downloads are preserved. The app folder must be writable. This updates the downloader app only; yt-dlp, FFmpeg, and Deno are managed separately.
+The app checks this repository's latest stable release in the background when it opens. You can also choose **Check for updates**. Updates are installed only when you choose **Install v…**. It downloads the Windows package, verifies its SHA-256 checksum and executable version, then restarts the app. You can instead download and extract a release manually. Preferences and recent downloads are preserved. The app folder must be writable. This updates the downloader app only; yt-dlp, FFmpeg, and Deno are managed separately.
 
 ## Dependencies
 
@@ -81,4 +86,8 @@ Run the deterministic core checks:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test.ps1
 ```
 
-The logo was generated with ImageGen and selected for the app's identity.
+## Author
+
+Created by **Ziad Hassanein**.
+
+[GitHub](https://github.com/ZiadHassanein) · [LinkedIn](https://www.linkedin.com/in/ziad-hassanein/) · [Email](mailto:ziadmuhammed501@gmail.com)

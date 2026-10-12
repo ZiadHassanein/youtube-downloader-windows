@@ -30,6 +30,8 @@ public static class CoreTests {
             Check(args.Contains("--ignore-config") && args.Contains("--no-playlist") && args.Contains("--no-overwrites"),"Keep predictable single-video behavior");
             Check(args.Last()==expected && args[args.Count-2]=="--","Safe final URL argument");
             options.Audio=true; Check(Arguments.ForDownload(tools,options).Contains("--extract-audio"),"MP3 extraction");
+            Check(Arguments.ForDownload(tools,options).Contains("320K") && Arguments.ForDownload(tools,options).Contains("%(title).100B [%(id)s] - 320kbps.%(ext)s"),"320 kbps MP3 uses the chosen encoding and a distinct filename");
+            options.AudioBitrate=192; Check(Arguments.ForDownload(tools,options).Contains("192K"),"192 kbps MP3 remains available");
             Check(Arguments.Quote("a\"b")=="\"a\\\"b\"","Windows argument quoting");
             Console.WriteLine(checks+" core checks passed."); return 0;
         } catch(Exception ex) { Console.Error.WriteLine(ex.Message); return 1; }

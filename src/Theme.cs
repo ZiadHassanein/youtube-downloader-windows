@@ -28,11 +28,15 @@ namespace YouTubeDownloader {
     }
 
     internal sealed class ThemeScrollHost : Panel {
+        public bool IsArabic;
         private readonly Panel viewport=new Panel();
         private readonly ThemeScrollBar scrollbar=new ThemeScrollBar();
         private Control content;
         private bool arranging;
+        private bool updatingContent;
         private double wheelRemainder;
+        public event EventHandler ContentHeightChanged;
+        public int ContentHeight { get { return content==null ? 0 : content.Height; } }
         public ThemeScrollHost() {
             SetStyle(ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);
             Controls.Add(viewport); Controls.Add(scrollbar);
@@ -42,30 +46,38 @@ namespace YouTubeDownloader {
             content=value; content.Dock=DockStyle.None; content.Location=Point.Empty; viewport.Controls.Add(content);
             content.SizeChanged+=delegate { ArrangeContent(); }; AttachInput(content); ArrangeContent();
         }
+        public void BeginContentUpdate() { updatingContent=true; }
+        public void EndContentUpdate() { updatingContent=false; ArrangeContent(); }
         private void AttachInput(Control control) {
-            control.GotFocus+=delegate { ScrollTo(control); };
+            control.GotFocus+=delegate { QueueFocusScroll(control); };
             control.MouseWheel+=delegate(object sender,MouseEventArgs e) { ScrollWheel(e); };
             control.ControlAdded+=delegate(object sender,ControlEventArgs e) { AttachInput(e.Control); };
             foreach(Control child in control.Controls) AttachInput(child);
         }
+        private void QueueFocusScroll(Control control) {
+            if(!IsHandleCreated || IsDisposed || Disposing) return;
+            // Wait until native parent/child handles are ready before converting coordinates.
+            BeginInvoke(new Action(delegate { if(!IsDisposed && !Disposing && control.Focused) ScrollTo(control); }));
+        }
         private void ScrollTo(Control control) {
-            if(content==null || !control.Visible || !IsHandleCreated) return;
+            if(content==null || !control.Visible || !IsHandleCreated || !control.IsHandleCreated || !viewport.IsHandleCreated || !content.IsHandleCreated) return;
             Point point=viewport.PointToClient(control.PointToScreen(Point.Empty));
             if(point.Y<0) scrollbar.Value+=point.Y-8;
             else if(point.Y+control.Height>viewport.Height) scrollbar.Value+=point.Y+control.Height-viewport.Height+8;
         }
         protected override void OnLayout(LayoutEventArgs e) { base.OnLayout(e); ArrangeContent(); }
         private void ArrangeContent() {
-            if(arranging || content==null || ClientSize.Width<=Padding.Horizontal || ClientSize.Height<=Padding.Vertical) return;
+            if(arranging || updatingContent || content==null || ClientSize.Width<=Padding.Horizontal || ClientSize.Height<=Padding.Vertical) return;
             arranging=true;
             try {
                 viewport.Bounds=new Rectangle(Padding.Left,Padding.Top,ClientSize.Width-Padding.Horizontal,ClientSize.Height-Padding.Vertical);
                 int width=viewport.ClientSize.Width;
                 content.MinimumSize=new Size(width,0); content.MaximumSize=new Size(width,0); content.Width=width;
-                content.PerformLayout(); content.Height=content.GetPreferredSize(new Size(width,0)).Height;
+                int oldHeight=content.Height; content.PerformLayout(); content.Height=content.GetPreferredSize(new Size(width,0)).Height;
                 scrollbar.SetRange(content.Height,viewport.Height);
-                scrollbar.Bounds=new Rectangle(RightToLeft==RightToLeft.Yes ? 4 : Width-16,12,12,Math.Max(1,Height-24));
+                scrollbar.Bounds=new Rectangle(IsArabic ? 4 : Width-16,12,12,Math.Max(1,Height-24));
                 scrollbar.Visible=content.Height>viewport.Height; content.Location=new Point(0,-scrollbar.Value);
+                if(oldHeight!=content.Height && ContentHeightChanged!=null) ContentHeightChanged(this,EventArgs.Empty);
             } finally { arranging=false; }
         }
         protected override void OnMouseWheel(MouseEventArgs e) { ScrollWheel(e); base.OnMouseWheel(e); }
@@ -159,12 +171,13 @@ namespace YouTubeDownloader {
         protected override void WndProc(ref Message message) {
             base.WndProc(ref message);
             if(message.Msg==0x000F && IsHandleCreated && TextLength==0 && !String.IsNullOrEmpty(Placeholder)) using(var graphics=Graphics.FromHwnd(Handle))
-                TextRenderer.DrawText(graphics,Placeholder,Font,ClientRectangle,Colors.Muted,(PlaceholderRightToLeft ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix|TextFormatFlags.NoPadding);
+                TextRenderer.DrawText(graphics,Placeholder,Font,ClientRectangle,Colors.Muted,(PlaceholderRightToLeft ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix);
         }
     }
 
     internal sealed class ThemeButton : Button {
         public Palette Colors=Palette.For(false);
+        public bool IsArabic;
         public string TextKey;
         public bool Primary, Quiet;
         private bool hover, pressed;
@@ -183,6 +196,7 @@ namespace YouTubeDownloader {
                 if(!Primary && !Quiet) using(var pen=new Pen(p.Border)) e.Graphics.DrawPath(pen,path);
             }
             var flags=TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine;
+            if(IsArabic) flags|=TextFormatFlags.RightToLeft;
             if(!ShowKeyboardCues) flags|=TextFormatFlags.HidePrefix;
             TextRenderer.DrawText(e.Graphics,Text,Font,ClientRectangle,text,flags);
             if(Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(e.Graphics,new Rectangle(4,4,Width-9,Height-9),text,fill);
@@ -191,6 +205,7 @@ namespace YouTubeDownloader {
 
     internal sealed class FormatChoice : RadioButton {
         public Palette Colors=Palette.For(false);
+        public bool IsArabic;
         private bool hover;
         public FormatChoice() {
             Appearance=Appearance.Button; AutoSize=false; Height=44; Cursor=Cursors.Hand; FlatStyle=FlatStyle.Flat;
@@ -207,10 +222,10 @@ namespace YouTubeDownloader {
                 using(var brush=new SolidBrush(fill)) e.Graphics.FillPath(brush,path);
                 using(var pen=new Pen(Checked && Enabled ? p.Accent : p.Border,Checked ? 1.5f : 1f)) e.Graphics.DrawPath(pen,path);
             }
-            int diameter=Math.Max(12,(int)(Font.Height*0.72)); bool rtl=RightToLeft==RightToLeft.Yes; var circle=new Rectangle(rtl ? Width-14-diameter : 14,(Height-diameter)/2,diameter,diameter);
+            int diameter=Math.Max(12,(int)(Font.Height*0.72)); bool rtl=IsArabic; var circle=new Rectangle(rtl ? Width-14-diameter : 14,(Height-diameter)/2,diameter,diameter);
             using(var pen=new Pen(Enabled && Checked ? p.Accent : p.Muted,1.5f)) e.Graphics.DrawEllipse(pen,circle);
             if(Checked) { circle.Inflate(-4,-4); using(var brush=new SolidBrush(Enabled ? p.Accent : p.Muted)) e.Graphics.FillEllipse(brush,circle); }
-            var flags=(rtl ? TextFormatFlags.Right : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine;
+            var flags=(rtl ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine;
             if(!ShowKeyboardCues) flags|=TextFormatFlags.HidePrefix;
             TextRenderer.DrawText(e.Graphics,Text,Font,new Rectangle(rtl ? 8 : diameter+24,0,Width-diameter-32,Height),ink,flags);
             if(Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(e.Graphics,new Rectangle(4,4,Width-9,Height-9),ink,fill);
@@ -219,6 +234,7 @@ namespace YouTubeDownloader {
 
     internal sealed class ThemeProgress : Control {
         public Palette Colors=Palette.For(false);
+        public bool IsArabic;
         public int Minimum=0,Maximum=1000;
         private int value, phase;
         private ProgressBarStyle style;
@@ -233,9 +249,8 @@ namespace YouTubeDownloader {
         protected override void OnPaint(PaintEventArgs e) {
             e.Graphics.Clear(Colors.Field);
             using(var brush=new SolidBrush(Colors.Accent)) {
-                bool rtl=RightToLeft==RightToLeft.Yes;
-                if(style==ProgressBarStyle.Marquee) e.Graphics.FillRectangle(brush,rtl ? Width-phase : phase-Width/4,0,Width/4,Height);
-                else { int length=(int)(Width*Math.Max(0,Math.Min(1,(double)(value-Minimum)/Math.Max(1,Maximum-Minimum)))); e.Graphics.FillRectangle(brush,rtl ? Width-length : 0,0,length,Height); }
+                if(style==ProgressBarStyle.Marquee) e.Graphics.FillRectangle(brush,IsArabic ? Width-phase : phase-Width/4,0,Width/4,Height);
+                else { int length=(int)(Width*Math.Max(0,Math.Min(1,(double)(value-Minimum)/Math.Max(1,Maximum-Minimum)))); e.Graphics.FillRectangle(brush,IsArabic ? Width-length : 0,0,length,Height); }
             }
         }
         protected override void Dispose(bool disposing) { if(disposing) animation.Dispose(); base.Dispose(disposing); }
@@ -298,6 +313,7 @@ namespace YouTubeDownloader {
 
     internal sealed class ThemeCombo : ComboBox {
         public Palette Colors=Palette.For(false);
+        public bool IsArabic;
         protected override void WndProc(ref Message message) {
             base.WndProc(ref message);
             if(message.Msg==0x000F && IsHandleCreated) using(var target=Graphics.FromHwnd(Handle)) using(var frame=BufferedGraphicsManager.Current.Allocate(target,ClientRectangle)) {
@@ -309,13 +325,52 @@ namespace YouTubeDownloader {
                     using(var brush=new SolidBrush(Colors.Field)) graphics.FillPath(brush,path);
                     using(var pen=new Pen(Focused && Enabled ? Colors.Accent : Colors.Border,Focused && Enabled ? 1.5f : 1f)) graphics.DrawPath(pen,path);
                 }
-                string text=SelectedItem==null ? Text : SelectedItem.ToString(); bool rtl=RightToLeft==RightToLeft.Yes;
-                TextRenderer.DrawText(graphics,text,Font,new Rectangle(rtl ? width+8 : 12,0,Math.Max(0,Width-width-20),Height),Enabled ? Colors.Ink : Colors.Muted,(rtl ? TextFormatFlags.Right : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix);
+                string text=SelectedItem==null ? Text : SelectedItem.ToString(); bool rtl=IsArabic;
+                TextRenderer.DrawText(graphics,text,Font,new Rectangle(rtl ? width+8 : 12,0,Math.Max(0,Width-width-20),Height),Enabled ? Colors.Ink : Colors.Muted,(rtl ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix);
                 if(Focused && ShowFocusCues && Enabled) ControlPaint.DrawFocusRectangle(graphics,new Rectangle(rtl ? width+5 : 5,5,Width-width-10,Height-10),Colors.Ink,Colors.Field);
                 int x=rtl ? width/2+1 : Width-width/2-1,y=Height/2;
                 using(var pen=new Pen(Enabled ? Colors.Ink : Colors.Muted,1.5f)) { graphics.DrawLine(pen,x-3,y-2,x,y+1); graphics.DrawLine(pen,x,y+1,x+3,y-2); }
                 frame.Render(target);
             }
+        }
+    }
+
+    internal sealed class NoticePopover : Panel {
+        private readonly StatusIcon icon;
+        private readonly Label heading, message;
+        private readonly ThemeButton dismiss;
+        private Palette colors=Palette.For(true);
+        private bool arabic;
+        public NoticePopover(StatusIcon icon,Label heading,Label message,ThemeButton dismiss,Font font) {
+            this.icon=icon; this.heading=heading; this.message=message; this.dismiss=dismiss;
+            Font=font; Tag="surface"; Visible=false; SetStyle(ControlStyles.UserPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);
+            Controls.Add(icon); Controls.Add(heading); Controls.Add(message); Controls.Add(dismiss);
+        }
+        public void UpdateLook(Palette palette,bool isArabic) {
+            colors=palette; arabic=isArabic; BackColor=colors.Surface; ForeColor=colors.Ink;
+            icon.Colors=colors; icon.Language=arabic ? "ar" : "en"; icon.Tone=icon.Tone; heading.ForeColor=icon.Tone==StatusTone.Error ? colors.Error : colors.Ink; message.ForeColor=colors.Muted; dismiss.Colors=colors; dismiss.IsArabic=arabic;
+            heading.TextAlign=message.TextAlign=arabic ? ContentAlignment.TopRight : ContentAlignment.TopLeft;
+            int width=380, textWidth=width-80;
+            heading.MaximumSize=new Size(textWidth,0); message.MaximumSize=new Size(textWidth,0);
+            heading.Location=new Point(arabic ? width-64-heading.Width : 60,16); message.Location=new Point(arabic ? width-64-message.Width : 60,heading.Bottom+6);
+            icon.Location=new Point(arabic ? width-48 : 16,16);
+            dismiss.Location=new Point(arabic ? 16 : width-16-dismiss.Width,message.Bottom+10);
+            Size=new Size(width,dismiss.Bottom+12); Text=heading.Text; AccessibleName=heading.Text;
+            using(var path=Drawing.Rounded(ClientRectangle,Drawing.CornerRadius)) { var old=Region; Region=new Region(path); if(old!=null) old.Dispose(); }
+            Invalidate(true);
+        }
+        public void ShowNear(Form owner,Control anchor) {
+            if(owner.IsDisposed || !owner.Visible || !anchor.IsHandleCreated) return;
+            var point=owner.PointToClient(anchor.PointToScreen(new Point(arabic ? anchor.Width-Width : 0,anchor.Height+8)));
+            var area=owner.ClientRectangle;
+            point.X=Math.Max(area.Left+8,Math.Min(area.Right-Width-8,point.X));
+            if(point.Y+Height>area.Bottom-8) point.Y=owner.PointToClient(anchor.PointToScreen(Point.Empty)).Y-Height-8;
+            point.Y=Math.Max(area.Top+8,Math.Min(area.Bottom-Height-8,point.Y)); Location=point;
+            Show(); BringToFront(); Refresh();
+        }
+        protected override void OnPaint(PaintEventArgs e) {
+            base.OnPaint(e); e.Graphics.SmoothingMode=SmoothingMode.AntiAlias;
+            using(var path=Drawing.Rounded(Drawing.SurfaceBounds(this),Drawing.CornerRadius)) using(var pen=new Pen(colors.Border)) e.Graphics.DrawPath(pen,path);
         }
     }
 }

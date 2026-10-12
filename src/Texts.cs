@@ -5,8 +5,8 @@ using System.Globalization;
 namespace YouTubeDownloader {
     internal static class Texts {
         private static readonly Dictionary<string,string> Arabic=new Dictionary<string,string> {
-            {"YouTube Downloader","منزّل يوتيوب"}, {"YouTube &link","&رابط يوتيوب"}, {"YouTube link","رابط يوتيوب"},
-            {"YouTube Downloader logo","شعار منزّل يوتيوب"}, {"Open the save folder and try opening the file there.","افتح مجلد الحفظ وجرّب فتح الملف من هناك."},
+            {"YouTube Downloader","YouTube Downloader"}, {"Close","إغلاق"}, {"Could not open link","تعذّر فتح الرابط"}, {"Open the link in your browser and try again.","افتح الرابط في المتصفح وجرّب مرة أخرى."}, {"YouTube &link","&رابط يوتيوب"}, {"YouTube link","رابط يوتيوب"},
+            {"YouTube Downloader logo","شعار YouTube Downloader"}, {"Open the save folder and try opening the file there.","افتح مجلد الحفظ وجرّب فتح الملف من هناك."},
             {"Videos, Shorts, and shared links","الفيديوهات والمقاطع القصيرة والروابط المشتركة"},
             {"&Paste","&لصق"}, {"&Browse…","&تصفح…"}, {"&Download","&تنزيل"}, {"&Cancel","&إلغاء"},
             {"Open &folder","فتح ال&مجلد"}, {"Open &file","فتح ال&ملف"}, {"Save &as","احفظ بال&صيغة"}, {"Save &to","مجلد ال&حفظ"},

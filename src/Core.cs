@@ -64,6 +64,7 @@ namespace YouTubeDownloader {
         public string FormatSelector;
         public bool Audio;
         public int Height = 1080;
+        public int AudioBitrate = 320;
     }
     public sealed class VideoInfo {
         public string Title, Uploader;
@@ -145,10 +146,11 @@ namespace YouTubeDownloader {
             string folder = Path.GetFullPath(options.Folder);
             if (folder.StartsWith(@"\\")) throw new ArgumentException("Choose a folder on this computer.");
             if (options.Height<0 || options.Height>10000) throw new ArgumentException("Choose a supported video quality.");
+            if(options.Audio && options.AudioBitrate!=192 && options.AudioBitrate!=320) throw new ArgumentException("Choose a supported MP3 bitrate.");
             var args = Common(tools);
-            string filename="%(title).100B [%(id)s]"+(options.Audio ? "" : " - "+(options.Height>0 ? options.Height+"p" : "best"))+".%(ext)s";
+            string filename="%(title).100B [%(id)s]"+(options.Audio ? " - "+options.AudioBitrate+"kbps" : " - "+(options.Height>0 ? options.Height+"p" : "best"))+".%(ext)s";
             args.AddRange(new [] { "--no-simulate", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
-            if (options.Audio) args.AddRange(new [] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K" });
+            if (options.Audio) args.AddRange(new [] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", "mp3", "--audio-quality", options.AudioBitrate+"K" });
             else {
                 string limit = options.Height == 0 ? "" : "[height<=" + options.Height.ToString(CultureInfo.InvariantCulture) + "]";
                 string selector=String.IsNullOrEmpty(options.FormatSelector) ? "bv*" + limit + "+ba/b" + limit : options.FormatSelector;
