@@ -16,7 +16,7 @@ A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a 
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.10-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.11-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe`, paste a video link, and wait for its available qualities to appear.
@@ -45,7 +45,7 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - Refined quality dropdown with a larger chevron, themed rounded options, and a checkmark for the current selection.
 - Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
 - Clear feedback when the app is up to date or an update check fails.
-- A quiet update action with crisp refresh/download icons on the left and a simple version label on the right in both languages.
+- A quiet update action with crisp refresh/download icons: left in English, right in Arabic, with the version on the opposite side.
 - Author credit stays on the left and social links stay on the right in both languages.
 - Theme-matched scrolling, anchored folder/update popovers, and automatic message dismissal after five seconds.
 - A larger transparent YD mark in the app header and taskbar.

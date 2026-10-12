@@ -273,6 +273,14 @@ namespace YouTubeDownloader {
         private void ApplyDirection() {
             scroll.IsArabic=IsArabic;
             update.IsArabic=IsArabic;
+            int updateColumn=IsArabic ? 1 : 0,versionColumn=IsArabic ? 0 : 1;
+            updateRow.ColumnStyles[updateColumn].SizeType=SizeType.Absolute; updateRow.ColumnStyles[updateColumn].Width=update.Width;
+            updateRow.ColumnStyles[versionColumn].SizeType=SizeType.Percent; updateRow.ColumnStyles[versionColumn].Width=100;
+            updateRow.SetColumn(update,updateColumn); updateRow.SetColumn(toolsStatus,versionColumn);
+            update.Anchor=IsArabic ? AnchorStyles.Right : AnchorStyles.Left;
+            toolsStatus.TextAlign=IsArabic ? ContentAlignment.MiddleLeft : ContentAlignment.MiddleRight;
+            int versionGap=Math.Max(toolsStatus.Margin.Left,toolsStatus.Margin.Right);
+            toolsStatus.Margin=IsArabic ? new Padding(0,0,versionGap,0) : new Padding(versionGap,0,0,0);
             foreach(var saved in tableStates) {
                 for(int i=0;i<saved.Columns.Length;i++) {
                     var original=saved.Columns[IsArabic ? saved.Columns.Length-1-i : i];
