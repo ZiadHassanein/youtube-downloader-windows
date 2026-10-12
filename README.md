@@ -10,7 +10,7 @@ A desktop app for saving YouTube videos or whole playlists as MP4 or extracting 
 | --- | --- |
 | ![Downloader in English light theme](assets/screenshot-light.png) | ![Downloader in Arabic dark theme](assets/screenshot-ar-dark.png) |
 
-Version 1.0.13 keeps this interface and moves playlist resume records into private app data.
+Version 1.0.14 keeps this design and reserves the task panel's full height when buttons and progress rows change. Version 1.0.13 moved playlist resume records into private app data.
 
 | Light option list · v1.0.7 | Dark option list · v1.0.7 |
 | --- | --- |
@@ -18,7 +18,7 @@ Version 1.0.13 keeps this interface and moves playlist resume records into priva
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.13-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.14-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe` and paste a video or playlist link. For a video link that also contains a playlist, choose **This video** or **Whole playlist**.
@@ -61,6 +61,7 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - Show in folder after completion and for the selected recent download, with the file highlighted in File Explorer.
 - Saved preferences and history; idle status stays out of the way while progress and errors remain visible.
 - The window fits its content, and all popovers stay within the app's borders.
+- Dynamic task rows reserve their full height and bottom padding, keeping download and completion buttons above the update footer.
 - Checks GitHub for a new app version on launch; install it from inside the app.
 
 Sign-in-only videos and active live streams are not supported. A video link containing a playlist defaults to **This video**; **Whole playlist** is an explicit choice. Playlist-only links select the whole playlist. The app does not read browser cookies or automatically update its dependencies.

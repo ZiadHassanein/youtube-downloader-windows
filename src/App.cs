@@ -59,6 +59,7 @@ namespace YouTubeDownloader {
         private TableLayoutPanel statusRow, followUpRow;
         private readonly ThemeProgress progress=new ThemeProgress();
         private TableLayoutPanel content=new TableLayoutPanel();
+        private TableLayoutPanel workspace, taskContent;
         private ThemeScrollHost scroll;
         private TableLayoutPanel branding, updateRow, authorRow;
         private AppRelease availableUpdate;
@@ -156,9 +157,10 @@ namespace YouTubeDownloader {
             theme.CheckedChanged+=delegate { state.ThemeSelected=true; themeTip.SetToolTip(theme,theme.AccessibleName); ApplyTheme(); SaveState(); };
             branding.Controls.Add(logoView,0,0); branding.Controls.Add(wordmark,1,0); branding.Controls.Add(language,2,0); branding.Controls.Add(theme,3,0); Add(branding,32);
             var page=content;
-            var workspace=new TableLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Dock=DockStyle.Fill,Padding=new Padding(32),Margin=new Padding(0,0,0,16),Tag="surface",ColumnCount=1,RowCount=1 };
+            workspace=new TableLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Dock=DockStyle.Fill,Padding=new Padding(32),Margin=new Padding(0,0,0,16),Tag="surface",ColumnCount=1,RowCount=1 };
             workspace.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             content=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Fill,ColumnCount=1,RowCount=0,Margin=new Padding(0) }; content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.Controls.Add(content,0,0);
+            taskContent=content;
             page.RowStyles.Add(new RowStyle(SizeType.AutoSize)); page.Controls.Add(workspace,0,page.RowCount++);
             Add(LabelFor("YouTube &link"),8);
             url.Font=new Font("Segoe UI",13f); url.AutoSize=false; url.AccessibleName=T("YouTube link"); url.TabIndex=0; url.RightToLeft=RightToLeft.No;
@@ -259,6 +261,8 @@ namespace YouTubeDownloader {
             };
             video.SizeChanged+=queueQualityAlignment; quality.HandleCreated+=queueQualityAlignment;
             foreach(var box in new[]{url,folder}) box.BorderStyle=BorderStyle.None;
+            foreach(var dynamicRow in new Control[]{playlistRow,followUpRow,statusRow,progress}) dynamicRow.VisibleChanged+=delegate { QueueFitHeight(); };
+            playlistSummary.TextChanged+=delegate { QueueFitHeight(); }; progressDetail.TextChanged+=delegate { QueueFitHeight(); };
             Resize+=delegate { int available=Math.Max(240,scroll.ClientSize.Width-scroll.Padding.Horizontal-workspace.Padding.Horizontal); progressDetail.MaximumSize=new Size(Math.Max(240,available-44),0); playlistSummary.MaximumSize=new Size(available,0); QueueFitHeight(); };
         }
         private void QueueFitHeight() {
@@ -266,10 +270,18 @@ namespace YouTubeDownloader {
             fitQueued=true; BeginInvoke(new Action(delegate { fitQueued=false; if(!IsDisposed && !Disposing) FitContentHeight(); }));
         }
         private void FitContentHeight() {
-            if(fittingHeight || !IsHandleCreated || WindowState!=FormWindowState.Normal) return;
+            if(fittingHeight || !IsHandleCreated) return;
             fittingHeight=true;
             try {
-                scroll.PerformLayout(); int chrome=Height-ClientSize.Height;
+                // Reserve the entire task height and both insets before sizing the outer rows.
+                // This also settles visibility changes when the form itself cannot grow further.
+                taskContent.PerformLayout();
+                int width=Math.Max(1,workspace.ClientSize.Width-workspace.Padding.Horizontal);
+                int required=taskContent.GetPreferredSize(new Size(width,0)).Height+workspace.Padding.Vertical;
+                if(workspace.MinimumSize.Height!=required) workspace.MinimumSize=new Size(0,required);
+                workspace.PerformLayout(); content.PerformLayout(); scroll.PerformLayout();
+                if(WindowState!=FormWindowState.Normal) return;
+                int chrome=Height-ClientSize.Height;
                 int maximum=Math.Max(360,Screen.FromControl(this).WorkingArea.Height-chrome-32);
                 int desired=Math.Max(360,Math.Min(maximum,scroll.ContentHeight+scroll.Padding.Vertical));
                 if(ClientSize.Height!=desired) ClientSize=new Size(ClientSize.Width,desired);

@@ -132,6 +132,44 @@ internal static class InterfaceChecks {
             if(failure!=null) throw failure;
         }
     }
+    private static void CheckTaskTransitions(string language,bool dark,int width) {
+        using(var window=new MainWindow(false)) {
+            window.ShowInTaskbar=false; window.StartPosition=FormStartPosition.Manual; window.Location=Screen.PrimaryScreen.WorkingArea.Location; window.Width=width;
+            Call(window,"SetLanguage",language); Field<CheckBox>(window,"theme").Checked=dark;
+            int step=0; Exception failure=null;
+            using(var timer=new Timer { Interval=180 }) {
+                window.Shown+=delegate { timer.Start(); };
+                timer.Tick+=delegate {
+                    try {
+                        var root=Field<TableLayoutPanel>(window,"content"); Panel workspace=null;
+                        foreach(Control control in root.Controls) if(control is Panel && String.Equals(control.Tag,"surface")) workspace=(Panel)control;
+                        foreach(string name in new[]{"download","recentButton","cancel","openFile","showInFolder","stage","progressDetail","progress"}) {
+                            var control=Field<Control>(window,name); if(!control.Visible) continue;
+                            var bounds=workspace.RectangleToClient(control.Parent.RectangleToScreen(control.Bounds));
+                            if(!workspace.DisplayRectangle.Contains(bounds)) throw new Exception("Task transition "+step+" clips "+name+" or its workspace padding: "+bounds+" in "+workspace.DisplayRectangle);
+                        }
+                        var update=Field<TableLayoutPanel>(window,"updateRow");
+                        if(workspace.Bottom+workspace.Margin.Bottom>update.Top) throw new Exception("Task transition overlaps the update footer");
+                        if(step==0) { Call(window,"SetBusy",true); Call(window,"ApplyProgress",new DownloadProgress { Stage="Checking video",Detail="Getting the title and available formats…",Indeterminate=true }); }
+                        else if(step==1) { Call(window,"SetStatus","Ready for a video link","Paste a link to get started.",false); Call(window,"SetBusy",false); }
+                        else if(step==2) {
+                            Call(window,"SetBusy",true); Field<TextBox>(window,"url").Text="https://www.youtube.com/playlist?list=PLFixture"; Call(window,"PrepareScope");
+                            typeof(MainWindow).GetField("checkedPlaylist",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,new PlaylistInfo { Id="PLFixture",Url=Field<TextBox>(window,"url").Text,Title="Long playlist title for state transitions",Entries=new List<PlaylistEntry>{new PlaylistEntry { Id="jNQXAC9IVRw" }} });
+                            Call(window,"UpdatePlaylistSummary"); Call(window,"UpdateQualityChoices"); Call(window,"ApplyProgress",new DownloadProgress { Stage="Checking playlist",Detail="Getting the playlist titles…",Indeterminate=true });
+                        } else if(step==3) { Call(window,"SetStatus","Ready for a video link","Paste a link to get started.",false); Call(window,"SetBusy",false); }
+                        else if(step==4) { Call(window,"SetBusy",true); Call(window,"ApplyProgress",new DownloadProgress { Stage="Downloading",Detail="512 KB of 1.0 MB",Item=1,Total=38,ItemTitle="A longer video title to exercise the task feedback area",Percent=1 }); }
+                        else if(step==5) { Call(window,"SetStatus","Download cancelled","Partial files are kept so the same download can resume later.",false); Call(window,"SetBusy",false); }
+                        else if(step==6) { Call(window,"CompleteDownload",Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"completed-layout-fixture.mp4")); Call(window,"SetBusy",false); }
+                        else if(step==7) { Call(window,"SetBusy",true); Field<Button>(window,"openFile").Enabled=Field<Button>(window,"showInFolder").Enabled=false; Field<Button>(window,"openFile").Visible=Field<Button>(window,"showInFolder").Visible=false; Call(window,"ApplyProgress",new DownloadProgress { Stage="Connecting",Detail="Preparing your download…",Indeterminate=true }); }
+                        else { Assert(true,"Task controls and bottom padding stay contained through checking, ready, playlist, downloading, cancellation, completion, and retry: "+language+"/"+(dark ? "dark" : "light")+" width "+width); timer.Stop(); Call(window,"SetBusy",false); window.Close(); }
+                        step++;
+                    } catch(Exception ex) { failure=ex; timer.Stop(); Call(window,"SetBusy",false); window.Close(); }
+                };
+                Application.Run(window);
+            }
+            if(failure!=null) throw failure;
+        }
+    }
     [STAThread] public static void Main() {
         Application.EnableVisualStyles();
         string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"settings.json");
@@ -160,6 +198,7 @@ internal static class InterfaceChecks {
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"Language\":\"ar\",\"Recent\":[]}");
             CheckLanguageRepaint("ar");
             CheckPlaylistLayout();
+            foreach(string language in new[]{"en","ar"}) foreach(bool dark in new[]{false,true}) foreach(int width in new[]{996,820}) CheckTaskTransitions(language,dark,width);
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"LastUrl\":\"https://youtu.be/jNQXAC9IVRw\",\"Format\":0,\"Recent\":[]}");
             using(var window=new MainWindow()) {
                 var url=Field<TextBox>(window,"url"); var theme=Field<CheckBox>(window,"theme");
