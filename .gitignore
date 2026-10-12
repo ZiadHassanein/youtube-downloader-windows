@@ -1,0 +1,12 @@
+/dist/
+/build/
+/tools/
+settings.json
+*.exe
+*.pdb
+*.zip
+*.mp4
+*.mp3
+*.part
+*.ytdl
+*.log
