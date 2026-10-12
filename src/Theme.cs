@@ -294,18 +294,22 @@ namespace YouTubeDownloader {
                 using(var brush=new SolidBrush(fill)) e.Graphics.FillPath(brush,path);
                 using(var pen=new Pen(p.Border)) e.Graphics.DrawPath(pen,path);
             }
-            float x=Width/2f,y=Height/2f;
+            var glyphState=e.Graphics.Save();
+            float glyphScale=Math.Min(ClientSize.Width,ClientSize.Height)/44f;
+            e.Graphics.PixelOffsetMode=PixelOffsetMode.HighQuality;
+            e.Graphics.TranslateTransform(Width/2f,Height/2f); e.Graphics.ScaleTransform(glyphScale,glyphScale);
             if(visualDark>0f) using(var pen=new Pen(Color.FromArgb((int)(255*visualDark),p.Ink),1.8f)) {
-                e.Graphics.DrawEllipse(pen,x-5,y-5,10,10);
-                for(int ray=0;ray<8;ray++) { double a=ray*Math.PI/4; e.Graphics.DrawLine(pen,x+(float)Math.Cos(a)*9,y+(float)Math.Sin(a)*9,x+(float)Math.Cos(a)*13,y+(float)Math.Sin(a)*13); }
+                pen.StartCap=pen.EndCap=LineCap.Round;
+                e.Graphics.DrawEllipse(pen,-5,-5,10,10);
+                for(int ray=0;ray<8;ray++) { double a=ray*Math.PI/4; e.Graphics.DrawLine(pen,(float)Math.Cos(a)*9,(float)Math.Sin(a)*9,(float)Math.Cos(a)*13,(float)Math.Sin(a)*13); }
             }
             if(visualDark<1f) using(var crescent=new GraphicsPath()) {
-                crescent.AddEllipse(x-10,y-10,20,20);
-                using(var region=new Region(crescent)) using(var cut=new GraphicsPath()) {
-                    cut.AddEllipse(x-3,y-13,19,19); region.Exclude(cut);
-                    using(var brush=new SolidBrush(Color.FromArgb((int)(255*(1f-visualDark)),p.Ink))) e.Graphics.FillRegion(brush,region);
-                }
+                // A closed curve keeps both crescent edges antialiased; regions have hard pixel boundaries.
+                crescent.AddArc(-10,-10,20,20,35.90403f,231.59042f);
+                crescent.AddArc(-3,-13,19,19,223.09454f,-142.79059f); crescent.CloseFigure();
+                using(var brush=new SolidBrush(Color.FromArgb((int)(255*(1f-visualDark)),p.Ink))) e.Graphics.FillPath(brush,crescent);
             }
+            e.Graphics.Restore(glyphState);
             if(Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(e.Graphics,new Rectangle(4,4,Width-9,Height-9),p.Ink,fill);
         }
         protected override void Dispose(bool disposing) { if(disposing) transition.Dispose(); base.Dispose(disposing); }
