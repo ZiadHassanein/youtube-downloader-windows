@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Threading;
 using System.Web.Script.Serialization;
 using YouTubeDownloader;
 
@@ -11,7 +13,7 @@ public static class CoreTests {
         try {
             const string expected="https://www.youtube.com/watch?v=jNQXAC9IVRw";
             foreach(string url in new[]{expected,expected+"&list=example","https://youtu.be/jNQXAC9IVRw?t=3","https://youtube.com/shorts/jNQXAC9IVRw"}) Check(VideoLink.Normalize(url)==expected,"Normalize video URL");
-            foreach(string url in new[]{"", "https://example.com/watch?v=jNQXAC9IVRw", "https://youtube.com.evil.invalid/watch?v=jNQXAC9IVRw", "file:///C:/Windows/system32/cmd.exe", "https://youtube.com/playlist?list=example", "https://youtu.be/jNQXAC9IVRw\n--exec"}) {
+            foreach(string url in new[]{"", "https://example.com/watch?v=jNQXAC9IVRw", "https://youtube.com.evil.invalid/watch?v=jNQXAC9IVRw", "file:///C:/Windows/system32/cmd.exe", "https://youtube.com/playlist?list=bad%26--exec", "https://youtu.be/jNQXAC9IVRw\n--exec"}) {
                 try { VideoLink.Normalize(url); throw new Exception("Invalid link was accepted"); } catch(ArgumentException) { checks++; }
             }
             var serializer=new JavaScriptSerializer();
@@ -33,7 +35,64 @@ public static class CoreTests {
             Check(Arguments.ForDownload(tools,options).Contains("320K") && Arguments.ForDownload(tools,options).Contains("%(title).100B [%(id)s] - 320kbps.%(ext)s"),"320 kbps MP3 uses the chosen encoding and a distinct filename");
             options.AudioBitrate=192; Check(Arguments.ForDownload(tools,options).Contains("192K"),"192 kbps MP3 remains available");
             Check(Arguments.Quote("a\"b")=="\"a\\\"b\"","Windows argument quoting");
+            Check(VideoLink.Normalize(expected+"&list=PLExample",true)=="https://www.youtube.com/playlist?list=PLExample","A mixed link has an explicit whole-playlist target");
+            Check(VideoLink.Parse("https://youtu.be/jNQXAC9IVRw?list=PLExample").VideoUrl==expected,"Shared playlist links retain the single-video choice");
+            Check(VideoLink.Parse("https://www.youtube.com/playlist?list=PLExample").VideoUrl==null,"Playlist-only links cannot pretend to be a single video");
+            PlaylistChecks(serializer,tools);
             Console.WriteLine(checks+" core checks passed."); return 0;
         } catch(Exception ex) { Console.Error.WriteLine(ex.Message); return 1; }
+    }
+    private static void PlaylistChecks(JavaScriptSerializer json,ToolSet tools) {
+        string root=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-fixture-"+Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try {
+            const string url="https://www.youtube.com/playlist?list=PLFixture";
+            var info=PlaylistInfo.Read(url,json.Deserialize<Dictionary<string,object>>("{\"title\":\"Test\",\"entries\":[{\"id\":\"jNQXAC9IVRw\"},null,{\"id\":\"aqz-KE-bpKQ\"}]}"));
+            Check(info.Entries.Count==3 && info.Entries[1].Url==null,"Flat metadata retains unavailable entries for an honest count");
+            var options=new DownloadOptions { Url=url,Folder=root,Playlist=info,Height=720,FormatSelector="wrong-format-from-other-video" };
+            var args=Arguments.ForDownload(tools,options);
+            Check(args.Contains("--yes-playlist") && !args.Contains("--no-playlist") && !args.Contains(options.FormatSelector),"Playlist arguments use the playlist target and per-video quality selection");
+            Check(args.Contains("--sleep-requests") && args.Contains("--continue") && args.Contains("--match-filters"),"Playlist items use request pacing, partial-file resume, and live-stream filtering");
+            Check(args[args.IndexOf("--format")+1].Contains("width<=720") && args[args.IndexOf("--format")+1].Contains("height<=720"),"Maximum quality handles portrait and landscape media");
+            int downloads=0;
+            Func<DownloadOptions,CancellationToken,DownloadResult> save=delegate(DownloadOptions item,CancellationToken token) { downloads++; string file=Path.Combine(item.Folder,VideoLink.Parse(item.Url).VideoUrl.Substring(item.Url.Length-11)+".mp4"); File.WriteAllText(file,"fixture"); return new DownloadResult { FilePath=file }; };
+            Action<CancellationToken> noDelay=delegate(CancellationToken token) { token.ThrowIfCancellationRequested(); };
+            var first=PlaylistQueue.Run(options,save,null,CancellationToken.None,noDelay);
+            Check(first.Completed==2 && first.Failed==1 && first.Remaining==0 && first.Files.Count==2 && downloads==2,"Queue continues past unavailable entries and counts completed files");
+            var second=PlaylistQueue.Run(options,save,null,CancellationToken.None,noDelay);
+            Check(second.Skipped==2 && downloads==2,"Repeat runs skip completed files before contacting YouTube");
+            File.Delete(first.Files[0]); var third=PlaylistQueue.Run(options,save,null,CancellationToken.None,noDelay);
+            Check(third.Skipped==1 && downloads==3,"Deleted completed files are downloaded again");
+            options.Audio=true; options.AudioBitrate=320;
+            var fourth=PlaylistQueue.Run(options,save,null,CancellationToken.None,noDelay);
+            Check(fourth.Skipped==0 && downloads==5,"Different formats have separate resume records");
+            options.Audio=false; options.Height=360;
+            using(var cancel=new CancellationTokenSource()) {
+                var stopped=PlaylistQueue.Run(options,delegate(DownloadOptions item,CancellationToken token) { var saved=save(item,token); cancel.Cancel(); return saved; },null,cancel.Token,noDelay);
+                Check(stopped.Cancelled && stopped.Completed==1 && stopped.Remaining==2,"Cancellation retains completed files and the unprocessed count");
+            }
+            options.Height=480;
+            var limited=PlaylistQueue.Run(options,delegate(DownloadOptions item,CancellationToken token) { throw new InvalidOperationException("HTTP 429 Too Many Requests"); },null,CancellationToken.None,noDelay);
+            Check(limited.Failed==1 && limited.Remaining==2 && limited.StopReason!=null,"Rate-limit errors stop further requests instead of hammering the playlist");
+            string outside=Path.Combine(root,"outside.mp4"); File.WriteAllText(outside,"fixture"); options.Height=1440;
+            var escaped=PlaylistQueue.Run(options,delegate(DownloadOptions item,CancellationToken token) { return new DownloadResult { FilePath=outside }; },null,CancellationToken.None,noDelay);
+            Check(escaped.Completed==0 && escaped.Files.Count==0,"Paths outside the playlist output folder are not accepted or recorded");
+            options.Playlist=new PlaylistInfo { Id=info.Id,Url=info.Url,Entries=new System.Collections.Generic.List<PlaylistEntry> { new PlaylistEntry { Id="jNQXAC9IVRw" },new PlaylistEntry { Id="aqz-KE-bpKQ" },new PlaylistEntry { Id="pc5IlcEn8vw" } } };
+            int profile=3000;
+            foreach(string error in new[]{"[WinError 112] The disk operation failed", "There is not enough space on the disk"}) {
+                options.Height=profile++; int calls=0;
+                var full=PlaylistQueue.Run(options,delegate(DownloadOptions item,CancellationToken token) { calls++; if(calls==2) throw new IOException(error); return save(item,token); },null,CancellationToken.None,noDelay);
+                Check(calls==2 && full.Completed==1 && full.Failed==1 && full.Remaining==1 && full.Files.Count==1 && File.Exists(full.Files[0]) && full.StopReason==error,"Windows disk-full wording stops subsequent requests and preserves the completed file: "+error);
+            }
+            string fixture=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"FakeDownloader.exe");
+            using(var engine=new DownloadEngine(new ToolSet { YtDlp=fixture,FFmpeg=fixture,Deno=fixture })) {
+                var read=engine.InspectPlaylist(url); options.Playlist=read; options.Height=2160;
+                int highest=0; bool countSeen=false; engine.Progress+=delegate(DownloadProgress p) { highest=Math.Max(highest,p.Item); if(p.Total==3 && p.Item==3 && p.Percent>66) countSeen=true; };
+                var process=engine.Download(options);
+                Check(read.Entries.Count==3 && process.Completed==2 && process.Failed==1 && highest==3 && countSeen,"Actual child-process output drives playlist progress and partial success");
+                read.Entries=new System.Collections.Generic.List<PlaylistEntry> { new PlaylistEntry { Id="slowVideo01",Title="Slow fixture" } }; options.Height=2000;
+                using(var cancel=new CancellationTokenSource()) { cancel.CancelAfter(200); var result=engine.Download(options,cancel.Token); Check(result.Cancelled && result.Remaining==1 && !engine.IsBusy,"Cancellation stops the active child process and retains resumable queue state"); }
+            }
+        } finally { if(Path.GetFullPath(root).StartsWith(AppDomain.CurrentDomain.BaseDirectory,StringComparison.OrdinalIgnoreCase)) Directory.Delete(root,true); }
     }
 }

@@ -32,8 +32,11 @@ namespace YouTubeDownloader {
         }
     }
 
+    public sealed class YouTubeLink {
+        public string VideoUrl, PlaylistUrl, PlaylistId;
+    }
     public static class VideoLink {
-        public static string Normalize(string text) {
+        public static YouTubeLink Parse(string text) {
             text = (text ?? "").Trim();
             if (text.Length == 0) throw new ArgumentException("Paste a YouTube video link first.");
             if (text.Length > 4096 || text.Any(Char.IsControl)) throw new ArgumentException("Paste one complete YouTube video link.");
@@ -41,7 +44,11 @@ namespace YouTubeDownloader {
             Uri uri;
             if (!Uri.TryCreate(text, UriKind.Absolute, out uri) || (uri.Scheme != "https" && uri.Scheme != "http") || !String.IsNullOrEmpty(uri.UserInfo) || !uri.IsDefaultPort)
                 throw new ArgumentException("Enter a valid YouTube video link.");
-            string host = uri.IdnHost.ToLowerInvariant(), id = null;
+            string host = uri.IdnHost.ToLowerInvariant(), id = null, list = null;
+            foreach(string pair in uri.Query.TrimStart('?').Split('&')) {
+                string[] entry=pair.Split(new[]{'='},2);
+                if(entry.Length==2 && entry[0]=="list") list=Uri.UnescapeDataString(entry[1]);
+            }
             string[] parts = uri.AbsolutePath.Trim('/').Split('/');
             if (host == "youtu.be" || host == "www.youtu.be") {
                 if (parts.Length == 1) id = parts[0];
@@ -53,9 +60,17 @@ namespace YouTubeDownloader {
                     }
                 } else if (parts.Length == 2 && (parts[0] == "shorts" || parts[0] == "live" || parts[0] == "embed")) id = parts[1];
             } else throw new ArgumentException("Use a youtube.com or youtu.be video link.");
-            if (id == null || !Regex.IsMatch(id, "^[A-Za-z0-9_-]{11}$"))
-                throw new ArgumentException("Use a link to one video or Short. Playlist-only links are not supported.");
-            return "https://www.youtube.com/watch?v=" + id;
+            bool validVideo=id!=null && Regex.IsMatch(id,"^[A-Za-z0-9_-]{11}$");
+            bool validList=list!=null && Regex.IsMatch(list,"^[A-Za-z0-9_-]{2,150}$");
+            bool playlistPath=parts.Length==1 && parts[0]=="playlist";
+            if(!validVideo && !(validList && playlistPath)) throw new ArgumentException("Use a link to a YouTube video, Short, or playlist.");
+            return new YouTubeLink { VideoUrl=validVideo ? "https://www.youtube.com/watch?v="+id : null,PlaylistId=validList ? list : null,PlaylistUrl=validList ? "https://www.youtube.com/playlist?list="+list : null };
+        }
+        public static string Normalize(string text) { var link=Parse(text); return link.VideoUrl ?? link.PlaylistUrl; }
+        public static string Normalize(string text,bool playlist) {
+            var link=Parse(text); string result=playlist ? link.PlaylistUrl : link.VideoUrl;
+            if(result==null) throw new ArgumentException(playlist ? "This link does not contain a playlist." : "Choose Whole playlist for a playlist-only link.");
+            return result;
         }
     }
 
@@ -65,6 +80,8 @@ namespace YouTubeDownloader {
         public bool Audio;
         public int Height = 1080;
         public int AudioBitrate = 320;
+        public PlaylistInfo Playlist;
+        public bool PlaylistItem;
     }
     public sealed class VideoInfo {
         public string Title, Uploader;
@@ -119,11 +136,110 @@ namespace YouTubeDownloader {
     public sealed class DownloadResult {
         public string FilePath;
         public bool Cancelled;
+        public List<string> Files=new List<string>();
+        public int Total, Completed, Failed, Skipped, Remaining;
+        public string StopReason;
     }
     public sealed class DownloadProgress {
         public string Stage, Detail;
         public double Percent;
         public bool Indeterminate;
+        public int Item, Total;
+        public string ItemTitle;
+    }
+
+    public sealed class PlaylistEntry {
+        public string Id, Title;
+        public string Url { get { return Id==null ? null : "https://www.youtube.com/watch?v="+Id; } }
+    }
+    public sealed class PlaylistInfo {
+        public string Id, Url, Title;
+        public List<PlaylistEntry> Entries=new List<PlaylistEntry>();
+        public static PlaylistInfo Read(string url,Dictionary<string,object> data) {
+            var link=VideoLink.Parse(url); object entries,title;
+            if(link.PlaylistUrl==null || !data.TryGetValue("entries",out entries) || !(entries is IEnumerable)) throw new InvalidOperationException("The playlist could not be read. Check the link and try again.");
+            var info=new PlaylistInfo { Id=link.PlaylistId,Url=link.PlaylistUrl,Title=data.TryGetValue("title",out title) && title!=null ? Convert.ToString(title) : "Playlist" };
+            foreach(object value in (IEnumerable)entries) {
+                var entry=value as Dictionary<string,object>; object id,name;
+                string videoId=entry!=null && entry.TryGetValue("id",out id) && id!=null ? Convert.ToString(id) : null;
+                if(videoId!=null && !Regex.IsMatch(videoId,"^[A-Za-z0-9_-]{11}$")) videoId=null;
+                info.Entries.Add(new PlaylistEntry { Id=videoId,Title=entry!=null && entry.TryGetValue("title",out name) && name!=null ? Convert.ToString(name) : "Unavailable video" });
+            }
+            if(info.Entries.Count==0) throw new InvalidOperationException("This playlist is empty or unavailable. Try a public playlist.");
+            return info;
+        }
+    }
+
+    public static class DownloadErrors {
+        public static bool IsDiskFull(string message) {
+            string error=(message??"").ToLowerInvariant();
+            return error.Contains("no space") || error.Contains("disk full") || error.Contains("not enough space") || error.Contains("enospc") || Regex.IsMatch(error,@"\b(?:winerror\s*112|errno\s*28)\b");
+        }
+    }
+
+    // The flat playlist is fetched once. Each item has bounded retries and a single active process.
+    // Completed paths are recorded per output profile and revalidated before skipping on a later run.
+    public static class PlaylistQueue {
+        public static string OutputFolder(DownloadOptions options) {
+            var link=VideoLink.Parse(options.Url);
+            if(options.Playlist==null || link.PlaylistId!=options.Playlist.Id || options.Playlist.Url!=link.PlaylistUrl) throw new ArgumentException("Check the playlist link again before downloading.");
+            if(String.IsNullOrWhiteSpace(options.Folder)) throw new ArgumentException("Choose a folder for your download.");
+            string root=Path.GetFullPath(options.Folder);
+            if(root.StartsWith(@"\\")) throw new ArgumentException("Choose a folder on this computer.");
+            return Path.Combine(root,"Playlist ["+link.PlaylistId+"]");
+        }
+        public static bool ShouldStop(string error) {
+            error=(error??"").ToLowerInvariant();
+            return DownloadErrors.IsDiskFull(error) || new[]{"429","too many requests","403","confirm you're not a bot","confirm you’re not a bot","access is denied","permission denied","timed out","connection","resolve","network","missing tools"}.Any(error.Contains);
+        }
+        private static bool Unavailable(string error) {
+            error=(error??"").ToLowerInvariant(); return new[]{"unavailable","private video","removed","age-restricted","not available in your country","requested format"}.Any(error.Contains);
+        }
+        public static DownloadResult Run(DownloadOptions options,Func<DownloadOptions,CancellationToken,DownloadResult> download,Action<int,int,string> itemStarted,CancellationToken token,Action<CancellationToken> pace=null) {
+            string folder=OutputFolder(options); Directory.CreateDirectory(folder);
+            string profile=options.Audio ? "mp3-"+options.AudioBitrate : "mp4-"+options.Height;
+            string record=Path.Combine(folder,".yd-completed-"+profile+".json");
+            var json=new JavaScriptSerializer { MaxJsonLength=32*1024*1024 }; var completed=new Dictionary<string,string>();
+            try { if(File.Exists(record)) completed=json.Deserialize<Dictionary<string,string>>(File.ReadAllText(record,Encoding.UTF8)) ?? completed; } catch(ArgumentException) { } catch(InvalidOperationException) { }
+            var result=new DownloadResult { Total=options.Playlist.Entries.Count }; int done=0,consecutiveFailures=0;
+            foreach(var entry in options.Playlist.Entries) {
+                if(token.IsCancellationRequested) { result.Cancelled=true; break; }
+                if(itemStarted!=null) itemStarted(done+1,result.Total,entry.Title);
+                string file;
+                if(entry.Id!=null && completed.TryGetValue(entry.Id,out file) && Inside(folder,file) && File.Exists(file)) {
+                    result.Skipped++; result.Completed++; result.Files.Add(file); result.FilePath=file; done++; continue;
+                }
+                try {
+                    if(entry.Url==null) throw new InvalidOperationException("This video is unavailable.");
+                    // Waits are cancellable, including the gaps between processes.
+                    if(done>0) { if(pace!=null) pace(token); else if(token.WaitHandle.WaitOne(2000)) token.ThrowIfCancellationRequested(); }
+                    token.ThrowIfCancellationRequested();
+                    var item=new DownloadOptions { Url=entry.Url,Folder=folder,Audio=options.Audio,AudioBitrate=options.AudioBitrate,Height=options.Height,PlaylistItem=true };
+                    var saved=download(item,token);
+                    if(saved.Cancelled) { result.Cancelled=true; break; }
+                    file=saved.FilePath;
+                    if(!Inside(folder,file) || !File.Exists(file)) throw new InvalidOperationException("The downloader did not produce a completed file.");
+                    completed[entry.Id]=file; result.Files.Add(file); result.FilePath=file; result.Completed++; consecutiveFailures=0;
+                    try {
+                        string temporary=record+".tmp"; File.WriteAllText(temporary,json.Serialize(completed),Encoding.UTF8);
+                        if(File.Exists(record)) File.Replace(temporary,record,null); else File.Move(temporary,record);
+                    } catch(IOException) { result.StopReason="Completed file saved, but resume information could not be saved."; break; }
+                    catch(UnauthorizedAccessException) { result.StopReason="Completed file saved, but resume information could not be saved."; break; }
+                } catch(OperationCanceledException) { result.Cancelled=true; break; }
+                catch(Exception ex) {
+                    result.Failed++; consecutiveFailures=Unavailable(ex.Message) ? 0 : consecutiveFailures+1;
+                    if(ShouldStop(ex.Message) || consecutiveFailures>=3) { result.StopReason=ex.Message; done++; break; }
+                }
+                done++;
+            }
+            result.Remaining=Math.Max(0,result.Total-result.Completed-result.Failed);
+            result.Files=result.Files.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            return result;
+        }
+        private static bool Inside(string folder,string file) {
+            if(String.IsNullOrWhiteSpace(file)) return false;
+            try { return Path.GetFullPath(file).StartsWith(Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase); } catch { return false; }
+        }
     }
 
     public static class Arguments {
@@ -141,19 +257,22 @@ namespace YouTubeDownloader {
             return new List<string> { "--ignore-config", "--no-update", "--no-playlist", "--encoding", "utf-8", "--socket-timeout", "20", "--retries", "3", "--fragment-retries", "3", "--js-runtimes", "deno:" + tools.Deno, "--ffmpeg-location", tools.FFmpeg };
         }
         public static List<string> ForDownload(ToolSet tools, DownloadOptions options) {
-            string url = VideoLink.Normalize(options.Url);
+            string url = VideoLink.Normalize(options.Url,options.Playlist!=null);
             if (String.IsNullOrWhiteSpace(options.Folder)) throw new ArgumentException("Choose a folder for your download.");
             string folder = Path.GetFullPath(options.Folder);
             if (folder.StartsWith(@"\\")) throw new ArgumentException("Choose a folder on this computer.");
             if (options.Height<0 || options.Height>10000) throw new ArgumentException("Choose a supported video quality.");
             if(options.Audio && options.AudioBitrate!=192 && options.AudioBitrate!=320) throw new ArgumentException("Choose a supported MP3 bitrate.");
             var args = Common(tools);
-            string filename="%(title).100B [%(id)s]"+(options.Audio ? " - "+options.AudioBitrate+"kbps" : " - "+(options.Height>0 ? options.Height+"p" : "best"))+".%(ext)s";
-            args.AddRange(new [] { "--no-simulate", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
+            bool playlist=options.Playlist!=null || options.PlaylistItem;
+            if(options.Playlist!=null) { args.Remove("--no-playlist"); args.Add("--yes-playlist"); }
+            if(playlist) args.AddRange(new[]{"--sleep-requests","0.75","--sleep-interval","2","--max-sleep-interval","4","--retry-sleep","http:exp=1:8","--match-filters","!is_live"});
+            string filename="%(title).100B [%(id)s]"+(options.Audio ? " - "+options.AudioBitrate+"kbps" : " - "+(options.Height>0 ? (playlist ? "max" : "")+options.Height+"p" : "best"))+".%(ext)s";
+            args.AddRange(new [] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
             if (options.Audio) args.AddRange(new [] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", "mp3", "--audio-quality", options.AudioBitrate+"K" });
             else {
                 string limit = options.Height == 0 ? "" : "[height<=" + options.Height.ToString(CultureInfo.InvariantCulture) + "]";
-                string selector=String.IsNullOrEmpty(options.FormatSelector) ? "bv*" + limit + "+ba/b" + limit : options.FormatSelector;
+                string selector=playlist && options.Height>0 ? "(bv*[height<="+options.Height+"]/bv*[width<="+options.Height+"])+ba/(b[height<="+options.Height+"]/b[width<="+options.Height+"])" : String.IsNullOrEmpty(options.FormatSelector) ? "bv*" + limit + "+ba/b" + limit : options.FormatSelector;
                 if(selector.Length>18000 || selector.Any(Char.IsControl)) throw new ArgumentException("The video's format information is invalid. Check the video again.");
                 args.AddRange(new [] { "--format", selector, "--format-sort", "res,vcodec:h264,acodec:aac", "--merge-output-format", "mp4", "--remux-video", "mp4" });
             }
@@ -167,6 +286,9 @@ namespace YouTubeDownloader {
         private Process active;
         private ProcessJob job;
         private volatile bool cancelled;
+        private int playlistItem, playlistTotal;
+        private double playlistFraction;
+        private string playlistTitle;
         public DownloadEngine(ToolSet tools) { this.tools = tools; }
         public event Action<DownloadProgress> Progress;
         public event Action<string> Title;
@@ -174,7 +296,8 @@ namespace YouTubeDownloader {
         public bool IsBusy { get { lock (gate) return active != null; } }
         private static JavaScriptSerializer Json() { return new JavaScriptSerializer { MaxJsonLength = 32 * 1024 * 1024 }; }
         private void Emit(string stage, string detail, double percent, bool unknown) {
-            var handler = Progress; if (handler != null) handler(new DownloadProgress { Stage=stage, Detail=detail, Percent=percent, Indeterminate=unknown });
+            if(playlistTotal>0) playlistFraction=Math.Max(playlistFraction,stage=="Download complete" ? 1 : Math.Min(0.95,Math.Max(0,percent)/100));
+            var handler = Progress; if (handler != null) handler(new DownloadProgress { Stage=stage, Detail=detail, Percent=playlistTotal>0 ? 100.0*(playlistItem-1+playlistFraction)/playlistTotal : percent, Indeterminate=unknown && playlistTotal==0,Item=playlistItem,Total=playlistTotal,ItemTitle=playlistTitle });
         }
         private string Execute(List<string> args, Action<string> output, CancellationToken token) {
             token.ThrowIfCancellationRequested();
@@ -216,13 +339,23 @@ namespace YouTubeDownloader {
             }
         }
         public VideoInfo Inspect(string url, CancellationToken token=default(CancellationToken)) {
-            url=VideoLink.Normalize(url); var args=Arguments.Common(tools);
+            url=VideoLink.Normalize(url,false); var args=Arguments.Common(tools);
             args.AddRange(new [] { "--skip-download", "--dump-single-json", "--", url });
             Emit("Checking video", "Getting the title and available formats…",0,true);
             var data=Json().Deserialize<Dictionary<string,object>>(Execute(args,null,token));
             return new VideoInfo { Title=Value(data,"title"), Uploader=Value(data,"uploader"), Duration=Number(data,"duration"), Live=Value(data,"is_live")=="True",Qualities=AvailableFormats.Read(data),HasAudio=AvailableFormats.HasAudio(data) };
         }
+        public PlaylistInfo InspectPlaylist(string url,CancellationToken token=default(CancellationToken)) {
+            url=VideoLink.Normalize(url,true); var args=Arguments.Common(tools); args.Remove("--no-playlist");
+            args.AddRange(new[]{"--yes-playlist","--flat-playlist","--skip-download","--dump-single-json","--sleep-requests","0.75","--",url});
+            Emit("Checking playlist","Getting the playlist titles…",0,true);
+            return PlaylistInfo.Read(url,Json().Deserialize<Dictionary<string,object>>(Execute(args,null,token)));
+        }
         public DownloadResult Download(DownloadOptions options, CancellationToken token=default(CancellationToken)) {
+            if(options.Playlist!=null) {
+                try { return PlaylistQueue.Run(options,delegate(DownloadOptions item,CancellationToken itemToken) { return Download(item,itemToken); },delegate(int index,int total,string title) { playlistItem=index; playlistTotal=total; playlistTitle=title; playlistFraction=0; Emit("Downloading playlist","Preparing your download…",0,false); },token); }
+                finally { playlistItem=playlistTotal=0; playlistTitle=null; }
+            }
             var args=Arguments.ForDownload(tools,options); Directory.CreateDirectory(Path.GetFullPath(options.Folder));
             string saved=null;
             Emit("Connecting", "Preparing your download…",0,true);
@@ -242,10 +375,10 @@ namespace YouTubeDownloader {
                     } else if(line.StartsWith("YTDL_POST:")) Emit(options.Audio ? "Making MP3" : "Preparing MP4", "Finishing your file. This can take a moment…",100,true);
                 },token);
             } catch(OperationCanceledException) { return new DownloadResult { Cancelled=true }; }
-            if(String.IsNullOrWhiteSpace(saved) || !File.Exists(saved)) throw new InvalidOperationException("The downloader did not produce a completed file. Try again or choose another quality.");
+            if(String.IsNullOrWhiteSpace(saved) || !File.Exists(saved)) throw new InvalidOperationException(options.PlaylistItem ? "This video is live or unavailable." : "The downloader did not produce a completed file. Try again or choose another quality.");
             string root=Path.GetFullPath(options.Folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             if(!Path.GetFullPath(saved).StartsWith(root,StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("The downloaded file is outside the selected folder.");
-            Emit("Download complete",Path.GetFileName(saved),100,false); return new DownloadResult { FilePath=saved };
+            Emit("Download complete",Path.GetFileName(saved),100,false); return new DownloadResult { FilePath=saved,Files=new List<string>{saved},Total=1 };
         }
         private static string Value(Dictionary<string,object> data,string key) { object v; return data.TryGetValue(key,out v) && v!=null ? Convert.ToString(v,CultureInfo.InvariantCulture) : ""; }
         private static double Number(Dictionary<string,object> data,string key) { double n; return Double.TryParse(Value(data,key),NumberStyles.Any,CultureInfo.InvariantCulture,out n) ? n : 0; }

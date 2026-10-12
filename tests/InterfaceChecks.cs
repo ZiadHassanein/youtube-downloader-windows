@@ -31,6 +31,7 @@ internal static class InterfaceChecks {
             var stage=Field<Label>(window,"stage"); int painted=0, recreated=0;
             stage.Paint+=delegate { painted++; }; stage.HandleCreated+=delegate { recreated++; };
             Exception failure=null; int pass=0; string finalUrl=null, finalStage=null;
+            var noticeClock=new System.Diagnostics.Stopwatch();
             var nativeHandles=new Dictionary<Control,IntPtr>();
             using(var steps=new Timer { Interval=200 }) {
                 window.Shown+=delegate {
@@ -45,6 +46,7 @@ internal static class InterfaceChecks {
                 steps.Tick+=delegate {
                     try {
                         if(pass<12) {
+                            if(pass==6) { window.Width=window.MinimumSize.Width; window.PerformLayout(); }
                             int before=painted; Control focused=pass%2==0 ? (Control)url : Field<ComboBox>(window,"quality"); focused.Focus();
                             Call(window,"SetLanguage",(pass%2==0)==(initialLanguage=="en") ? "ar" : "en"); theme.Checked=!theme.Checked; window.Update();
                             CheckNativeWindows(window);
@@ -60,14 +62,24 @@ internal static class InterfaceChecks {
                             var credits=Field<TableLayoutPanel>(window,"authorRow"); var author=(Label)credits.Controls[0]; var socials=(FlowLayoutPanel)credits.Controls[1];
                             if(credits.GetColumn(author)!=0 || credits.GetColumn(socials)!=1 || author.TextAlign!=ContentAlignment.TopLeft || socials.FlowDirection!=FlowDirection.LeftToRight || author.Left>=socials.Left) throw new Exception("Language change moved the author credit from the left or reordered the social links");
                             if(Field<Button>(window,"cancel").Visible || Field<Button>(window,"openFile").Visible || Field<ThemeProgress>(window,"progress").Visible || Field<NoticePopover>(window,"updateNotice").Visible) throw new Exception("Language change revealed an inactive control");
+                            if(pass>=6) {
+                                foreach(string name in new[]{"url","folder","paste","browse","openFolder","video","audio","quality","download","recentButton","update"}) {
+                                    var control=Field<Control>(window,name);
+                                    if(!control.Parent.ClientRectangle.Contains(control.Bounds)) throw new Exception("Minimum-width layout clips "+name);
+                                }
+                                var actions=Field<Button>(window,"download").Parent;
+                                if(!actions.Parent.ClientRectangle.Contains(actions.Bounds)) throw new Exception("Minimum-width layout clips the centered actions");
+                            }
                             if(painted<=before) throw new Exception("The status label was not repainted: stage="+stage.Bounds+", screen="+stage.PointToScreen(Point.Empty)+", content="+Field<TableLayoutPanel>(window,"content").Bounds+", viewport="+Field<ThemeScrollHost>(window,"scroll").Controls[0].Bounds);
                             pass++;
                         } else if(pass==12) {
                             Call(window,"ShowContextNotice","Folder is not available","Choose an existing folder or download a video first.",StatusTone.Error,Field<TextBox>(window,"folder").Parent,new object[0]);
                             Assert(Field<NoticePopover>(window,"updateNotice").Visible && Field<Control>(window,"noticeAnchor")==Field<TextBox>(window,"folder").Parent,"Folder errors appear in a popover anchored to the save-folder field");
                             Assert(Field<NoticePopover>(window,"updateNotice").Parent==window && window.ClientRectangle.Contains(Field<NoticePopover>(window,"updateNotice").Bounds),"Alerts are contained within the app client borders");
-                            Field<Timer>(window,"updateNoticeTimer").Interval=80; pass++;
+                            Field<Timer>(window,"updateNoticeTimer").Interval=80; noticeClock.Restart(); pass++;
                         } else if(pass==13) {
+                            // WM_TIMER delivery can be delayed during a busy native repaint; allow a bounded delivery window.
+                            if(Field<NoticePopover>(window,"updateNotice").Visible && noticeClock.ElapsedMilliseconds<2000) return;
                             Assert(!Field<NoticePopover>(window,"updateNotice").Visible && !Field<Timer>(window,"updateNoticeTimer").Enabled,"The popover timer actually clears the error and hides the popup automatically");
                             Field<Timer>(window,"updateNoticeTimer").Interval=5000;
                             Call(window,"ReportUpdateCheck",null,true); Call(window,"SetLanguage","ar"); CheckNativeWindows(window);
@@ -85,6 +97,39 @@ internal static class InterfaceChecks {
             Assert(recreated==1,"Repeated language changes repaint without recreating native label windows");
             Assert(finalUrl=="https://youtu.be/jNQXAC9IVRw" && finalStage=="Download failed","Language and theme changes preserve link text and the current error state");
             Assert(nativeHandles.Count>30,"More than 30 native windows retain handles, focus, and visibility through 12 RTL/LTR and theme changes");
+            Assert(true,"The minimum-width form fits all task actions through both languages and themes from saved "+initialLanguage);
+        }
+    }
+    private static void CheckPlaylistLayout() {
+        using(var window=new MainWindow(false)) {
+            window.ShowInTaskbar=false; window.StartPosition=FormStartPosition.Manual; window.Location=Screen.PrimaryScreen.WorkingArea.Location;
+            Exception failure=null; int pass=0;
+            using(var steps=new Timer { Interval=200 }) {
+                window.Shown+=delegate {
+                    Call(window,"SetBusy",true); Field<TextBox>(window,"url").Text="https://www.youtube.com/playlist?list=PLFixture"; Call(window,"SetBusy",false); Call(window,"PrepareScope"); Field<Timer>(window,"linkTimer").Stop();
+                    typeof(MainWindow).GetField("checkedPlaylist",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,new PlaylistInfo { Id="PLFixture",Url="https://www.youtube.com/playlist?list=PLFixture",Title="A long playlist title to check wrapping and layout",Entries=new List<PlaylistEntry>{new PlaylistEntry { Id="jNQXAC9IVRw" }} });
+                    Call(window,"UpdateQualityChoices"); Call(window,"UpdatePlaylistSummary"); steps.Start();
+                };
+                steps.Tick+=delegate {
+                    try {
+                        if(pass==0) { window.Width=window.MinimumSize.Width; Call(window,"SetLanguage","ar"); Field<CheckBox>(window,"theme").Checked=true; window.PerformLayout(); window.Update(); pass++; return; }
+                        var controls=new List<Control>(); Collect(window,controls);
+                        foreach(string name in new[]{"oneVideo","wholePlaylist","playlistSummary","quality","download","recentButton"}) {
+                            var control=Field<Control>(window,name);
+                            if(!control.Parent.ClientRectangle.Contains(control.Bounds)) throw new Exception("Playlist layout clips "+name+" "+control.Bounds+" in "+control.Parent.ClientRectangle);
+                        }
+                        var root=Field<TableLayoutPanel>(window,"content"); Panel workspace=null;
+                        foreach(Control control in root.Controls) if(control is Panel && String.Equals(control.Tag,"surface")) workspace=(Panel)control;
+                        var taskContent=workspace.Controls[0];
+                        if(!workspace.ClientRectangle.Contains(taskContent.Bounds)) throw new Exception("Playlist workspace clips its content: "+taskContent.Bounds+" in "+workspace.ClientRectangle);
+                        if(pass<4) { Call(window,"SetLanguage",pass%2==0 ? "ar" : "en"); Field<CheckBox>(window,"theme").Checked=pass<2; window.PerformLayout(); window.Update(); pass++; return; }
+                        Assert(true,"The visible playlist form fits long copy and task controls at minimum width after all language/theme pairs");
+                        steps.Stop(); window.Close();
+                    } catch(Exception ex) { failure=ex; steps.Stop(); window.Close(); }
+                };
+                Application.Run(window);
+            }
+            if(failure!=null) throw failure;
         }
     }
     [STAThread] public static void Main() {
@@ -114,6 +159,7 @@ internal static class InterfaceChecks {
             CheckLanguageRepaint("en");
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"Language\":\"ar\",\"Recent\":[]}");
             CheckLanguageRepaint("ar");
+            CheckPlaylistLayout();
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"LastUrl\":\"https://youtu.be/jNQXAC9IVRw\",\"Format\":0,\"Recent\":[]}");
             using(var window=new MainWindow()) {
                 var url=Field<TextBox>(window,"url"); var theme=Field<CheckBox>(window,"theme");
@@ -172,6 +218,24 @@ internal static class InterfaceChecks {
                 Call(window,"SetLanguage","ar");
                 Assert(Field<Button>(window,"showInFolder").AccessibleName=="إظهار في المجلد","The completed-file folder action is translated in Arabic"); Call(window,"SetLanguage","en");
                 Assert(!File.ReadAllText(path).Contains("LastUrl") && !File.ReadAllText(path).Contains("jNQXAC9IVRw"),"Links are never persisted to settings");
+                Call(window,"SetBusy",true); url.Text="https://www.youtube.com/playlist?list=PLFixture"; Call(window,"SetBusy",false); Call(window,"PrepareScope"); Field<Timer>(window,"linkTimer").Stop();
+                Assert(Field<FormatChoice>(window,"wholePlaylist").Checked && !Field<FormatChoice>(window,"oneVideo").Enabled,"Playlist-only links select the whole playlist and disable the single-video choice");
+                var fixturePlaylist=new PlaylistInfo { Id="PLFixture",Url=url.Text,Title="Test playlist",Entries=new List<PlaylistEntry> { new PlaylistEntry { Id="jNQXAC9IVRw" },new PlaylistEntry { Id="aqz-KE-bpKQ" } } };
+                typeof(MainWindow).GetField("checkedPlaylist",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,fixturePlaylist); Call(window,"UpdateQualityChoices"); Call(window,"UpdatePlaylistSummary");
+                Assert(quality.Text=="Up to 1080p" && Field<Label>(window,"playlistSummary").Text.Contains("2 videos"),"Playlist qualities explicitly describe a maximum and show the entry count");
+                quality.SelectedIndex=4; Call(window,"SetLanguage","ar");
+                Assert(quality.Text=="حتى 720p" && Field<FormatChoice>(window,"wholePlaylist").IsArabic && Field<Label>(window,"playlistSummary").Text.Contains("2 فيديو"),"Arabic translates and mirrors playlist controls while preserving the quality cap");
+                Call(window,"ApplyProgress",new DownloadProgress { Stage="Downloading",Detail="512 KB of 1.0 MB",Item=2,Total=3,ItemTitle="Playlist fixture",Percent=50 });
+                Assert(Field<Label>(window,"progressDetail").Text.Contains("الفيديو 2 من 3") && Field<ThemeProgress>(window,"progress").Value==500,"Playlist item position and overall progress are shown in Arabic");
+                Call(window,"CompletePlaylist",new DownloadResult { Total=3,Completed=1,Failed=1,Remaining=1,Files=new List<string>{Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4")},FilePath=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4"),StopReason="HTTP 429 Too Many Requests" });
+                Call(window,"SetLanguage","en");
+                Assert(url.Text!="" && Field<Label>(window,"stage").Text=="Playlist paused" && Field<Label>(window,"progressDetail").Text.Contains("1 remaining") && Field<Label>(window,"progressDetail").Text.Contains("limiting downloads"),"Partial playlists retain the link, counts, and recovery guidance through language changes");
+                Call(window,"CompletePlaylist",new DownloadResult { Total=3,Completed=1,Failed=1,Remaining=1,Files=new List<string>{Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4")},FilePath=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4"),StopReason="[WinError 112] There is not enough space on the disk" });
+                Assert(url.Text!="" && Field<Label>(window,"stage").Text=="Playlist paused" && Field<Label>(window,"progressDetail").Text.Contains("Free some space") && Field<Button>(window,"openFile").Enabled,"Windows disk-full feedback keeps the resumable link, completed-file action, and free-space recovery");
+                Call(window,"CompletePlaylist",new DownloadResult { Total=2,Completed=2,Skipped=1,Files=new List<string>{Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4")},FilePath=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"playlist-completed.mp4") });
+                Assert(url.Text=="" && !Field<FormatChoice>(window,"wholePlaylist").Checked && Field<Label>(window,"stage").Text=="Playlist complete" && Field<Label>(window,"progressDetail").Text.Contains("1 already downloaded"),"Complete playlists clear the link and report saved versus existing files");
+                Call(window,"SetBusy",true); url.Text="https://youtu.be/jNQXAC9IVRw?list=PLFixture"; Call(window,"SetBusy",false); Call(window,"PrepareScope"); Field<Timer>(window,"linkTimer").Stop();
+                Assert(Field<FormatChoice>(window,"oneVideo").Checked && Field<FormatChoice>(window,"oneVideo").Enabled,"Mixed watch/playlist links default safely to this video");
                 Call(window,"SetBusy",true); url.Text="https://youtu.be/jNQXAC9IVRw";
                 Call(window,"SetStatus","Download failed","Try again",true); Call(window,"SetBusy",false);
                 Assert(url.Text!="","Failure keeps the link available for retry");

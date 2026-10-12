@@ -2,7 +2,7 @@
 
 # YouTube Downloader for Windows
 
-A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a link, choose an available quality and a destination, then download.
+A desktop app for saving YouTube videos or whole playlists as MP4 or extracting MP3 audio. Paste a link, choose a quality and a destination, then download.
 
 **[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
 
@@ -16,10 +16,10 @@ A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a 
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.11-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.12-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
-4. Open `YouTubeDownloader.exe`, paste a video link, and wait for its available qualities to appear.
+4. Open `YouTubeDownloader.exe` and paste a video or playlist link. For a video link that also contains a playlist, choose **This video** or **Whole playlist**.
 5. Choose MP4 video or MP3 audio, select a save folder, and click **Download**.
 6. Use **Show in folder** after a download to find its file in File Explorer, or select a file in **Recent downloads** to reveal it later.
 
@@ -30,6 +30,10 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - Automatic video inspection and actual available-resolution choices.
 - A sensible default: the highest available resolution up to 1080p.
 - Support for normal video links, Shorts, and shared links.
+- Whole playlists in MP4 or MP3, with a cached title list, entry count, and overall progress.
+- Playlist video quality is explicitly a maximum, with a best-available option and lower resolutions used when needed. Single-video quality still shows actual available formats.
+- A paced playlist queue downloads one video at a time, continues past unavailable entries, and stops further requests on rate-limit, network, or storage errors.
+- Resume a playlist by pasting the same link with the same folder and format/quality: completed files still present are skipped before contacting YouTube, and partial files can resume.
 - MP4 output and MP3 audio encoding at 192 or 320 kbps, with 320 kbps as the default.
 - Progress, speed, cancellation, and resumable partial files.
 - Separate video filenames for different quality selections.
@@ -42,6 +46,7 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - The English app name stays on the left in both languages, with a simpler link-to-download layout.
 - Immediate theme repaint with a brief 120 ms icon transition that respects Windows animation settings.
 - Equal-width MP4 / MP3 / quality controls filling the row, with rounded inputs and buttons.
+- A more spacious form with consistent label gaps, larger controls, readable typography, and clearer separation between task groups.
 - Refined quality dropdown with a larger chevron, themed rounded options, and a checkmark for the current selection.
 - Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
 - Clear feedback when the app is up to date or an update check fails.
@@ -56,7 +61,17 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - The window fits its content, and all popovers stay within the app's borders.
 - Checks GitHub for a new app version on launch; install it from inside the app.
 
-Playlist-only links and sign-in-only videos are not supported. A video link containing a playlist downloads only the linked video. The app does not read browser cookies or automatically update its dependencies.
+Sign-in-only videos and active live streams are not supported. A video link containing a playlist defaults to **This video**; **Whole playlist** is an explicit choice. Playlist-only links select the whole playlist. The app does not read browser cookies or automatically update its dependencies.
+
+## Playlist downloads
+
+Each playlist is saved in `Playlist [playlist-id]` inside the selected folder. MP4 qualities such as **Up to 1080p** are caps rather than claims about every entry. A video without a suitable format may fail; **Best available** removes the cap. MP3 offers 192 or 320 kbps encoding; this does not improve the original audio source.
+
+![Whole-playlist choice and resolution cap in a smaller app viewport](assets/playlist-options.png)
+
+The playlist title list is read once per pasted link, without fetching every video's formats in advance. Videos are downloaded sequentially with bounded retries, request pacing, and cancellable waits. Progress shows the current video and an approximate overall percentage based on item count. Private, removed, unavailable, and live entries are reported as failures and skipped. Rate-limit, network, or disk errors pause the queue; three consecutive unexpected failures also pause it. The final summary separates saved, already downloaded, failed, and remaining entries. YouTube limits can still occur.
+
+The `.yd-completed-*.json` files in the playlist folder record completed paths separately for each format, resolution cap, or MP3 bitrate. Keep these files to skip completed downloads on later runs. Deleted media is downloaded again. Cancellation keeps completed and partial files, and the link stays available after cancellation or partial failure. Fully successful downloads clear it.
 
 ## App updates
 

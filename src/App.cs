@@ -42,6 +42,14 @@ namespace YouTubeDownloader {
         private readonly ThemeSwitch theme=new ThemeSwitch();
         private readonly ToolTip themeTip=new ToolTip();
         private readonly FormatChoice video=new FormatChoice(), audio=new FormatChoice();
+        private readonly FormatChoice oneVideo=new FormatChoice(), wholePlaylist=new FormatChoice();
+        private TableLayoutPanel playlistRow;
+        private readonly Label playlistSummary=new Label();
+        private bool configuringScope;
+        private PlaylistInfo checkedPlaylist;
+        private DownloadProgress latestProgress;
+        private object[] statusArgs;
+        private string statusSuffix;
         private readonly ThemeButton paste=new ThemeButton(), browse=new ThemeButton(), download=new ThemeButton(), cancel=new ThemeButton(), openFolder=new ThemeButton(), openFile=new ThemeButton(), showInFolder=new ThemeButton(), update=new ThemeButton(), noticeDismiss=new ThemeButton(), language=new ThemeButton(), recentButton=new ThemeButton();
         private readonly Label stage=new Label(), progressDetail=new Label(), toolsStatus=new Label();
         private readonly Label updateHeading=new Label(), updateMessage=new Label();
@@ -62,6 +70,7 @@ namespace YouTubeDownloader {
         private bool fittingHeight, fitQueued;
         private int statusMood;
         private bool IsAudio { get { return audio.Checked; } }
+        private bool IsPlaylist { get { return wholePlaylist.Checked; } }
         private bool IsArabic { get { return state!=null && state.Language=="ar"; } }
         [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr window,int attribute,ref int value,int size);
         private string lastFile, checkedUrl;
@@ -80,14 +89,15 @@ namespace YouTubeDownloader {
         private sealed class LayoutState { public Control Control; public Padding Margin; public AnchorStyles Anchor; public int Column; }
         private sealed class TableState { public TableLayoutPanel Table; public ColumnStyle[] Columns; }
         private sealed class AudioQuality { public int Bitrate; public override string ToString() { return Bitrate+" kbps"; } }
+        private sealed class PlaylistQuality { public int Height; public string Text; public override string ToString() { return Text; } }
         [DllImport("user32.dll")] private static extern bool RedrawWindow(IntPtr window,IntPtr rectangle,IntPtr region,uint flags);
         [DllImport("shell32.dll",CharSet=CharSet.Unicode)] private static extern int SHParseDisplayName(string path,IntPtr bindContext,out IntPtr item,uint attributes,out uint returnedAttributes);
         [DllImport("shell32.dll")] private static extern int SHOpenFolderAndSelectItems(IntPtr item,uint count,IntPtr children,uint flags);
 
         public MainWindow() : this(true) { }
         internal MainWindow(bool checkUpdatesOnStart) {
-            Text="YouTube Downloader"; StartPosition=FormStartPosition.CenterScreen; ClientSize=new Size(920,600); MinimumSize=new Size(820,400);
-            Font=new Font("Segoe UI",10.5f); BackColor=Paper; ForeColor=Ink; AutoScaleMode=AutoScaleMode.Dpi; DoubleBuffered=true;
+            Text="YouTube Downloader"; StartPosition=FormStartPosition.CenterScreen; ClientSize=new Size(980,640); MinimumSize=new Size(820,400);
+            Font=new Font("Segoe UI",11f); BackColor=Paper; ForeColor=Ink; AutoScaleMode=AutoScaleMode.Dpi; DoubleBuffered=true;
             tools=ToolSet.Discover(); engine=new DownloadEngine(tools); state=LoadState();
             RightToLeft=RightToLeft.No; RightToLeftLayout=false;
             colors=Palette.For(!state.ThemeSelected || state.Theme=="Dark");
@@ -123,16 +133,16 @@ namespace YouTubeDownloader {
         }
         private TableLayoutPanel Row(params Control[] controls) {
             var panel=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Fill,Margin=new Padding(0),ColumnCount=controls.Length,RowCount=1 };
-            for(int i=0;i<controls.Length;i++) { panel.ColumnStyles.Add(i==0 ? new ColumnStyle(SizeType.Percent,100) : new ColumnStyle(SizeType.AutoSize)); controls[i].Anchor=AnchorStyles.Left|AnchorStyles.Right; if(i>0) controls[i].Margin=new Padding(12,0,0,0); panel.Controls.Add(controls[i],i,0); }
+            for(int i=0;i<controls.Length;i++) { panel.ColumnStyles.Add(i==0 ? new ColumnStyle(SizeType.Percent,100) : new ColumnStyle(SizeType.AutoSize)); controls[i].Anchor=AnchorStyles.Left|AnchorStyles.Right; if(i>0) controls[i].Margin=new Padding(16,0,0,0); panel.Controls.Add(controls[i],i,0); }
             return panel;
         }
         private void Add(Control control,int spacing) { content.RowStyles.Add(new RowStyle(SizeType.AutoSize)); control.Dock=DockStyle.Fill; control.Margin=new Padding(0,0,0,spacing); content.Controls.Add(control,0,content.RowCount++); }
-        private ThemeField FieldFor(Control input,int height=44) {
-            var field=new ThemeField { Height=height,Dock=DockStyle.Fill,Margin=new Padding(0),Padding=new Padding(12,input is ComboBox ? 5 : 10,12,5),Tag="field" };
+        private ThemeField FieldFor(Control input,int height=48) {
+            var field=new ThemeField { Height=height,Dock=DockStyle.Fill,Margin=new Padding(0),Padding=new Padding(14,input is ComboBox ? 5 : 12,14,5),Tag="field" };
             input.Dock=DockStyle.Fill; input.Margin=new Padding(0); field.Controls.Add(input); return field;
         }
         private void BuildInterface() {
-            scroll=new ThemeScrollHost { Dock=DockStyle.Fill,Padding=new Padding(28,24,28,20) };
+            scroll=new ThemeScrollHost { Dock=DockStyle.Fill,Padding=new Padding(32,28,32,24) };
             scroll.ContentHeightChanged+=delegate { QueueFitHeight(); };
             content.AutoSize=true; content.ColumnCount=1; content.RowCount=0; content.Margin=new Padding(0); content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); scroll.SetContent(content); Controls.Add(scroll);
             branding=new TableLayoutPanel { AutoSize=true,ColumnCount=4,RowCount=1,Margin=new Padding(0) };
@@ -144,54 +154,69 @@ namespace YouTubeDownloader {
             theme.Checked=!state.ThemeSelected || state.Theme=="Dark"; theme.Anchor=AnchorStyles.Top|AnchorStyles.Right; theme.Margin=new Padding(0,12,0,0);
             themeTip.SetToolTip(theme,theme.AccessibleName);
             theme.CheckedChanged+=delegate { state.ThemeSelected=true; themeTip.SetToolTip(theme,theme.AccessibleName); ApplyTheme(); SaveState(); };
-            branding.Controls.Add(logoView,0,0); branding.Controls.Add(wordmark,1,0); branding.Controls.Add(language,2,0); branding.Controls.Add(theme,3,0); Add(branding,24);
+            branding.Controls.Add(logoView,0,0); branding.Controls.Add(wordmark,1,0); branding.Controls.Add(language,2,0); branding.Controls.Add(theme,3,0); Add(branding,32);
             var page=content;
-            var workspace=new Panel { AutoSize=true,Dock=DockStyle.Fill,Padding=new Padding(24,22,24,22),Margin=new Padding(0),Tag="surface" };
-            content=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Top,ColumnCount=1,RowCount=0,Margin=new Padding(0) }; content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.Controls.Add(content);
+            var workspace=new TableLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Dock=DockStyle.Fill,Padding=new Padding(32),Margin=new Padding(0,0,0,16),Tag="surface",ColumnCount=1,RowCount=1 };
+            workspace.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            content=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Fill,ColumnCount=1,RowCount=0,Margin=new Padding(0) }; content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.Controls.Add(content,0,0);
             page.RowStyles.Add(new RowStyle(SizeType.AutoSize)); page.Controls.Add(workspace,0,page.RowCount++);
-            Add(LabelFor("YouTube &link"),0);
-            url.Font=new Font("Segoe UI",12f); url.AutoSize=false; url.AccessibleName=T("YouTube link"); url.TabIndex=0; url.RightToLeft=RightToLeft.No;
+            Add(LabelFor("YouTube &link"),8);
+            url.Font=new Font("Segoe UI",13f); url.AutoSize=false; url.AccessibleName=T("YouTube link"); url.TabIndex=0; url.RightToLeft=RightToLeft.No;
             url.Placeholder=T("Videos, Shorts, and shared links"); url.AccessibleDescription=url.Placeholder;
-            ConfigureButton(paste,"&Paste"); paste.Width=88; paste.Height=44;
+            ConfigureButton(paste,"&Paste"); paste.Width=96; paste.Height=48;
             paste.Click+=async delegate { try { if(Clipboard.ContainsText()) { url.Text=Clipboard.GetText().Trim(); url.Focus(); linkTimer.Stop(); await InspectAsync(); } else SetStatus("Clipboard is empty","Copy a YouTube video link, then choose Paste.",true); } catch { SetStatus("Could not paste","Copy the video link again, then choose Paste.",true); } };
             url.TextChanged+=delegate {
                 linkTimer.Stop();
                 if(!busy && !installingUpdate && checkedUrl!=url.Text.Trim()) {
-                    checkedUrl=null; checkedInfo=null; UpdateQualityChoices(); download.Enabled=false;
+                    checkedUrl=null; checkedInfo=null; checkedPlaylist=null; PrepareScope(); UpdateQualityChoices(); download.Enabled=false;
                     try { VideoLink.Normalize(url.Text); linkTimer.Start(); }
                     catch(ArgumentException) { if(!String.IsNullOrWhiteSpace(url.Text)) linkTimer.Start(); else if(statusMood==1) SetStatus("Ready for a video link","Paste a link to get started.",false); }
                 }
             };
             linkTimer.Tick+=async delegate { linkTimer.Stop(); if(!busy && !installingUpdate) await InspectAsync(); };
-            Add(Row(FieldFor(url),paste),18);
+            Add(Row(FieldFor(url),paste),28);
+            playlistRow=new TableLayoutPanel { ColumnCount=3,RowCount=2,AutoSize=true,Margin=new Padding(0) };
+            playlistRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50)); playlistRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,16)); playlistRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));
+            playlistRow.RowStyles.Add(new RowStyle(SizeType.AutoSize)); playlistRow.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            oneVideo.Text=T("&This video"); wholePlaylist.Text=T("&Whole playlist"); oneVideo.Checked=true;
+            foreach(var choice in new[]{oneVideo,wholePlaylist}) { choice.Height=48; choice.Dock=DockStyle.Fill; choice.Margin=new Padding(0); }
+            playlistRow.Controls.Add(oneVideo,0,0); playlistRow.Controls.Add(wholePlaylist,2,0);
+            playlistSummary.AutoSize=true; playlistSummary.Tag="muted"; playlistSummary.Margin=new Padding(0,10,0,0); playlistSummary.Dock=DockStyle.Fill;
+            playlistRow.Controls.Add(playlistSummary,0,1); playlistRow.SetColumnSpan(playlistSummary,3); Add(playlistRow,28); playlistRow.Visible=false;
+            EventHandler scopeChanged=async delegate(object sender,EventArgs e) {
+                if(configuringScope || !((RadioButton)sender).Checked) return;
+                linkTimer.Stop(); UpdateQualityChoices(); UpdateDownloadEnabled(); await InspectAsync();
+            };
+            oneVideo.CheckedChanged+=scopeChanged; wholePlaylist.CheckedChanged+=scopeChanged;
             var settings=new TableLayoutPanel { ColumnCount=5,RowCount=2,AutoSize=true,Dock=DockStyle.Fill,Margin=new Padding(0) };
-            for(int column=0;column<5;column++) settings.ColumnStyles.Add(column%2==0 ? new ColumnStyle(SizeType.Percent,100f/3f) : new ColumnStyle(SizeType.Absolute,12));
+            for(int column=0;column<5;column++) settings.ColumnStyles.Add(column%2==0 ? new ColumnStyle(SizeType.Percent,100f/3f) : new ColumnStyle(SizeType.Absolute,16));
             var formatLabel=LabelFor("Save &as"); settings.Controls.Add(formatLabel,0,0); settings.SetColumnSpan(formatLabel,3);
             video.Text=T("&Video · MP4"); video.AccessibleName=T("Video MP4"); video.Dock=DockStyle.Fill; video.Margin=new Padding(0);
             audio.Text=T("&Audio · MP3"); audio.AccessibleName=T("Audio MP3"); audio.Dock=DockStyle.Fill; audio.Margin=new Padding(0); settings.Controls.Add(video,0,1); settings.Controls.Add(audio,2,1);
+            video.Height=audio.Height=48;
             audio.Checked=state.Format==1; video.Checked=!audio.Checked;
             quality.DropDownStyle=ComboBoxStyle.DropDownList; quality.AccessibleName="Available video quality"; UpdateQualityChoices();
             EventHandler formatChanged=delegate(object sender,EventArgs e) { if(((RadioButton)sender).Checked) { UpdateQualityChoices(); UpdateDownloadEnabled(); SaveState(); } }; video.CheckedChanged+=formatChanged; audio.CheckedChanged+=formatChanged;
             quality.SelectedIndexChanged+=delegate { var bitrate=quality.SelectedItem as AudioQuality; if(bitrate!=null) state.AudioBitrate=bitrate.Bitrate; SaveState(); };
-            quality.Dock=DockStyle.Fill; quality.Margin=new Padding(0); settings.Controls.Add(quality,4,1); Add(settings,18);
-            Add(LabelFor("Save &to"),0);
+            quality.Dock=DockStyle.Fill; quality.Margin=new Padding(0); settings.Controls.Add(quality,4,1); Add(settings,28);
+            Add(LabelFor("Save &to"),8);
             folder.Text=InitialFolder(state.Folder,state.FolderVersion==0); state.FolderVersion=1;
-            folder.Font=new Font("Segoe UI",11f); folder.AccessibleName=T("Save folder"); folder.RightToLeft=RightToLeft.No; folder.TextChanged+=delegate { SaveState(); };
-            ConfigureButton(browse,"&Browse…"); browse.Width=104; browse.Height=44; browse.Click+=delegate { using(var dialog=new FolderBrowserDialog { Description=T("Choose where to save your YouTube downloads"),SelectedPath=Directory.Exists(folder.Text) ? folder.Text : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),ShowNewFolderButton=true }) { if(dialog.ShowDialog(this)==DialogResult.OK) folder.Text=dialog.SelectedPath; } };
-            ConfigureButton(openFolder,"Open &folder"); openFolder.Width=128; openFolder.Height=44; openFolder.Click+=delegate { OpenDestination(); };
-            Add(Row(FieldFor(folder),browse,openFolder),24);
-            ConfigureButton(download,"&Download",true); download.Width=340; download.Height=52; download.Font=new Font(Font,FontStyle.Bold); download.Click+=async delegate { await DownloadAsync(); };
-            ConfigureButton(recentButton,"Recent downloads"); recentButton.Width=168; recentButton.Height=52; recentButton.Margin=new Padding(12,0,0,0); recentButton.Click+=delegate { ShowRecentDownloads(); };
+            folder.Font=new Font("Segoe UI",12f); folder.AccessibleName=T("Save folder"); folder.RightToLeft=RightToLeft.No; folder.TextChanged+=delegate { SaveState(); };
+            ConfigureButton(browse,"&Browse…"); browse.Width=112; browse.Height=48; browse.Click+=delegate { using(var dialog=new FolderBrowserDialog { Description=T("Choose where to save your YouTube downloads"),SelectedPath=Directory.Exists(folder.Text) ? folder.Text : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),ShowNewFolderButton=true }) { if(dialog.ShowDialog(this)==DialogResult.OK) folder.Text=dialog.SelectedPath; } };
+            ConfigureButton(openFolder,"Open &folder"); openFolder.Width=144; openFolder.Height=48; openFolder.Click+=delegate { OpenDestination(); };
+            Add(Row(FieldFor(folder),browse,openFolder),32);
+            ConfigureButton(download,"&Download",true); download.Width=360; download.Height=56; download.Font=new Font(Font,FontStyle.Bold); download.Click+=async delegate { await DownloadAsync(); };
+            ConfigureButton(recentButton,"Recent downloads"); recentButton.Width=184; recentButton.Height=56; recentButton.Margin=new Padding(16,0,0,0); recentButton.Click+=delegate { ShowRecentDownloads(); };
             var mainActions=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Anchor=AnchorStyles.None,Margin=new Padding(0),WrapContents=false };
             mainActions.Controls.Add(download); mainActions.Controls.Add(recentButton);
             var centeredActions=new TableLayoutPanel { AutoSize=true,ColumnCount=1,RowCount=1,Margin=new Padding(0) };
             centeredActions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); centeredActions.Controls.Add(mainActions,0,0); Add(centeredActions,12);
-            ConfigureButton(cancel,"&Cancel"); cancel.Width=96; cancel.Height=46; cancel.Enabled=false; cancel.Visible=false; cancel.Click+=delegate { if(cancellation!=null) cancellation.Cancel(); cancel.Enabled=false; SetStatus("Cancelling","Stopping the download…",false); };
-            ConfigureButton(openFile,"Open &file"); openFile.Width=104; openFile.Height=46; openFile.Quiet=true; openFile.Enabled=false; openFile.Visible=false; openFile.Click+=delegate { OpenCompletedFile(); };
-            ConfigureButton(showInFolder,"Show &in folder"); showInFolder.Width=168; showInFolder.Height=46; showInFolder.Quiet=true; showInFolder.Enabled=false; showInFolder.Visible=false;
+            ConfigureButton(cancel,"&Cancel"); cancel.Width=96; cancel.Height=48; cancel.Enabled=false; cancel.Visible=false; cancel.Click+=delegate { if(cancellation!=null) cancellation.Cancel(); cancel.Enabled=false; SetStatus("Cancelling","Stopping the download…",false); };
+            ConfigureButton(openFile,"Open &file"); openFile.Width=104; openFile.Height=48; openFile.Quiet=true; openFile.Enabled=false; openFile.Visible=false; openFile.Click+=delegate { OpenCompletedFile(); };
+            ConfigureButton(showInFolder,"Show &in folder"); showInFolder.Width=168; showInFolder.Height=48; showInFolder.Quiet=true; showInFolder.Enabled=false; showInFolder.Visible=false;
             showInFolder.Click+=delegate { ShowFileInFolder(lastFile,delegate(string heading,string message) { ShowContextNotice(heading,message,StatusTone.Error,followUpRow); }); };
             var followUpActions=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Anchor=AnchorStyles.None,Margin=new Padding(0),WrapContents=false };
-            openFile.Margin=new Padding(12,0,0,0); showInFolder.Margin=new Padding(12,0,0,0); followUpActions.Controls.Add(cancel); followUpActions.Controls.Add(openFile); followUpActions.Controls.Add(showInFolder);
+            openFile.Margin=new Padding(16,0,0,0); showInFolder.Margin=new Padding(16,0,0,0); followUpActions.Controls.Add(cancel); followUpActions.Controls.Add(openFile); followUpActions.Controls.Add(showInFolder);
             followUpRow=new TableLayoutPanel { AutoSize=true,ColumnCount=1,RowCount=1,Margin=new Padding(0) };
             followUpRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); followUpRow.Controls.Add(followUpActions,0,0); Add(followUpRow,12); followUpRow.Visible=false;
             statusHeading=tools.Ready ? "Ready for a video link" : "Downloader tools are missing"; statusMessage=tools.Ready ? "Paste a link to get started." : "Run SetupTools.cmd in the app folder, then reopen the app.";
@@ -206,13 +231,13 @@ namespace YouTubeDownloader {
             updateRow=new TableLayoutPanel { AutoSize=true,ColumnCount=2,RowCount=1,Margin=new Padding(0) };
             updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,200)); updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             update.Anchor=AnchorStyles.Left; updateRow.Controls.Add(update,0,0); updateRow.Controls.Add(toolsStatus,1,0); Add(updateRow,0);
-            var author=new Label { Text="By Ziad Hassanein",AutoSize=true,ForeColor=Muted,Font=new Font(Font.FontFamily,9f),Margin=new Padding(0) };
+            var author=new Label { Text="By Ziad Hassanein",AutoSize=true,ForeColor=Muted,Font=new Font(Font.FontFamily,10f),Margin=new Padding(0) };
             var socials=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Margin=new Padding(0),WrapContents=false };
             foreach(var entry in new[]{new[]{"GitHub","https://github.com/ZiadHassanein"},new[]{"LinkedIn","https://www.linkedin.com/in/ziad-hassanein/"},new[]{"Email","mailto:ziadmuhammed501@gmail.com"}}) {
                 string target=entry[1]; var link=new LinkLabel { Text=entry[0],AutoSize=true,LinkColor=Accent,ActiveLinkColor=Accent,VisitedLinkColor=Accent,LinkBehavior=LinkBehavior.HoverUnderline,Margin=new Padding(12,0,0,0),Font=author.Font,Tag="social",AccessibleName=entry[0]+" · Ziad Hassanein" };
                 link.LinkClicked+=delegate { try { Process.Start(new ProcessStartInfo(target) { UseShellExecute=true }); } catch { ShowContextNotice("Could not open link","Open the link in your browser and try again.",StatusTone.Error,socials); } }; socials.Controls.Add(link);
             }
-            authorRow=Row(author,socials); Add(authorRow,0); authorRow.Margin=new Padding(0,14,0,0);
+            authorRow=Row(author,socials); Add(authorRow,0); authorRow.Margin=new Padding(0,16,0,0);
             updateHeading.AutoSize=true; updateHeading.Font=new Font(Font,FontStyle.Bold); updateHeading.Margin=new Padding(0,0,0,4);
             updateMessage.AutoSize=true; updateMessage.Tag="muted"; updateMessage.MaximumSize=new Size(696,0); updateMessage.Margin=new Padding(0);
             ConfigureButton(noticeDismiss,"Dismiss"); noticeDismiss.Quiet=true; noticeDismiss.Width=80; noticeDismiss.Height=32; noticeDismiss.AccessibleName="Dismiss update message"; noticeDismiss.Click+=delegate { HideUpdateNotice(); };
@@ -234,7 +259,7 @@ namespace YouTubeDownloader {
             };
             video.SizeChanged+=queueQualityAlignment; quality.HandleCreated+=queueQualityAlignment;
             foreach(var box in new[]{url,folder}) box.BorderStyle=BorderStyle.None;
-            Resize+=delegate { int available=Math.Max(400,scroll.ClientSize.Width-104); progressDetail.MaximumSize=new Size(available-44,0); QueueFitHeight(); };
+            Resize+=delegate { int available=Math.Max(240,scroll.ClientSize.Width-scroll.Padding.Horizontal-workspace.Padding.Horizontal); progressDetail.MaximumSize=new Size(Math.Max(240,available-44),0); playlistSummary.MaximumSize=new Size(available,0); QueueFitHeight(); };
         }
         private void QueueFitHeight() {
             if(fitQueued || fittingHeight || !IsHandleCreated || IsDisposed || Disposing) return;
@@ -319,11 +344,13 @@ namespace YouTubeDownloader {
                 language.Text=IsArabic ? "English" : "العربية"; language.AccessibleName=T(IsArabic ? "Switch to English" : "Switch to Arabic");
                 themeTip.SetToolTip(language,language.AccessibleName); logoView.AccessibleName=T("YouTube Downloader logo");
                 theme.Language=state.Language; theme.UpdateActionName(); themeTip.SetToolTip(theme,theme.AccessibleName);
-                url.Placeholder=T("Videos, Shorts, and shared links"); url.PlaceholderRightToLeft=IsArabic; url.AccessibleName=T("YouTube link"); url.AccessibleDescription=url.Placeholder; url.Invalidate();
+                url.Placeholder=T("Videos, Shorts, and playlists"); url.PlaceholderRightToLeft=IsArabic; url.AccessibleName=T("YouTube link"); url.AccessibleDescription=url.Placeholder; url.Invalidate();
                 folder.AccessibleName=T("Save folder"); video.Text=T("&Video · MP4"); video.AccessibleName=T("Video MP4"); audio.Text=T("&Audio · MP3"); audio.AccessibleName=T("Audio MP3");
-                var selected=quality.SelectedItem as VideoQuality; UpdateQualityChoices();
+                oneVideo.Text=T("&This video"); oneVideo.AccessibleName=T("This video"); wholePlaylist.Text=T("&Whole playlist"); wholePlaylist.AccessibleName=T("Whole playlist"); UpdatePlaylistSummary();
+                var selected=quality.SelectedItem as VideoQuality; var selectedPlaylist=quality.SelectedItem as PlaylistQuality; UpdateQualityChoices();
+                if(selectedPlaylist!=null && IsPlaylist && !IsAudio) { foreach(var option in quality.Items.Cast<object>().OfType<PlaylistQuality>()) if(option.Height==selectedPlaylist.Height) quality.SelectedItem=option; }
                 if(selected!=null && checkedInfo!=null && !IsAudio) { int index=checkedInfo.Qualities.FindIndex(q=>q.Resolution==selected.Resolution && q.Selector==selected.Selector); if(index>=0) quality.SelectedIndex=index; }
-                stage.Text=T(statusHeading); progressDetail.Text=statusIsProgress ? Texts.Progress(state.Language,statusMessage) : T(statusMessage);
+                stage.Text=T(statusHeading); progressDetail.Text=statusIsProgress && latestProgress!=null ? ProgressText(latestProgress) : F(statusMessage,statusArgs)+(statusSuffix==null ? "" : "\n"+T(statusSuffix));
                 toolsStatus.Text=VersionText(); toolsStatus.AccessibleName=T("App version"); updateHeading.Text=T(updateHeadingKey); updateMessage.Text=F(updateMessageKey,updateMessageArgs);
                 updateNotice.AccessibleName=T("App update status"); noticeDismiss.AccessibleName=T("Dismiss update message");
                 updateNotice.UpdateLook(colors,IsArabic);
@@ -331,33 +358,41 @@ namespace YouTubeDownloader {
         }
         private async Task InspectAsync() {
             if(busy || installingUpdate) return; linkTimer.Stop();
-            string link; try { link=VideoLink.Normalize(url.Text); } catch(Exception ex) { SetStatus("Check the link",ex.Message,true); url.Focus(); return; }
-            SetBusy(true); cancellation=new CancellationTokenSource();
+            string link; try { link=VideoLink.Normalize(url.Text,IsPlaylist); } catch(Exception ex) { SetStatus("Check the link",ex.Message,true); url.Focus(); return; }
+            Control focusBeforeCheck=ActiveControl; SetBusy(true); cancellation=new CancellationTokenSource();
             try {
-                VideoInfo info=await Task.Run(()=>engine.Inspect(link,cancellation.Token));
-                if(info.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
-                if(info.Qualities.Count==0 && !info.HasAudio) throw new InvalidOperationException("YouTube did not return downloadable formats for this video.");
-                checkedUrl=url.Text.Trim(); checkedInfo=info; UpdateQualityChoices();
-                SetStatus("Video is ready",info.Qualities.Count>0 ? "Only qualities available for this video are shown." : "This video has an audio download available.",false); progress.Style=ProgressBarStyle.Continuous; progress.Value=0;
+                if(IsPlaylist) {
+                    if(checkedPlaylist==null) checkedPlaylist=await Task.Run(()=>engine.InspectPlaylist(link,cancellation.Token));
+                    checkedUrl=url.Text.Trim(); UpdatePlaylistSummary(); UpdateQualityChoices(); SetStatus("Ready for a video link","Paste a link to get started.",false);
+                } else {
+                    VideoInfo info=checkedInfo ?? await Task.Run(()=>engine.Inspect(link,cancellation.Token));
+                    if(info.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
+                    if(info.Qualities.Count==0 && !info.HasAudio) throw new InvalidOperationException("YouTube did not return downloadable formats for this video.");
+                    checkedUrl=url.Text.Trim(); checkedInfo=info; UpdateQualityChoices();
+                    SetStatus("Ready for a video link","Paste a link to get started.",false);
+                }
+                progress.Style=ProgressBarStyle.Continuous; progress.Value=0;
             } catch(OperationCanceledException) { SetStatus("Check cancelled","You can paste another link or try again.",false); }
-            catch(Exception ex) { checkedInfo=null; checkedUrl=null; UpdateQualityChoices(); SetStatus("Could not check video",FriendlyError(ex.Message),true); }
-            finally { SetBusy(false); cancellation.Dispose(); cancellation=null; }
+            catch(Exception ex) { if(IsPlaylist) checkedPlaylist=null; else checkedInfo=null; checkedUrl=null; UpdatePlaylistSummary(); UpdateQualityChoices(); SetStatus(IsPlaylist ? "Could not check playlist" : "Could not check video",FriendlyError(ex.Message),true); }
+            finally { SetBusy(false); cancellation.Dispose(); cancellation=null; if(focusBeforeCheck!=null && !focusBeforeCheck.IsDisposed && focusBeforeCheck.Enabled) focusBeforeCheck.Focus(); }
         }
         private async Task DownloadAsync() {
             if(busy || installingUpdate) return;
-            if(checkedInfo==null || checkedUrl!=url.Text.Trim()) { await InspectAsync(); if(checkedInfo==null) return; }
+            if((IsPlaylist ? checkedPlaylist==null : checkedInfo==null) || checkedUrl!=url.Text.Trim()) { await InspectAsync(); if(IsPlaylist ? checkedPlaylist==null : checkedInfo==null) return; }
             DownloadOptions options;
             try {
                 var chosen=quality.SelectedItem as VideoQuality;
-                if(!IsAudio && chosen==null) throw new ArgumentException("Choose an available video quality first.");
-                if(IsAudio && !checkedInfo.HasAudio) throw new ArgumentException("An audio download is not available for this video.");
-                options=new DownloadOptions { Url=VideoLink.Normalize(url.Text),Folder=DownloadFolder(),Audio=IsAudio,AudioBitrate=state.AudioBitrate,Height=chosen==null ? 0 : chosen.Resolution,FormatSelector=chosen==null ? null : chosen.Selector }; Arguments.ForDownload(tools,options);
+                var cap=quality.SelectedItem as PlaylistQuality;
+                if(!IsAudio && chosen==null && cap==null) throw new ArgumentException("Choose an available video quality first.");
+                if(IsAudio && !IsPlaylist && !checkedInfo.HasAudio) throw new ArgumentException("An audio download is not available for this video.");
+                options=new DownloadOptions { Url=VideoLink.Normalize(url.Text,IsPlaylist),Folder=DownloadFolder(),Audio=IsAudio,AudioBitrate=state.AudioBitrate,Height=cap!=null ? cap.Height : chosen==null ? 0 : chosen.Resolution,FormatSelector=chosen==null ? null : chosen.Selector,Playlist=IsPlaylist ? checkedPlaylist : null }; Arguments.ForDownload(tools,options);
             }
             catch(Exception ex) { ShowContextNotice("Check your download",ex.Message,StatusTone.Error,folder.Parent); return; }
             SetBusy(true); lastFile=null; openFile.Enabled=showInFolder.Enabled=false; openFile.Visible=showInFolder.Visible=false; cancellation=new CancellationTokenSource(); SaveState();
             try {
                 DownloadResult result=await Task.Run(()=>engine.Download(options,cancellation.Token));
-                if(result.Cancelled) { SetStatus("Download cancelled","Partial files are kept so the same download can resume later.",false); progress.Style=ProgressBarStyle.Continuous; progress.Value=0; }
+                if(options.Playlist!=null) { CompletePlaylist(result); }
+                else if(result.Cancelled) { SetStatus("Download cancelled","Partial files are kept so the same download can resume later.",false); progress.Style=ProgressBarStyle.Continuous; progress.Value=0; }
                 else { CompleteDownload(result.FilePath); }
             } catch(OperationCanceledException) { SetStatus("Download cancelled","You can start another download.",false); }
             catch(Exception ex) { SetStatus("Download failed",FriendlyError(ex.Message),true); }
@@ -365,28 +400,67 @@ namespace YouTubeDownloader {
         }
         private void CompleteDownload(string file) {
             lastFile=file; openFile.Enabled=showInFolder.Enabled=true; followUpRow.Visible=true; openFile.Visible=showInFolder.Visible=true;
-            checkedUrl=null; checkedInfo=null; linkTimer.Stop(); url.Clear(); UpdateQualityChoices();
+            ClearLink();
             SetStatus("Download complete",Path.GetFileName(lastFile),false); statusMood=2; statusIcon.Tone=StatusTone.Success; stage.ForeColor=Accent;
             progress.Style=ProgressBarStyle.Continuous; progress.Value=1000; progress.Visible=true; AddRecent(lastFile);
+        }
+        private bool HasVideoLink() { try { return VideoLink.Parse(url.Text).VideoUrl!=null; } catch(ArgumentException) { return false; } }
+        private void PrepareScope() {
+            if(playlistRow==null) return;
+            YouTubeLink link=null; try { link=VideoLink.Parse(url.Text); } catch(ArgumentException) { }
+            configuringScope=true;
+            try { bool hasPlaylist=link!=null && link.PlaylistUrl!=null; playlistRow.Visible=hasPlaylist; wholePlaylist.Checked=hasPlaylist && link.VideoUrl==null; oneVideo.Checked=!wholePlaylist.Checked; oneVideo.Enabled=link!=null && link.VideoUrl!=null; }
+            finally { configuringScope=false; }
+            UpdatePlaylistSummary();
+        }
+        private void UpdatePlaylistSummary() {
+            if(playlistRow==null) return;
+            playlistSummary.Text=IsPlaylist && checkedPlaylist!=null ? F("{0} · {1} videos\nDownloads one at a time. Quality is a maximum; lower resolutions are used when needed.",checkedPlaylist.Title,checkedPlaylist.Entries.Count) : T("Choose this video or the whole playlist.");
+            playlistSummary.AccessibleName=playlistSummary.Text;
+        }
+        private void ClearLink() {
+            checkedUrl=null; checkedInfo=null; checkedPlaylist=null; linkTimer.Stop(); url.Clear(); PrepareScope(); UpdateQualityChoices();
+        }
+        private void CompletePlaylist(DownloadResult result) {
+            var history=state.Recent ?? new List<string>();
+            foreach(string file in result.Files) { history.RemoveAll(x=>String.Equals(x,file,StringComparison.OrdinalIgnoreCase)); history.Insert(0,file); if(history.Count>5) history.RemoveAt(5); }
+            state.Recent=history; SaveState();
+            lastFile=result.FilePath; openFile.Enabled=showInFolder.Enabled=lastFile!=null; openFile.Visible=showInFolder.Visible=lastFile!=null; followUpRow.Visible=lastFile!=null;
+            bool finished=!result.Cancelled && result.Failed==0 && result.Remaining==0 && result.StopReason==null;
+            if(finished) ClearLink();
+            string heading=finished ? "Playlist complete" : result.Cancelled ? "Playlist cancelled" : result.Remaining>0 ? "Playlist paused" : "Playlist finished with errors";
+            string detail="{0} saved · {1} already downloaded · {2} failed · {3} remaining";
+            SetStatus(heading,detail,!finished && !result.Cancelled); statusArgs=new object[]{result.Completed-result.Skipped,result.Skipped,result.Failed,result.Remaining};
+            progressDetail.Text=F(detail,statusArgs);
+            if(!finished) { statusSuffix=result.StopReason!=null ? FriendlyError(result.StopReason) : "Run the same playlist again to resume. Completed files are kept."; progressDetail.Text+="\n"+T(statusSuffix); }
+            statusMood=finished ? 2 : result.Cancelled ? 0 : 1; statusIcon.Tone=finished ? StatusTone.Success : result.Cancelled ? StatusTone.Info : StatusTone.Error;
+            progress.Style=ProgressBarStyle.Continuous; progress.Value=finished ? 1000 : (int)(1000.0*(result.Completed+result.Failed)/Math.Max(1,result.Total)); progress.Visible=true;
         }
         private void SetBusy(bool value) {
             busy=value; bool locked=value || installingUpdate; url.Enabled=paste.Enabled=folder.Enabled=browse.Enabled=language.Enabled=!locked; recentButton.Enabled=!installingUpdate;
             video.Enabled=audio.Enabled=!locked && tools.Ready; update.Enabled=!locked && !checkingUpdate;
-            quality.Enabled=!locked && (IsAudio ? tools.Ready : checkedInfo!=null && checkedInfo.Qualities.Count>0); UpdateDownloadEnabled(); cancel.Enabled=value && !installingUpdate; followUpRow.Visible=(value && !installingUpdate) || openFile.Enabled; cancel.Visible=value && !installingUpdate; Cursor=locked ? Cursors.AppStarting : Cursors.Default;
+            wholePlaylist.Enabled=!locked; oneVideo.Enabled=!locked && HasVideoLink();
+            quality.Enabled=!locked && (IsAudio ? tools.Ready : IsPlaylist ? checkedPlaylist!=null : checkedInfo!=null && checkedInfo.Qualities.Count>0); UpdateDownloadEnabled(); cancel.Enabled=value && !installingUpdate; followUpRow.Visible=(value && !installingUpdate) || openFile.Enabled; cancel.Visible=value && !installingUpdate; Cursor=locked ? Cursors.AppStarting : Cursors.Default;
             if(!value && progress.Style==ProgressBarStyle.Marquee) { progress.Style=ProgressBarStyle.Continuous; progress.Value=0; }
         }
-        private void UpdateDownloadEnabled() { download.Enabled=!busy && !installingUpdate && tools.Ready && checkedInfo!=null && (IsAudio ? checkedInfo.HasAudio : checkedInfo.Qualities.Count>0); }
+        private void UpdateDownloadEnabled() { download.Enabled=!busy && !installingUpdate && tools.Ready && (IsPlaylist ? checkedPlaylist!=null : checkedInfo!=null && (IsAudio ? checkedInfo.HasAudio : checkedInfo.Qualities.Count>0)); }
         private void UpdateQualityChoices() {
             quality.Items.Clear();
             if(IsAudio) { quality.AccessibleName=T("MP3 encoding bitrate"); int savedBitrate=state.AudioBitrate==192 ? 192 : 320; quality.Items.Add(new AudioQuality { Bitrate=192 }); quality.Items.Add(new AudioQuality { Bitrate=320 }); quality.SelectedIndex=savedBitrate==192 ? 0 : 1; quality.Enabled=!busy && !installingUpdate && tools.Ready; }
             else {
                 quality.AccessibleName=T("Available video quality");
-                if(checkedInfo==null || checkedInfo.Qualities.Count==0) { quality.Items.Add(T("Quality")); quality.SelectedIndex=0; quality.Enabled=false; }
+                if(IsPlaylist && checkedPlaylist!=null) {
+                    quality.AccessibleName=T("Playlist maximum video quality");
+                    foreach(int height in new[]{0,2160,1440,1080,720,480,360}) quality.Items.Add(new PlaylistQuality { Height=height,Text=height==0 ? T("Best available") : F("Up to {0}p",height) });
+                    quality.SelectedIndex=3; quality.Enabled=!busy && !installingUpdate;
+                }
+                else if(IsPlaylist || checkedInfo==null || checkedInfo.Qualities.Count==0) { quality.Items.Add(T("Quality")); quality.SelectedIndex=0; quality.Enabled=false; }
                 else { foreach(var q in checkedInfo.Qualities) quality.Items.Add(q); quality.SelectedIndex=AvailableFormats.RecommendedIndex(checkedInfo.Qualities); quality.Enabled=!busy && !installingUpdate; }
             }
         }
-        private void ApplyProgress(DownloadProgress p) { statusRow.Visible=true; statusHeading=p.Stage; statusMessage=p.Detail; statusIsProgress=true; statusMood=0; statusIcon.Tone=StatusTone.Info; stage.Text=T(p.Stage); stage.ForeColor=Ink; progressDetail.Text=Texts.Progress(state.Language,p.Detail); progressDetail.ForeColor=Muted; progress.Visible=true; progress.Style=p.Indeterminate ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous; if(!p.Indeterminate) progress.Value=(int)Math.Max(0,Math.Min(1000,p.Percent*10)); }
-        private void SetStatus(string heading,string message,bool error) { statusRow.Visible=error || heading!="Ready for a video link"; statusHeading=heading; statusMessage=message; statusIsProgress=false; statusMood=error ? 1 : 0; statusIcon.Tone=error ? StatusTone.Error : StatusTone.Info; stage.Text=T(heading); stage.ForeColor=error ? colors.Error : Ink; progressDetail.Text=T(message); progressDetail.ForeColor=Muted; progress.Visible=false; if(error) { progress.Style=ProgressBarStyle.Continuous; progress.Value=0; } }
+        private string ProgressText(DownloadProgress p) { return (p.Total>0 ? F("Video {0} of {1}",p.Item,p.Total)+" · "+p.ItemTitle+"\n" : "")+Texts.Progress(state.Language,p.Detail); }
+        private void ApplyProgress(DownloadProgress p) { latestProgress=p; statusRow.Visible=true; statusHeading=p.Stage; statusMessage=p.Detail; statusArgs=null; statusIsProgress=true; statusMood=0; statusIcon.Tone=StatusTone.Info; stage.Text=T(p.Stage); stage.ForeColor=Ink; progressDetail.Text=ProgressText(p); progressDetail.ForeColor=Muted; progress.Visible=true; progress.Style=p.Indeterminate ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous; if(!p.Indeterminate) progress.Value=(int)Math.Max(0,Math.Min(1000,p.Percent*10)); }
+        private void SetStatus(string heading,string message,bool error) { statusArgs=null; statusSuffix=null; statusRow.Visible=error || heading!="Ready for a video link"; statusHeading=heading; statusMessage=message; statusIsProgress=false; statusMood=error ? 1 : 0; statusIcon.Tone=error ? StatusTone.Error : StatusTone.Info; stage.Text=T(heading); stage.ForeColor=error ? colors.Error : Ink; progressDetail.Text=T(message); progressDetail.ForeColor=Muted; progress.Visible=false; if(error) { progress.Style=ProgressBarStyle.Continuous; progress.Value=0; } }
         private static string InitialFolder(string saved,bool migrateLegacy) {
             string downloads=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads");
             if(String.IsNullOrWhiteSpace(saved)) return downloads;
@@ -400,13 +474,14 @@ namespace YouTubeDownloader {
         private string DownloadFolder() { if(String.IsNullOrWhiteSpace(folder.Text)) throw new ArgumentException("Choose a save folder with Browse."); try { return Path.GetFullPath(folder.Text.Trim()); } catch { throw new ArgumentException("Choose a valid folder on this computer with Browse."); } }
         private void SafeUi(Action action) { if(IsDisposed || !IsHandleCreated) return; try { BeginInvoke(action); } catch(InvalidOperationException) { } }
         private static string FriendlyError(string message) {
+            if(message=="This playlist is empty or unavailable. Try a public playlist." || message=="The playlist could not be read. Check the link and try again." || message=="Completed file saved, but resume information could not be saved.") return message;
             message=(message??"").ToLowerInvariant();
             if(message.Contains("429") || message.Contains("too many requests")) return "YouTube is limiting downloads right now. Wait a few minutes, then try again.";
             if(message.Contains("sign in") || message.Contains("private") || message.Contains("age-restricted")) return "This video requires sign-in. Try a publicly available video.";
             if(message.Contains("403")) return "YouTube refused this download. Wait a little, then paste the link again.";
             if(message.Contains("unavailable") || message.Contains("removed") || message.Contains("not available in your country")) return "This video is unavailable. Try another video link.";
             if(message.Contains("requested format") || message.Contains("no downloadable formats")) return "That quality is no longer available. Paste the link again to refresh the options.";
-            if(message.Contains("no space") || message.Contains("disk full")) return "The drive is full. Free some space or choose another save folder.";
+            if(DownloadErrors.IsDiskFull(message)) return "The drive is full. Free some space or choose another save folder.";
             if(message.Contains("permission") || message.Contains("access is denied")) return "We can't save in that folder. Choose another folder with Browse.";
             if(message.Contains("timed out") || message.Contains("network") || message.Contains("resolve") || message.Contains("connection")) return "Couldn't reach YouTube. Check your internet connection, then try again.";
             if(message.Contains("missing tools")) return "Run SetupTools.cmd in the app folder to install the missing tools, then reopen the app.";

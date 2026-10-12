@@ -5,6 +5,21 @@ using System.Globalization;
 namespace YouTubeDownloader {
     internal static class Texts {
         private static readonly Dictionary<string,string> Arabic=new Dictionary<string,string> {
+            {"Videos, Shorts, and playlists","الفيديوهات والمقاطع القصيرة وقوائم التشغيل"},
+            {"&This video","هذا ال&فيديو"}, {"&Whole playlist","&قائمة التشغيل كاملة"}, {"This video","هذا الفيديو"}, {"Whole playlist","قائمة التشغيل كاملة"},
+            {"Choose this video or the whole playlist.","اختر هذا الفيديو أو قائمة التشغيل كاملة."},
+            {"{0} · {1} videos\nDownloads one at a time. Quality is a maximum; lower resolutions are used when needed.","{0} · {1} فيديو\nيُنزل فيديو واحدًا في كل مرة. الجودة حد أقصى؛ تُستخدم دقة أقل عند الحاجة."},
+            {"Best available","أفضل جودة متاحة"}, {"Up to {0}p","حتى {0}p"}, {"Playlist maximum video quality","الحد الأقصى لجودة قائمة التشغيل"},
+            {"Checking playlist","جارٍ فحص قائمة التشغيل"}, {"Getting the playlist titles…","جارٍ جلب عناوين قائمة التشغيل…"}, {"Could not check playlist","تعذّر فحص قائمة التشغيل"},
+            {"Downloading playlist","جارٍ تنزيل قائمة التشغيل"}, {"Video {0} of {1}","الفيديو {0} من {1}"},
+            {"Playlist complete","اكتمل تنزيل قائمة التشغيل"}, {"Playlist cancelled","أُلغي تنزيل قائمة التشغيل"}, {"Playlist paused","توقف تنزيل قائمة التشغيل"}, {"Playlist finished with errors","انتهت قائمة التشغيل مع أخطاء"},
+            {"{0} saved · {1} already downloaded · {2} failed · {3} remaining","{0} تم حفظه · {1} تم تنزيله سابقًا · {2} تعذّر تنزيله · {3} متبقي"},
+            {"Run the same playlist again to resume. Completed files are kept.","أعد تنزيل القائمة نفسها للاستئناف. تُحفظ الملفات المكتملة."},
+            {"Use a link to a YouTube video, Short, or playlist.","استخدم رابط فيديو أو مقطع قصير أو قائمة تشغيل من يوتيوب."},
+            {"This link does not contain a playlist.","هذا الرابط لا يحتوي على قائمة تشغيل."}, {"Choose Whole playlist for a playlist-only link.","اختر قائمة التشغيل كاملة لرابط قائمة التشغيل."},
+            {"This playlist is empty or unavailable. Try a public playlist.","قائمة التشغيل فارغة أو غير متاحة. جرّب قائمة عامة."}, {"The playlist could not be read. Check the link and try again.","تعذّر قراءة قائمة التشغيل. تحقق من الرابط وجرّب مجددًا."},
+            {"Check the playlist link again before downloading.","تحقق من رابط قائمة التشغيل مجددًا قبل التنزيل."},
+            {"Completed file saved, but resume information could not be saved.","حُفظ الملف المكتمل، لكن تعذّر حفظ معلومات الاستئناف."},
             {"YouTube Downloader","YouTube Downloader"}, {"Close","إغلاق"}, {"Could not open link","تعذّر فتح الرابط"}, {"Open the link in your browser and try again.","افتح الرابط في المتصفح وجرّب مرة أخرى."}, {"YouTube &link","&رابط يوتيوب"}, {"YouTube link","رابط يوتيوب"},
             {"YouTube Downloader logo","شعار YouTube Downloader"}, {"Open the save folder and try opening the file there.","افتح مجلد الحفظ وجرّب فتح الملف من هناك."},
             {"Videos, Shorts, and shared links","الفيديوهات والمقاطع القصيرة والروابط المشتركة"},

@@ -4,6 +4,8 @@ $build = Join-Path $projectRoot 'build'
 New-Item -ItemType Directory -Path $build -Force | Out-Null
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $testExe = Join-Path $build 'CoreTests.exe'
+& $compiler /nologo /target:exe "/out:$(Join-Path $build 'FakeDownloader.exe')" /reference:System.Web.Extensions.dll (Join-Path $projectRoot 'tests\FakeDownloader.cs')
+if ($LASTEXITCODE -ne 0) { throw 'The process fixture build failed.' }
 & $compiler /nologo /target:exe "/out:$testExe" /reference:System.Web.Extensions.dll (Join-Path $projectRoot 'src\Core.cs') (Join-Path $projectRoot 'tests\CoreTests.cs')
 if ($LASTEXITCODE -ne 0) { throw 'The test build failed.' }
 & $testExe
