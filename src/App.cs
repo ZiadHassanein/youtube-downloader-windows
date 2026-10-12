@@ -51,7 +51,7 @@ namespace YouTubeDownloader {
         private readonly ThemeProgress progress=new ThemeProgress();
         private TableLayoutPanel content=new TableLayoutPanel();
         private ThemeScrollHost scroll;
-        private TableLayoutPanel branding, updateRow;
+        private TableLayoutPanel branding, updateRow, authorRow;
         private AppRelease availableUpdate;
         private bool checkingUpdate, installingUpdate;
         private readonly ToolSet tools;
@@ -204,7 +204,7 @@ namespace YouTubeDownloader {
                 string target=entry[1]; var link=new LinkLabel { Text=entry[0],AutoSize=true,LinkColor=Accent,ActiveLinkColor=Accent,VisitedLinkColor=Accent,LinkBehavior=LinkBehavior.HoverUnderline,Margin=new Padding(12,0,0,0),Font=author.Font,Tag="social",AccessibleName=entry[0]+" · Ziad Hassanein" };
                 link.LinkClicked+=delegate { try { Process.Start(new ProcessStartInfo(target) { UseShellExecute=true }); } catch { ShowContextNotice("Could not open link","Open the link in your browser and try again.",StatusTone.Error,socials); } }; socials.Controls.Add(link);
             }
-            Add(Row(author,socials),0); author.Parent.Margin=new Padding(0,14,0,0);
+            authorRow=Row(author,socials); Add(authorRow,0); authorRow.Margin=new Padding(0,14,0,0);
             updateHeading.AutoSize=true; updateHeading.Font=new Font(Font,FontStyle.Bold); updateHeading.Margin=new Padding(0,0,0,4);
             updateMessage.AutoSize=true; updateMessage.Tag="muted"; updateMessage.MaximumSize=new Size(696,0); updateMessage.Margin=new Padding(0);
             ConfigureButton(noticeDismiss,"Dismiss"); noticeDismiss.Quiet=true; noticeDismiss.Width=80; noticeDismiss.Height=32; noticeDismiss.AccessibleName="Dismiss update message"; noticeDismiss.Click+=delegate { HideUpdateNotice(); };
@@ -254,7 +254,7 @@ namespace YouTubeDownloader {
             state.Language=value=="ar" ? "ar" : "en"; ApplyLanguage(); ApplyTitleBarTheme(); RepaintInterface(); SaveState();
         }
         private void CaptureLayout(Control parent) {
-            if(parent==branding || parent==updateRow) return;
+            if(parent==branding || parent==updateRow || parent==authorRow) return;
             var table=parent as TableLayoutPanel;
             if(table!=null && table.ColumnCount>1) tableStates.Add(new TableState { Table=table,Columns=table.ColumnStyles.Cast<ColumnStyle>().Select(c=>new ColumnStyle(c.SizeType,c.Width)).ToArray() });
             foreach(Control child in parent.Controls) {
