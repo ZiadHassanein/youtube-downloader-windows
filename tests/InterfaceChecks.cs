@@ -55,6 +55,8 @@ internal static class InterfaceChecks {
                             if(Field<TableLayoutPanel>(window,"content").Width<400 || stage.Width==0 || stage.Height==0) throw new Exception("Language switching collapsed the content layout");
                             if(!focused.Focused) throw new Exception("Language switching lost keyboard focus");
                             if(!Field<Button>(window,"paste").Visible || !Field<Label>(window,"toolsStatus").Visible || !url.Visible || !theme.Visible) throw new Exception("Language change hid an essential control");
+                            var update=Field<ThemeButton>(window,"update"); var version=Field<Label>(window,"toolsStatus"); var footer=(TableLayoutPanel)update.Parent;
+                            if(footer.GetColumn(update)!=0 || footer.GetColumn(version)!=1 || update.IsArabic!=arabic || version.TextAlign!=ContentAlignment.MiddleRight || version.Text!="v"+AppUpdates.Current.ToString(3) || update.Left>=version.Left) throw new Exception("Language change moved the fixed update/version footer, broke text direction, or restored tool text");
                             if(Field<Button>(window,"cancel").Visible || Field<Button>(window,"openFile").Visible || Field<ThemeProgress>(window,"progress").Visible || Field<NoticePopover>(window,"updateNotice").Visible) throw new Exception("Language change revealed an inactive control");
                             if(painted<=before) throw new Exception("The status label was not repainted: stage="+stage.Bounds+", screen="+stage.PointToScreen(Point.Empty)+", content="+Field<TableLayoutPanel>(window,"content").Bounds+", viewport="+Field<ThemeScrollHost>(window,"scroll").Controls[0].Bounds);
                             pass++;

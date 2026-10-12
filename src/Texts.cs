@@ -27,7 +27,7 @@ namespace YouTubeDownloader {
             {"Couldn't check for updates","تعذّر البحث عن تحديث"}, {"Check your internet connection, then choose Check for updates again.","تحقق من اتصال الإنترنت، ثم ابحث عن تحديث مجددًا."},
             {"Preparing your update","جارٍ تجهيز التحديث"}, {"The app will restart when the verified update is ready.","سيُعاد تشغيل التطبيق بعد التحقق من التحديث وتجهيزه."},
             {"Update couldn't be installed","تعذّر تثبيت التحديث"}, {"Your current app is ready to use. Check your connection and choose Retry update.","يمكنك استخدام الإصدار الحالي. تحقق من الاتصال ثم اضغط إعادة التحديث."},
-            {"v{0} · Tools ready","الإصدار {0} · الأدوات جاهزة"}, {"v{0} · Missing: {1}","الإصدار {0} · أدوات غير متوفرة: {1}"},
+            {"App version","إصدار التطبيق"},
             {"Switch to light theme","التبديل إلى المظهر الفاتح"}, {"Switch to dark theme","التبديل إلى المظهر الداكن"}, {"Switch to Arabic","التبديل إلى العربية"}, {"Switch to English","التبديل إلى الإنجليزية"},
             {"Scroll page","تمرير الصفحة"}, {"Use the arrow keys, Page Up, Page Down, Home, or End to scroll.","استخدم الأسهم أو Page Up أو Page Down أو Home أو End للتمرير."},
             {"Information","معلومة"}, {"Success","نجاح"}, {"Error","خطأ"},

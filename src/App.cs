@@ -51,7 +51,7 @@ namespace YouTubeDownloader {
         private readonly ThemeProgress progress=new ThemeProgress();
         private TableLayoutPanel content=new TableLayoutPanel();
         private ThemeScrollHost scroll;
-        private TableLayoutPanel branding;
+        private TableLayoutPanel branding, updateRow;
         private AppRelease availableUpdate;
         private bool checkingUpdate, installingUpdate;
         private readonly ToolSet tools;
@@ -194,8 +194,10 @@ namespace YouTubeDownloader {
             if(!tools.Ready) { statusMood=1; statusIcon.Tone=StatusTone.Error; }
             content=page;
             ConfigureButton(update,"Check for updates"); update.Width=168; update.Height=38; update.Click+=async delegate { if(availableUpdate==null) await CheckUpdateAsync(true); else await InstallUpdateAsync(); };
-            toolsStatus.Text=ToolsText(); toolsStatus.AutoSize=true; toolsStatus.Tag="muted";
-            Add(Row(toolsStatus,update),0);
+            toolsStatus.Text=VersionText(); toolsStatus.AutoSize=true; toolsStatus.Tag="muted"; toolsStatus.Dock=DockStyle.Fill; toolsStatus.TextAlign=ContentAlignment.MiddleRight; toolsStatus.Margin=new Padding(12,0,0,0);
+            updateRow=new TableLayoutPanel { AutoSize=true,ColumnCount=2,RowCount=1,Margin=new Padding(0) };
+            updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,168)); updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            update.Anchor=AnchorStyles.Left; updateRow.Controls.Add(update,0,0); updateRow.Controls.Add(toolsStatus,1,0); Add(updateRow,0);
             var author=new Label { Text="By Ziad Hassanein",AutoSize=true,ForeColor=Muted,Font=new Font(Font.FontFamily,9f),Margin=new Padding(0) };
             var socials=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Margin=new Padding(0),WrapContents=false };
             foreach(var entry in new[]{new[]{"GitHub","https://github.com/ZiadHassanein"},new[]{"LinkedIn","https://www.linkedin.com/in/ziad-hassanein/"},new[]{"Email","mailto:ziadmuhammed501@gmail.com"}}) {
@@ -246,13 +248,13 @@ namespace YouTubeDownloader {
             var row=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=new Padding(0) }; row.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,44)); row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             icon.Margin=new Padding(12,1,0,0); row.Controls.Add(icon,0,0); row.Controls.Add(copy,1,0); return row;
         }
-        private string ToolsText() { return tools.Ready ? F("v{0} · Tools ready",AppUpdates.Current.ToString(3)) : F("v{0} · Missing: {1}",AppUpdates.Current.ToString(3),tools.Missing); }
+        private string VersionText() { return "v"+AppUpdates.Current.ToString(3); }
         private void SetLanguage(string value) {
             if(busy || installingUpdate) return;
             state.Language=value=="ar" ? "ar" : "en"; ApplyLanguage(); ApplyTitleBarTheme(); RepaintInterface(); SaveState();
         }
         private void CaptureLayout(Control parent) {
-            if(parent==branding) return;
+            if(parent==branding || parent==updateRow) return;
             var table=parent as TableLayoutPanel;
             if(table!=null && table.ColumnCount>1) tableStates.Add(new TableState { Table=table,Columns=table.ColumnStyles.Cast<ColumnStyle>().Select(c=>new ColumnStyle(c.SizeType,c.Width)).ToArray() });
             foreach(Control child in parent.Controls) {
@@ -262,6 +264,7 @@ namespace YouTubeDownloader {
         }
         private void ApplyDirection() {
             scroll.IsArabic=IsArabic;
+            update.IsArabic=IsArabic;
             foreach(var saved in tableStates) {
                 for(int i=0;i<saved.Columns.Length;i++) {
                     var original=saved.Columns[IsArabic ? saved.Columns.Length-1-i : i];
@@ -305,7 +308,7 @@ namespace YouTubeDownloader {
                 var selected=quality.SelectedItem as VideoQuality; UpdateQualityChoices();
                 if(selected!=null && checkedInfo!=null && !IsAudio) { int index=checkedInfo.Qualities.FindIndex(q=>q.Resolution==selected.Resolution && q.Selector==selected.Selector); if(index>=0) quality.SelectedIndex=index; }
                 stage.Text=T(statusHeading); progressDetail.Text=statusIsProgress ? Texts.Progress(state.Language,statusMessage) : T(statusMessage);
-                toolsStatus.Text=ToolsText(); updateHeading.Text=T(updateHeadingKey); updateMessage.Text=F(updateMessageKey,updateMessageArgs);
+                toolsStatus.Text=VersionText(); toolsStatus.AccessibleName=T("App version"); updateHeading.Text=T(updateHeadingKey); updateMessage.Text=F(updateMessageKey,updateMessageArgs);
                 updateNotice.AccessibleName=T("App update status"); noticeDismiss.AccessibleName=T("Dismiss update message");
                 updateNotice.UpdateLook(colors,IsArabic);
             } finally { for(int i=controls.Count-1;i>=0;i--) controls[i].ResumeLayout(true); scroll.EndContentUpdate(); if(updateNotice.Visible && noticeAnchor!=null) updateNotice.ShowNear(this,noticeAnchor); }
