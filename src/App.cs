@@ -42,7 +42,7 @@ namespace YouTubeDownloader {
         private readonly ThemeSwitch theme=new ThemeSwitch();
         private readonly ToolTip themeTip=new ToolTip();
         private readonly FormatChoice video=new FormatChoice(), audio=new FormatChoice();
-        private readonly ThemeButton paste=new ThemeButton(), browse=new ThemeButton(), download=new ThemeButton(), cancel=new ThemeButton(), openFolder=new ThemeButton(), openFile=new ThemeButton(), update=new ThemeButton(), noticeDismiss=new ThemeButton(), language=new ThemeButton(), recentButton=new ThemeButton();
+        private readonly ThemeButton paste=new ThemeButton(), browse=new ThemeButton(), download=new ThemeButton(), cancel=new ThemeButton(), openFolder=new ThemeButton(), openFile=new ThemeButton(), showInFolder=new ThemeButton(), update=new ThemeButton(), noticeDismiss=new ThemeButton(), language=new ThemeButton(), recentButton=new ThemeButton();
         private readonly Label stage=new Label(), progressDetail=new Label(), toolsStatus=new Label();
         private readonly Label updateHeading=new Label(), updateMessage=new Label();
         private readonly StatusIcon statusIcon=new StatusIcon(), updateIcon=new StatusIcon();
@@ -81,6 +81,8 @@ namespace YouTubeDownloader {
         private sealed class TableState { public TableLayoutPanel Table; public ColumnStyle[] Columns; }
         private sealed class AudioQuality { public int Bitrate; public override string ToString() { return Bitrate+" kbps"; } }
         [DllImport("user32.dll")] private static extern bool RedrawWindow(IntPtr window,IntPtr rectangle,IntPtr region,uint flags);
+        [DllImport("shell32.dll",CharSet=CharSet.Unicode)] private static extern int SHParseDisplayName(string path,IntPtr bindContext,out IntPtr item,uint attributes,out uint returnedAttributes);
+        [DllImport("shell32.dll")] private static extern int SHOpenFolderAndSelectItems(IntPtr item,uint count,IntPtr children,uint flags);
 
         public MainWindow() : this(true) { }
         internal MainWindow(bool checkUpdatesOnStart) {
@@ -183,8 +185,10 @@ namespace YouTubeDownloader {
             centeredActions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); centeredActions.Controls.Add(mainActions,0,0); Add(centeredActions,12);
             ConfigureButton(cancel,"&Cancel"); cancel.Width=96; cancel.Height=46; cancel.Enabled=false; cancel.Visible=false; cancel.Click+=delegate { if(cancellation!=null) cancellation.Cancel(); cancel.Enabled=false; SetStatus("Cancelling","Stopping the download…",false); };
             ConfigureButton(openFile,"Open &file"); openFile.Width=104; openFile.Height=46; openFile.Quiet=true; openFile.Enabled=false; openFile.Visible=false; openFile.Click+=delegate { OpenCompletedFile(); };
+            ConfigureButton(showInFolder,"Show &in folder"); showInFolder.Width=168; showInFolder.Height=46; showInFolder.Quiet=true; showInFolder.Enabled=false; showInFolder.Visible=false;
+            showInFolder.Click+=delegate { ShowFileInFolder(lastFile,delegate(string heading,string message) { ShowContextNotice(heading,message,StatusTone.Error,followUpRow); }); };
             var followUpActions=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Anchor=AnchorStyles.None,Margin=new Padding(0),WrapContents=false };
-            openFile.Margin=new Padding(12,0,0,0); followUpActions.Controls.Add(cancel); followUpActions.Controls.Add(openFile);
+            openFile.Margin=new Padding(12,0,0,0); showInFolder.Margin=new Padding(12,0,0,0); followUpActions.Controls.Add(cancel); followUpActions.Controls.Add(openFile); followUpActions.Controls.Add(showInFolder);
             followUpRow=new TableLayoutPanel { AutoSize=true,ColumnCount=1,RowCount=1,Margin=new Padding(0) };
             followUpRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); followUpRow.Controls.Add(followUpActions,0,0); Add(followUpRow,12); followUpRow.Visible=false;
             statusHeading=tools.Ready ? "Ready for a video link" : "Downloader tools are missing"; statusMessage=tools.Ready ? "Paste a link to get started." : "Run SetupTools.cmd in the app folder, then reopen the app.";
@@ -339,7 +343,7 @@ namespace YouTubeDownloader {
                 options=new DownloadOptions { Url=VideoLink.Normalize(url.Text),Folder=DownloadFolder(),Audio=IsAudio,AudioBitrate=state.AudioBitrate,Height=chosen==null ? 0 : chosen.Resolution,FormatSelector=chosen==null ? null : chosen.Selector }; Arguments.ForDownload(tools,options);
             }
             catch(Exception ex) { ShowContextNotice("Check your download",ex.Message,StatusTone.Error,folder.Parent); return; }
-            SetBusy(true); lastFile=null; openFile.Enabled=false; openFile.Visible=false; cancellation=new CancellationTokenSource(); SaveState();
+            SetBusy(true); lastFile=null; openFile.Enabled=showInFolder.Enabled=false; openFile.Visible=showInFolder.Visible=false; cancellation=new CancellationTokenSource(); SaveState();
             try {
                 DownloadResult result=await Task.Run(()=>engine.Download(options,cancellation.Token));
                 if(result.Cancelled) { SetStatus("Download cancelled","Partial files are kept so the same download can resume later.",false); progress.Style=ProgressBarStyle.Continuous; progress.Value=0; }
@@ -349,7 +353,7 @@ namespace YouTubeDownloader {
             finally { SetBusy(false); cancellation.Dispose(); cancellation=null; }
         }
         private void CompleteDownload(string file) {
-            lastFile=file; openFile.Enabled=true; followUpRow.Visible=true; openFile.Visible=true;
+            lastFile=file; openFile.Enabled=showInFolder.Enabled=true; followUpRow.Visible=true; openFile.Visible=showInFolder.Visible=true;
             checkedUrl=null; checkedInfo=null; linkTimer.Stop(); url.Clear(); UpdateQualityChoices();
             SetStatus("Download complete",Path.GetFileName(lastFile),false); statusMood=2; statusIcon.Tone=StatusTone.Success; stage.ForeColor=Accent;
             progress.Style=ProgressBarStyle.Continuous; progress.Value=1000; progress.Visible=true; AddRecent(lastFile);
@@ -399,16 +403,29 @@ namespace YouTubeDownloader {
         }
         private void OpenDestination() { try { string destination=Path.GetFullPath(folder.Text.Trim()); if(!Directory.Exists(destination)) { ShowContextNotice("Folder is not available","Choose an existing folder or download a video first.",StatusTone.Error,folder.Parent); return; } Process.Start(new ProcessStartInfo(destination) { UseShellExecute=true }); } catch { ShowContextNotice("Could not open folder","Choose a valid folder on this computer with Browse.",StatusTone.Error,folder.Parent); } }
         private void OpenCompletedFile() { try { if(lastFile==null || !File.Exists(lastFile)) { SetStatus("File is not available","The file may have been moved or deleted.",true); return; } Process.Start(new ProcessStartInfo(lastFile) { UseShellExecute=true }); } catch { SetStatus("Could not open file","Open the save folder and try opening the file there.",true); } }
+        private void ShowFileInFolder(string file,Action<string,string> reportError) {
+            if(String.IsNullOrWhiteSpace(file) || !File.Exists(file)) { reportError("File is not available","The file may have been moved or deleted."); return; }
+            IntPtr item=IntPtr.Zero;
+            try {
+                uint attributes; Marshal.ThrowExceptionForHR(SHParseDisplayName(Path.GetFullPath(file),IntPtr.Zero,out item,0,out attributes));
+                Marshal.ThrowExceptionForHR(SHOpenFolderAndSelectItems(item,0,IntPtr.Zero,0));
+            } catch { reportError("Could not open folder","Open the save folder and try opening the file there."); }
+            finally { if(item!=IntPtr.Zero) Marshal.FreeCoTaskMem(item); }
+        }
         private void AddRecent(string file) { if(state.Recent==null) state.Recent=new List<string>(); state.Recent.RemoveAll(x=>String.Equals(x,file,StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0,file); state.Recent=state.Recent.Take(5).ToList(); SaveState(); }
         private void ShowRecentDownloads() {
             using(var dialog=CreateRecentDialog()) dialog.ShowDialog(this);
         }
         private Form CreateRecentDialog() {
             var dialog=new Form { Text=T("Recent downloads"),StartPosition=FormStartPosition.CenterParent,ClientSize=new Size(560,320),MinimumSize=new Size(480,300),MaximizeBox=false,MinimizeBox=false,ShowInTaskbar=false,Font=Font,BackColor=colors.Page,ForeColor=Ink,Padding=new Padding(20),Icon=Icon };
-            var layout=new TableLayoutPanel { Dock=DockStyle.Fill,ColumnCount=1,RowCount=3,Margin=new Padding(0) };
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.Percent,100)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            var layout=new TableLayoutPanel { Dock=DockStyle.Fill,ColumnCount=1,RowCount=4,Margin=new Padding(0) };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.Percent,100)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             layout.Controls.Add(new Label { Text=T("Recent downloads"),Font=new Font(Font,FontStyle.Bold),AutoSize=true,Dock=DockStyle.Fill,TextAlign=IsArabic ? ContentAlignment.MiddleRight : ContentAlignment.MiddleLeft,Margin=new Padding(0,0,0,14) },0,0);
             var paths=(state.Recent??new List<string>()).Take(5).ToList();
+            var reveal=new ThemeButton { Text=T("Show &in folder"),TextKey="Show &in folder",AccessibleName=T("Show &in folder").Replace("&",""),Colors=colors,IsArabic=IsArabic,Size=new Size(168,44),Enabled=false,Margin=new Padding(0) };
+            var message=new Label { AutoSize=true,Dock=DockStyle.Fill,ForeColor=colors.Error,TextAlign=IsArabic ? ContentAlignment.MiddleRight : ContentAlignment.MiddleLeft,Margin=new Padding(0,12,0,0),Visible=false,AccessibleRole=AccessibleRole.Alert };
+            var messageTimer=new System.Windows.Forms.Timer { Interval=5000 }; messageTimer.Tick+=delegate { messageTimer.Stop(); message.Visible=false; };
+            dialog.Disposed+=delegate { messageTimer.Dispose(); }; layout.Controls.Add(message,0,2);
             if(paths.Count==0) layout.Controls.Add(new Label { Text=T("Your completed downloads will appear here."),Dock=DockStyle.Fill,ForeColor=Muted,TextAlign=ContentAlignment.MiddleCenter,Margin=new Padding(0) },0,1);
             else {
                 var list=new ListBox { Dock=DockStyle.Fill,BorderStyle=BorderStyle.None,IntegralHeight=false,BackColor=colors.Page,ForeColor=Ink,DrawMode=DrawMode.OwnerDrawFixed,ItemHeight=Font.Height+10,AccessibleName=T("Recent downloads"),Margin=new Padding(0) };
@@ -421,10 +438,14 @@ namespace YouTubeDownloader {
                 };
                 Action open=delegate { if(list.SelectedIndex>=0) { lastFile=paths[list.SelectedIndex]; dialog.Close(); OpenCompletedFile(); } };
                 list.DoubleClick+=delegate { open(); }; list.KeyDown+=delegate(object sender,KeyEventArgs e) { if(e.KeyCode==Keys.Enter) { e.Handled=true; e.SuppressKeyPress=true; open(); } };
+                list.SelectedIndexChanged+=delegate { reveal.Enabled=list.SelectedIndex>=0; messageTimer.Stop(); message.Visible=false; };
+                reveal.Click+=delegate { if(list.SelectedIndex>=0) ShowFileInFolder(paths[list.SelectedIndex],delegate(string heading,string detail) { message.Text=T(heading)+" · "+T(detail); message.AccessibleName=message.Text; message.Visible=true; messageTimer.Stop(); messageTimer.Start(); }); };
                 layout.Controls.Add(list,0,1);
+                list.SelectedIndex=0;
             }
-            var close=new ThemeButton { Text=T("Close"),TextKey="Close",AccessibleName=T("Close"),Colors=colors,IsArabic=IsArabic,Size=new Size(112,44),Anchor=AnchorStyles.None,Margin=new Padding(0,16,0,0),DialogResult=DialogResult.Cancel };
-            layout.Controls.Add(close,0,2); dialog.CancelButton=close; dialog.Controls.Add(layout);
+            var close=new ThemeButton { Text=T("Close"),TextKey="Close",AccessibleName=T("Close"),Colors=colors,IsArabic=IsArabic,Size=new Size(112,44),Margin=IsArabic ? new Padding(0,0,12,0) : new Padding(12,0,0,0),DialogResult=DialogResult.Cancel };
+            var actions=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Anchor=AnchorStyles.None,Margin=new Padding(0,16,0,0),WrapContents=false,FlowDirection=IsArabic ? FlowDirection.RightToLeft : FlowDirection.LeftToRight };
+            actions.Controls.Add(reveal); actions.Controls.Add(close); layout.Controls.Add(actions,0,3); dialog.CancelButton=close; dialog.Controls.Add(layout);
             dialog.Shown+=delegate { try { int dark=theme.Checked ? 1 : 0; DwmSetWindowAttribute(dialog.Handle,20,ref dark,4); } catch(DllNotFoundException) { } catch(EntryPointNotFoundException) { } };
             return dialog;
         }

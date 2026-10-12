@@ -124,6 +124,7 @@ internal static class InterfaceChecks {
                 using(var history=(Form)typeof(MainWindow).GetMethod("CreateRecentDialog",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(window,null)) {
                     var controls=new List<Control>(); Collect(history,controls);
                     Assert(history.BackColor==window.BackColor && controls.Exists(c=>c is Label && c.Text=="Your completed downloads will appear here.") && history.CancelButton!=null,"Recent downloads opens a themed modal with an empty state and keyboard dismissal");
+                    Assert(controls.Exists(c=>c is ThemeButton && c.AccessibleName=="Show in folder" && !c.Enabled),"An empty history keeps Show in folder disabled");
                 }
                 typeof(MainWindow).GetField("checkedInfo",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(window,new VideoInfo { HasAudio=true,Qualities=new System.Collections.Generic.List<VideoQuality> { new VideoQuality { Resolution=1080,Selector="137" },new VideoQuality { Resolution=720,Selector="22" } } });
                 Call(window,"UpdateQualityChoices"); quality.SelectedIndex=1; Call(window,"SetLanguage","ar");
@@ -158,10 +159,18 @@ internal static class InterfaceChecks {
                 Assert(url.Text=="","Successful download clears the link");
                 Assert(Field<VideoInfo>(window,"checkedInfo")==null && !Field<Button>(window,"download").Enabled,"Success clears previous formats and disables another download");
                 Assert(Field<Button>(window,"openFile").Enabled && Field<Label>(window,"stage").Text=="Download complete","Completed-file access and success status remain visible");
+                Assert(Field<Button>(window,"showInFolder").Enabled && Field<Button>(window,"showInFolder").AccessibleName=="Show in folder","A completed download offers Show in folder beside Open file");
                 using(var history=(Form)typeof(MainWindow).GetMethod("CreateRecentDialog",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(window,null)) {
                     var controls=new List<Control>(); Collect(history,controls); var list=controls.Find(c=>c is ListBox) as ListBox;
                     Assert(list!=null && list.Items.Count==1 && list.Items[0].ToString()=="completed.mp4","The history modal lists completed filenames after a download");
+                    var reveal=controls.Find(c=>c is ThemeButton && c.AccessibleName=="Show in folder") as ThemeButton;
+                    Assert(list.SelectedIndex==0 && reveal.Enabled,"Recent downloads selects the latest file and enables its folder action");
+                    list.SelectedIndex=-1; Assert(!reveal.Enabled,"Clearing the history selection disables the folder action"); list.SelectedIndex=0;
+                    history.Show(window); Application.DoEvents(); reveal.PerformClick(); Application.DoEvents();
+                    Assert(history.Visible && controls.Exists(c=>c is Label && c.Visible && c.Text.Contains("The file may have been moved or deleted.") && history.ClientRectangle.Contains(history.RectangleToClient(c.RectangleToScreen(c.ClientRectangle)))),"A missing recent file shows an in-dialog message without closing history");
                 }
+                Call(window,"SetLanguage","ar");
+                Assert(Field<Button>(window,"showInFolder").AccessibleName=="إظهار في المجلد","The completed-file folder action is translated in Arabic"); Call(window,"SetLanguage","en");
                 Assert(!File.ReadAllText(path).Contains("LastUrl") && !File.ReadAllText(path).Contains("jNQXAC9IVRw"),"Links are never persisted to settings");
                 Call(window,"SetBusy",true); url.Text="https://youtu.be/jNQXAC9IVRw";
                 Call(window,"SetStatus","Download failed","Try again",true); Call(window,"SetBusy",false);

@@ -9,7 +9,7 @@ namespace YouTubeDownloader {
             {"YouTube Downloader logo","شعار YouTube Downloader"}, {"Open the save folder and try opening the file there.","افتح مجلد الحفظ وجرّب فتح الملف من هناك."},
             {"Videos, Shorts, and shared links","الفيديوهات والمقاطع القصيرة والروابط المشتركة"},
             {"&Paste","&لصق"}, {"&Browse…","&تصفح…"}, {"&Download","&تنزيل"}, {"&Cancel","&إلغاء"},
-            {"Open &folder","فتح ال&مجلد"}, {"Open &file","فتح ال&ملف"}, {"Save &as","احفظ بال&صيغة"}, {"Save &to","مجلد ال&حفظ"},
+            {"Open &folder","فتح ال&مجلد"}, {"Open &file","فتح ال&ملف"}, {"Show &in folder","إظهار في ال&مجلد"}, {"Save &as","احفظ بال&صيغة"}, {"Save &to","مجلد ال&حفظ"},
             {"&Video · MP4","&فيديو · MP4"}, {"&Audio · MP3","&صوت · MP3"}, {"Video MP4","فيديو MP4"}, {"Audio MP3","صوت MP3"},
             {"Quality","الجودة"}, {"192 kbps","192 كيلوبت/ث"}, {"Available video quality","جودة الفيديو المتاحة"}, {"MP3 encoding bitrate","معدل ترميز MP3"}, {"Save folder","مجلد الحفظ"},
             {"Choose a video to get started","اختر فيديو للبدء"}, {"Available qualities appear after you paste a link.","تظهر الجودات المتاحة بعد لصق الرابط."},
