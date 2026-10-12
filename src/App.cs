@@ -468,10 +468,18 @@ namespace YouTubeDownloader {
             foreach(Control child in item.Controls) ApplyColors(child,back);
         }
         private void DrawChoice(object sender,DrawItemEventArgs e) {
-            if(e.Index<0) return; var box=(ComboBox)sender; bool selected=(e.State & DrawItemState.Selected)!=0;
-            using(var brush=new SolidBrush(selected ? colors.Selected : colors.Field)) e.Graphics.FillRectangle(brush,e.Bounds);
-            TextRenderer.DrawText(e.Graphics,box.Items[e.Index].ToString(),box.Font,new Rectangle(e.Bounds.X+8,e.Bounds.Y,e.Bounds.Width-16,e.Bounds.Height),box.Enabled ? Ink : Muted,(IsArabic ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine);
-            if(box.Enabled && box.Focused && (e.State & DrawItemState.Focus)!=0) ControlPaint.DrawFocusRectangle(e.Graphics,e.Bounds,Ink,selected ? colors.Selected : colors.Field);
+            if(e.Index<0) return; var box=(ComboBox)sender; bool selected=(e.State & DrawItemState.Selected)!=0, face=(e.State & DrawItemState.ComboBoxEdit)!=0;
+            using(var brush=new SolidBrush(colors.Field)) e.Graphics.FillRectangle(brush,e.Bounds);
+            var row=new Rectangle(e.Bounds.X+4,e.Bounds.Y+3,Math.Max(1,e.Bounds.Width-8),Math.Max(1,e.Bounds.Height-6));
+            e.Graphics.SmoothingMode=System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            if(selected && !face) using(var path=Drawing.Rounded(row,6)) using(var brush=new SolidBrush(colors.Selected)) e.Graphics.FillPath(brush,path);
+            Color ink=!box.Enabled ? Muted : (selected && !face && SystemInformation.HighContrast ? colors.OnAccent : Ink);
+            string text=box.Items[e.Index].ToString();
+            TextRenderer.DrawText(e.Graphics,text,box.Font,new Rectangle(e.Bounds.X+(face ? 14 : (IsArabic ? 14 : 36)),e.Bounds.Y,Math.Max(1,e.Bounds.Width-(face ? 28 : 50)),e.Bounds.Height),ink,ThemeCombo.TextFlags(IsArabic,text));
+            if(!face && e.Index==box.SelectedIndex) {
+                int x=IsArabic ? e.Bounds.Right-20 : e.Bounds.Left+20,y=e.Bounds.Top+e.Bounds.Height/2;
+                using(var pen=new Pen(selected && SystemInformation.HighContrast ? colors.OnAccent : Accent,1.8f)) { pen.StartCap=pen.EndCap=System.Drawing.Drawing2D.LineCap.Round; e.Graphics.DrawLines(pen,new[]{new Point(x-5,y),new Point(x-1,y+4),new Point(x+6,y-4)}); }
+            }
         }
         private async Task CheckUpdateAsync(bool manual) {
             if(checkingUpdate || installingUpdate) return; checkingUpdate=true; update.Enabled=false; SetButtonText(update,"Checking updates…"); if(manual) ShowUpdateNotice("Checking for updates","Looking for the latest app release…",StatusTone.Info);

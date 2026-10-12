@@ -314,23 +314,93 @@ namespace YouTubeDownloader {
     internal sealed class ThemeCombo : ComboBox {
         public Palette Colors=Palette.For(false);
         public bool IsArabic;
+        private bool hover;
+        private PopupFrame popup;
+        [StructLayout(LayoutKind.Sequential)] private struct ComboInfo { public int Size; public Rectangle Item,Button; public int ButtonState; public IntPtr Combo,Edit,List; }
+        [StructLayout(LayoutKind.Sequential)] private struct NativeRect { public int Left,Top,Right,Bottom; }
+        [DllImport("user32.dll")] private static extern bool GetComboBoxInfo(IntPtr window,ref ComboInfo info);
+        [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr window,out NativeRect bounds);
+        [DllImport("user32.dll")] private static extern int SetWindowRgn(IntPtr window,IntPtr region,bool redraw);
+        [DllImport("gdi32.dll")] private static extern IntPtr CreateRoundRectRgn(int left,int top,int right,int bottom,int width,int height);
+        [DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr value);
+        [DllImport("user32.dll")] private static extern IntPtr GetWindowDC(IntPtr window);
+        [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr window,IntPtr context);
+        [DllImport("user32.dll")] private static extern bool InvalidateRect(IntPtr window,IntPtr rectangle,bool erase);
+        [DllImport("user32.dll")] private static extern bool UpdateWindow(IntPtr window);
+        public ThemeCombo() { MaxDropDownItems=8; IntegralHeight=true; Cursor=Cursors.Hand; }
+        protected override void OnMouseEnter(EventArgs e) { hover=true; Invalidate(); base.OnMouseEnter(e); }
+        protected override void OnMouseLeave(EventArgs e) { hover=false; Invalidate(); base.OnMouseLeave(e); }
+        protected override void OnGotFocus(EventArgs e) { base.OnGotFocus(e); Invalidate(); }
+        protected override void OnLostFocus(EventArgs e) { base.OnLostFocus(e); Invalidate(); }
+        protected override void OnSelectedIndexChanged(EventArgs e) { base.OnSelectedIndexChanged(e); Invalidate(); if(popup!=null && DroppedDown) popup.RefreshRows(); }
+        protected override void OnDropDown(EventArgs e) {
+            base.OnDropDown(e);
+            var info=new ComboInfo { Size=Marshal.SizeOf(typeof(ComboInfo)) };
+            if(GetComboBoxInfo(Handle,ref info) && info.List!=IntPtr.Zero) {
+                if(popup==null) popup=new PopupFrame(this);
+                popup.Attach(info.List);
+                BeginInvoke(new Action(delegate { if(!IsDisposed && DroppedDown && popup!=null) { popup.Round(); popup.PaintFrame(); } }));
+            }
+            Invalidate();
+        }
+        protected override void OnDropDownClosed(EventArgs e) { base.OnDropDownClosed(e); Invalidate(); }
+        protected override void OnHandleDestroyed(EventArgs e) { if(popup!=null) { popup.ReleaseHandle(); popup=null; } base.OnHandleDestroyed(e); }
+        internal static TextFormatFlags TextFlags(bool arabic,string text) {
+            var flags=(arabic ? TextFormatFlags.Right : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix|TextFormatFlags.EndEllipsis;
+            if(arabic) foreach(char letter in text) if(letter>='\u0600' && letter<='\u06ff') { flags|=TextFormatFlags.RightToLeft; break; }
+            return flags;
+        }
         protected override void WndProc(ref Message message) {
             base.WndProc(ref message);
             if(message.Msg==0x000F && IsHandleCreated) using(var target=Graphics.FromHwnd(Handle)) using(var frame=BufferedGraphicsManager.Current.Allocate(target,ClientRectangle)) {
                 var graphics=frame.Graphics;
-                int width=Math.Max(18,SystemInformation.VerticalScrollBarWidth);
+                const int width=38;
                 graphics.Clear(Parent==null ? Colors.Surface : Parent.BackColor);
                 graphics.SmoothingMode=SmoothingMode.AntiAlias;
                 using(var path=Drawing.Rounded(Drawing.SurfaceBounds(this),Drawing.CornerRadius)) {
-                    using(var brush=new SolidBrush(Colors.Field)) graphics.FillPath(brush,path);
-                    using(var pen=new Pen(Focused && Enabled ? Colors.Accent : Colors.Border,Focused && Enabled ? 1.5f : 1f)) graphics.DrawPath(pen,path);
+                    using(var brush=new SolidBrush(Enabled && hover ? Colors.Hover : Colors.Field)) graphics.FillPath(brush,path);
+                    bool active=Enabled && (Focused || DroppedDown);
+                    using(var pen=new Pen(active || (Enabled && hover) ? Colors.Accent : Colors.Border,active ? 1.5f : 1f)) graphics.DrawPath(pen,path);
                 }
                 string text=SelectedItem==null ? Text : SelectedItem.ToString(); bool rtl=IsArabic;
-                TextRenderer.DrawText(graphics,text,Font,new Rectangle(rtl ? width+8 : 12,0,Math.Max(0,Width-width-20),Height),Enabled ? Colors.Ink : Colors.Muted,(rtl ? TextFormatFlags.Right|TextFormatFlags.RightToLeft : TextFormatFlags.Left)|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine|TextFormatFlags.NoPrefix);
-                if(Focused && ShowFocusCues && Enabled) ControlPaint.DrawFocusRectangle(graphics,new Rectangle(rtl ? width+5 : 5,5,Width-width-10,Height-10),Colors.Ink,Colors.Field);
-                int x=rtl ? width/2+1 : Width-width/2-1,y=Height/2;
-                using(var pen=new Pen(Enabled ? Colors.Ink : Colors.Muted,1.5f)) { graphics.DrawLine(pen,x-3,y-2,x,y+1); graphics.DrawLine(pen,x,y+1,x+3,y-2); }
+                TextRenderer.DrawText(graphics,text,Font,new Rectangle(rtl ? width+10 : 14,0,Math.Max(0,Width-width-24),Height),Enabled ? Colors.Ink : Colors.Muted,TextFlags(rtl,text));
+                var arrow=new Rectangle(rtl ? 6 : Width-width,6,width-6,Math.Max(1,Height-12));
+                if(Enabled && (hover || DroppedDown)) using(var path=Drawing.Rounded(arrow,6)) using(var brush=new SolidBrush(Colors.Selected)) graphics.FillPath(brush,path);
+                int x=arrow.Left+arrow.Width/2,y=Height/2, direction=DroppedDown ? -1 : 1;
+                Color arrowInk=Enabled && (hover || DroppedDown) ? (SystemInformation.HighContrast ? Colors.OnAccent : Colors.Accent) : Colors.Muted;
+                using(var pen=new Pen(arrowInk,1.8f)) { pen.StartCap=pen.EndCap=LineCap.Round; graphics.DrawLines(pen,new[]{new Point(x-5,y-direction*2),new Point(x,y+direction*3),new Point(x+5,y-direction*2)}); }
                 frame.Render(target);
+            }
+        }
+        private sealed class PopupFrame : NativeWindow {
+            private readonly ThemeCombo owner;
+            private int width,height;
+            public PopupFrame(ThemeCombo owner) { this.owner=owner; }
+            public void Attach(IntPtr window) { if(Handle==window) return; if(Handle!=IntPtr.Zero) ReleaseHandle(); width=height=0; AssignHandle(window); }
+            public void RefreshRows() { if(Handle!=IntPtr.Zero) { InvalidateRect(Handle,IntPtr.Zero,true); UpdateWindow(Handle); } }
+            public void Round() {
+                NativeRect bounds; if(Handle==IntPtr.Zero || !GetWindowRect(Handle,out bounds)) return;
+                int w=bounds.Right-bounds.Left,h=bounds.Bottom-bounds.Top;
+                if(w<3 || h<3 || (w==width && h==height)) return;
+                width=w; height=h;
+                IntPtr region=CreateRoundRectRgn(0,0,w+1,h+1,20,20);
+                if(region!=IntPtr.Zero && SetWindowRgn(Handle,region,true)==0) DeleteObject(region);
+            }
+            public void PaintFrame() {
+                NativeRect bounds; if(Handle==IntPtr.Zero || !GetWindowRect(Handle,out bounds)) return;
+                int w=bounds.Right-bounds.Left,h=bounds.Bottom-bounds.Top; if(w<3 || h<3) return;
+                IntPtr context=GetWindowDC(Handle); if(context==IntPtr.Zero) return;
+                try { using(var graphics=Graphics.FromHdc(context)) {
+                    graphics.ExcludeClip(new Rectangle(1,1,w-2,h-2));
+                    using(var brush=new SolidBrush(owner.Colors.Field)) graphics.FillRectangle(brush,0,0,w,h);
+                    graphics.ResetClip(); graphics.SmoothingMode=SmoothingMode.AntiAlias;
+                    using(var path=Drawing.Rounded(new Rectangle(0,0,w-1,h-1),Drawing.CornerRadius)) using(var pen=new Pen(owner.Colors.Border)) graphics.DrawPath(pen,path);
+                } } finally { ReleaseDC(Handle,context); }
+            }
+            protected override void WndProc(ref Message message) {
+                base.WndProc(ref message);
+                if(message.Msg==0x0047 || message.Msg==0x0005) Round();
+                if(message.Msg==0x000F || message.Msg==0x0085) PaintFrame();
             }
         }
     }

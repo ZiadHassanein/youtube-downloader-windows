@@ -6,17 +6,17 @@ A desktop app for saving YouTube videos as MP4 or extracting MP3 audio. Paste a 
 
 **[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
 
-| Light theme | Dark theme |
+| English · light | Arabic · dark |
 | --- | --- |
-| ![Downloader in light theme](assets/screenshot-light.png) | ![Downloader in dark theme](assets/screenshot-dark.png) |
+| ![Downloader in English light theme](assets/screenshot-light.png) | ![Downloader in Arabic dark theme](assets/screenshot-ar-dark.png) |
 
-| Arabic · light | Arabic · dark |
+| Light option list | Dark option list |
 | --- | --- |
-| ![Arabic in light theme](assets/screenshot-ar-light.png) | ![Arabic in dark theme](assets/screenshot-ar-dark.png) |
+| ![Expanded light dropdown](assets/quality-options-light.png) | ![Expanded dark dropdown](assets/quality-options-dark.png) |
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.6-windows-x64.zip` from the release page.
+1. Download `YouTubeDownloader-v1.0.7-windows-x64.zip` from the release page.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe`, paste a video link, and wait for its available qualities to appear.
@@ -41,6 +41,7 @@ Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the r
 - The English app name stays on the left in both languages, with a simpler link-to-download layout.
 - Immediate theme repaint with a brief 120 ms icon transition that respects Windows animation settings.
 - Equal-width MP4 / MP3 / quality controls filling the row, with rounded inputs and buttons.
+- Refined quality dropdown with a larger chevron, themed rounded options, and a checkmark for the current selection.
 - Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
 - Clear feedback when the app is up to date or an update check fails.
 - Update action on the left and a simple version label on the right in both languages.
