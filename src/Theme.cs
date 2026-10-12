@@ -175,11 +175,14 @@ namespace YouTubeDownloader {
         }
     }
 
+    internal enum ButtonGlyph { None, Refresh, Download }
+
     internal sealed class ThemeButton : Button {
         public Palette Colors=Palette.For(false);
         public bool IsArabic;
         public string TextKey;
         public bool Primary, Quiet;
+        public ButtonGlyph Glyph;
         private bool hover, pressed;
         public ThemeButton() { SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true); }
         protected override void OnMouseEnter(EventArgs e) { hover=true; Invalidate(); base.OnMouseEnter(e); }
@@ -191,6 +194,7 @@ namespace YouTubeDownloader {
             Color fill=Primary ? (Enabled ? p.Accent : p.Selected) : (hover && Enabled ? p.Hover : p.Field);
             if(pressed && Enabled) fill=ControlPaint.Dark(fill,0.08f);
             Color text=Enabled ? (Primary ? p.OnAccent : (Quiet ? p.Accent : p.Ink)) : p.Muted;
+            if(Glyph!=ButtonGlyph.None && SystemInformation.HighContrast) text=Enabled ? SystemColors.ControlText : SystemColors.GrayText;
             if(!Quiet || (hover && Enabled)) using(var path=Drawing.Rounded(Drawing.SurfaceBounds(this),Drawing.CornerRadius)) {
                 using(var brush=new SolidBrush(fill)) e.Graphics.FillPath(brush,path);
                 if(!Primary && !Quiet) using(var pen=new Pen(p.Border)) e.Graphics.DrawPath(pen,path);
@@ -198,8 +202,32 @@ namespace YouTubeDownloader {
             var flags=TextFormatFlags.HorizontalCenter|TextFormatFlags.VerticalCenter|TextFormatFlags.SingleLine;
             if(IsArabic) flags|=TextFormatFlags.RightToLeft;
             if(!ShowKeyboardCues) flags|=TextFormatFlags.HidePrefix;
-            TextRenderer.DrawText(e.Graphics,Text,Font,ClientRectangle,text,flags);
+            var textBounds=ClientRectangle;
+            if(Glyph!=ButtonGlyph.None) {
+                float scale=Height/44f; int iconSize=Math.Max(12,(int)Math.Round(16*scale)),gap=(int)Math.Round(8*scale),inset=(int)Math.Round(12*scale);
+                int maximum=Math.Max(1,Width-inset*2-iconSize-gap); flags|=TextFormatFlags.EndEllipsis|TextFormatFlags.NoPadding;
+                int textWidth=Math.Min(maximum,TextRenderer.MeasureText(Text,Font,new Size(maximum,Height),flags).Width);
+                int left=(Width-iconSize-gap-textWidth)/2;
+                textBounds=new Rectangle(IsArabic ? left : left+iconSize+gap,0,textWidth,Height);
+                var iconBounds=new Rectangle(IsArabic ? left+textWidth+gap : left,(Height-iconSize)/2,iconSize,iconSize);
+                DrawGlyph(e.Graphics,iconBounds,text);
+            }
+            TextRenderer.DrawText(e.Graphics,Text,Font,textBounds,text,flags);
             if(Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(e.Graphics,new Rectangle(4,4,Width-9,Height-9),text,fill);
+        }
+        private void DrawGlyph(Graphics graphics,Rectangle bounds,Color ink) {
+            var saved=graphics.Save();
+            graphics.PixelOffsetMode=PixelOffsetMode.HighQuality; graphics.TranslateTransform(bounds.X+bounds.Width/2f,bounds.Y+bounds.Height/2f); graphics.ScaleTransform(bounds.Width/16f,bounds.Height/16f);
+            using(var pen=new Pen(ink,1.8f) { StartCap=LineCap.Round,EndCap=LineCap.Round,LineJoin=LineJoin.Round }) {
+                if(Glyph==ButtonGlyph.Refresh) {
+                    graphics.DrawArc(pen,-6,-6,12,12,40,280);
+                    graphics.DrawLines(pen,new[]{new PointF(1.5f,-4),new PointF(5,-4),new PointF(5,-7.5f)});
+                } else {
+                    graphics.DrawLine(pen,0,-6,0,3.5f); graphics.DrawLines(pen,new[]{new PointF(-4,-0.5f),new PointF(0,3.5f),new PointF(4,-0.5f)});
+                    graphics.DrawLines(pen,new[]{new PointF(-6,4),new PointF(-6,7),new PointF(6,7),new PointF(6,4)});
+                }
+            }
+            graphics.Restore(saved);
         }
     }
 

@@ -108,7 +108,10 @@ namespace YouTubeDownloader {
         private string T(string text) { return Texts.For(state.Language,text); }
         private string F(string text,params object[] args) { return Texts.Format(state.Language,text,args); }
         private Label LabelFor(string text) { return new LocalizedLabel { TextKey=text,Text=T(text),AutoSize=true,ForeColor=Ink,Font=new Font(Font,FontStyle.Bold),Margin=new Padding(0,0,0,8) }; }
-        private void SetButtonText(ThemeButton button,string text) { button.TextKey=text; button.Text=T(text); button.AccessibleName=button.Text.Replace("&",""); }
+        private void SetButtonText(ThemeButton button,string text) {
+            button.TextKey=text; button.Text=T(text); button.AccessibleName=button.Text.Replace("&","");
+            if(button==update) button.Glyph=text.StartsWith("Install v",StringComparison.Ordinal) || text=="Downloading update…" ? ButtonGlyph.Download : ButtonGlyph.Refresh;
+        }
         private void ConfigureButton(ThemeButton button,string text,bool primary=false) {
             SetButtonText(button,text); button.AutoSize=false; button.Height=42; button.FlatStyle=FlatStyle.Flat;
             button.BackColor=primary ? Accent : Color.White; button.ForeColor=primary ? Color.White : Ink;
@@ -198,10 +201,10 @@ namespace YouTubeDownloader {
             progress.Height=5; progress.Minimum=0; progress.Maximum=1000; progress.Visible=false; Add(progress,0);
             if(!tools.Ready) { statusMood=1; statusIcon.Tone=StatusTone.Error; }
             content=page;
-            ConfigureButton(update,"Check for updates"); update.Width=168; update.Height=38; update.Click+=async delegate { if(availableUpdate==null) await CheckUpdateAsync(true); else await InstallUpdateAsync(); };
+            ConfigureButton(update,"Check for updates"); update.Width=200; update.Height=44; update.Quiet=true; update.Click+=async delegate { if(availableUpdate==null) await CheckUpdateAsync(true); else await InstallUpdateAsync(); };
             toolsStatus.Text=VersionText(); toolsStatus.AutoSize=true; toolsStatus.Tag="muted"; toolsStatus.Dock=DockStyle.Fill; toolsStatus.TextAlign=ContentAlignment.MiddleRight; toolsStatus.Margin=new Padding(12,0,0,0);
             updateRow=new TableLayoutPanel { AutoSize=true,ColumnCount=2,RowCount=1,Margin=new Padding(0) };
-            updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,168)); updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,200)); updateRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             update.Anchor=AnchorStyles.Left; updateRow.Controls.Add(update,0,0); updateRow.Controls.Add(toolsStatus,1,0); Add(updateRow,0);
             var author=new Label { Text="By Ziad Hassanein",AutoSize=true,ForeColor=Muted,Font=new Font(Font.FontFamily,9f),Margin=new Padding(0) };
             var socials=new FlowLayoutPanel { AutoSize=true,AutoSizeMode=AutoSizeMode.GrowAndShrink,Margin=new Padding(0),WrapContents=false };
