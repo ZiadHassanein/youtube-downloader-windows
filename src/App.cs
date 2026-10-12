@@ -21,7 +21,8 @@ namespace YouTubeDownloader {
     }
     public sealed class SavedState {
         public string Folder;
-        public string Theme = "Light";
+        public string Theme = "Dark";
+        public bool ThemeSelected;
         public int Format, Quality;
         public List<string> Recent = new List<string>();
     }
@@ -33,7 +34,9 @@ namespace YouTubeDownloader {
         private Color Accent { get { return colors.Accent; } }
         private Color Paper { get { return colors.Page; } }
         private readonly TextBox url=new TextBox(), folder=new TextBox(), log=new TextBox();
-        private readonly ThemeCombo quality=new ThemeCombo(), theme=new ThemeCombo();
+        private readonly ThemeCombo quality=new ThemeCombo();
+        private readonly ThemeSwitch theme=new ThemeSwitch();
+        private readonly ToolTip themeTip=new ToolTip();
         private readonly FormatChoice video=new FormatChoice(), audio=new FormatChoice();
         private readonly ThemeButton paste=new ThemeButton(), check=new ThemeButton(), browse=new ThemeButton(), download=new ThemeButton(), cancel=new ThemeButton(), openFolder=new ThemeButton(), openFile=new ThemeButton(), details=new ThemeButton(), update=new ThemeButton();
         private readonly Label title=new Label(), subtitle=new Label(), stage=new Label(), progressDetail=new Label(), qualityLabel=new Label(), toolsStatus=new Label();
@@ -60,7 +63,7 @@ namespace YouTubeDownloader {
             Text="YouTube Downloader"; StartPosition=FormStartPosition.CenterScreen; ClientSize=new Size(920,920); MinimumSize=new Size(820,800);
             Font=new Font("Segoe UI",10.5f); BackColor=Paper; ForeColor=Ink; AutoScaleMode=AutoScaleMode.Dpi;
             tools=ToolSet.Discover(); engine=new DownloadEngine(tools); state=LoadState();
-            colors=Palette.For(state.Theme=="Dark");
+            colors=Palette.For(!state.ThemeSelected || state.Theme=="Dark");
             using(var logoStream=Assembly.GetExecutingAssembly().GetManifestResourceStream("YouTubeDownloader.Logo")) {
                 if(logoStream!=null) using(var original=Image.FromStream(logoStream)) brandLogo=new Bitmap(original);
             }
@@ -73,7 +76,7 @@ namespace YouTubeDownloader {
             engine.Log += text => SafeUi(delegate { AppendLog(text); });
             FormClosing += OnClosing;
             Shown += async delegate { ApplyTitleBarTheme(); url.Focus(); await CheckUpdateAsync(false); };
-            FormClosed += delegate { if(brandLogo!=null) brandLogo.Dispose(); };
+            FormClosed += delegate { if(brandLogo!=null) brandLogo.Dispose(); themeTip.Dispose(); };
         }
         private Label LabelFor(string text) { return new Label { Text=text,AutoSize=true,ForeColor=Ink,Font=new Font(Font,FontStyle.Bold),Margin=new Padding(0,0,0,8) }; }
         private void ConfigureButton(ThemeButton button,string text,bool primary=false) {
@@ -100,15 +103,15 @@ namespace YouTubeDownloader {
             var scroll=new Panel { Dock=DockStyle.Fill,AutoScroll=true,Padding=new Padding(28,24,28,20) };
             content.Dock=DockStyle.Top; content.AutoSize=true; content.ColumnCount=1; content.RowCount=0; content.Margin=new Padding(0); content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); scroll.Controls.Add(content); Controls.Add(scroll);
             var branding=new TableLayoutPanel { AutoSize=true,ColumnCount=3,RowCount=1,Margin=new Padding(0) };
-            branding.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,68)); branding.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); branding.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,176));
-            var logo=new PictureBox { Image=brandLogo,SizeMode=PictureBoxSizeMode.Zoom,Size=new Size(52,52),Margin=new Padding(0,0,16,0),AccessibleName="YouTube Downloader logo",TabStop=false };
-            var wordmark=new TableLayoutPanel { AutoSize=true,ColumnCount=1,RowCount=2,Dock=DockStyle.Fill,Margin=new Padding(0) };
+            branding.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,90)); branding.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); branding.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,44));
+            var logo=new PictureBox { Image=brandLogo,SizeMode=PictureBoxSizeMode.Zoom,Size=new Size(72,72),Margin=new Padding(0,0,18,0),AccessibleName="YouTube Downloader logo",TabStop=false };
+            var wordmark=new TableLayoutPanel { AutoSize=true,ColumnCount=1,RowCount=2,Dock=DockStyle.Fill,Margin=new Padding(0),Padding=new Padding(0,8,0,0) };
             wordmark.Controls.Add(new Label { Text="YouTube Downloader",AutoSize=true,Font=new Font("Segoe UI",22f,FontStyle.Bold),Margin=new Padding(0,0,0,2) },0,0);
             wordmark.Controls.Add(new Label { Text="Your videos. Ready to keep.",AutoSize=true,Tag="muted",Margin=new Padding(0) },0,1);
-            theme.DropDownStyle=ComboBoxStyle.DropDownList; theme.AccessibleName="Appearance theme"; theme.Items.AddRange(new object[]{"Light theme","Dark theme"}); theme.SelectedIndex=state.Theme=="Dark" ? 1 : 0;
-            theme.SelectedIndexChanged+=delegate { ApplyTheme(); SaveState(); };
-            var themeField=FieldFor(theme); themeField.Anchor=AnchorStyles.Top|AnchorStyles.Right; themeField.Width=176; themeField.Dock=DockStyle.None; themeField.Margin=new Padding(0,5,0,0);
-            branding.Controls.Add(logo,0,0); branding.Controls.Add(wordmark,1,0); branding.Controls.Add(themeField,2,0); Add(branding,24);
+            theme.Checked=!state.ThemeSelected || state.Theme=="Dark"; theme.Anchor=AnchorStyles.Top|AnchorStyles.Right; theme.Margin=new Padding(0,12,0,0);
+            themeTip.SetToolTip(theme,theme.AccessibleName);
+            theme.CheckedChanged+=delegate { state.ThemeSelected=true; themeTip.SetToolTip(theme,theme.AccessibleName); ApplyTheme(); SaveState(); };
+            branding.Controls.Add(logo,0,0); branding.Controls.Add(wordmark,1,0); branding.Controls.Add(theme,2,0); Add(branding,24);
             var page=content;
             var workspace=new Panel { AutoSize=true,Dock=DockStyle.Fill,Padding=new Padding(24,22,24,22),Margin=new Padding(0),Tag="surface" };
             content=new TableLayoutPanel { AutoSize=true,Dock=DockStyle.Top,ColumnCount=1,RowCount=0,Margin=new Padding(0) }; content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); workspace.Controls.Add(content);
@@ -133,17 +136,17 @@ namespace YouTubeDownloader {
             title.Text="Choose a video to get started"; title.AutoSize=true; title.MaximumSize=new Size(740,0); title.Font=new Font(Font,FontStyle.Bold); title.Margin=new Padding(0,0,0,4);
             subtitle.Text="Available qualities appear after you paste a link."; subtitle.AutoSize=true; subtitle.MaximumSize=new Size(740,0); subtitle.Tag="muted"; subtitle.Margin=new Padding(0);
             preview.Controls.Add(title,0,0); preview.Controls.Add(subtitle,0,1); Add(preview,20);
-            var settings=new TableLayoutPanel { ColumnCount=2,RowCount=2,AutoSize=true,Dock=DockStyle.Fill,Margin=new Padding(0) };
-            settings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,60)); settings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,40));
-            settings.Controls.Add(LabelFor("Save &as"),0,0); qualityLabel.Text="Video &quality"; qualityLabel.AutoSize=true; qualityLabel.Font=new Font(Font,FontStyle.Bold); qualityLabel.Margin=new Padding(18,0,0,8); settings.Controls.Add(qualityLabel,1,0);
-            var formats=new TableLayoutPanel { AutoSize=true,ColumnCount=2,RowCount=1,Dock=DockStyle.Fill,Margin=new Padding(0) }; formats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50)); formats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));
-            video.Text="&Video · MP4"; video.AccessibleName="Video MP4"; video.Dock=DockStyle.Fill; video.Margin=new Padding(0,0,8,0);
-            audio.Text="&Audio · MP3"; audio.AccessibleName="Audio MP3"; audio.Dock=DockStyle.Fill; audio.Margin=new Padding(0); formats.Controls.Add(video,0,0); formats.Controls.Add(audio,1,0);
+            var settings=new TableLayoutPanel { ColumnCount=5,RowCount=2,AutoSize=true,Dock=DockStyle.Fill,Margin=new Padding(0),MaximumSize=new Size(600,0) };
+            for(int column=0;column<5;column++) settings.ColumnStyles.Add(column%2==0 ? new ColumnStyle(SizeType.Percent,100f/3f) : new ColumnStyle(SizeType.Absolute,12));
+            var formatLabel=LabelFor("Save &as"); settings.Controls.Add(formatLabel,0,0); settings.SetColumnSpan(formatLabel,3);
+            qualityLabel.Text="Video &quality"; qualityLabel.AutoSize=true; qualityLabel.Font=new Font(Font,FontStyle.Bold); qualityLabel.Margin=new Padding(0,0,0,8); settings.Controls.Add(qualityLabel,4,0);
+            video.Text="&Video · MP4"; video.AccessibleName="Video MP4"; video.Dock=DockStyle.Fill; video.Margin=new Padding(0);
+            audio.Text="&Audio · MP3"; audio.AccessibleName="Audio MP3"; audio.Dock=DockStyle.Fill; audio.Margin=new Padding(0); settings.Controls.Add(video,0,1); settings.Controls.Add(audio,2,1);
             audio.Checked=state.Format==1; video.Checked=!audio.Checked;
             quality.DropDownStyle=ComboBoxStyle.DropDownList; quality.AccessibleName="Available video quality"; UpdateQualityChoices();
             EventHandler formatChanged=delegate(object sender,EventArgs e) { if(((RadioButton)sender).Checked) { UpdateQualityChoices(); UpdateDownloadEnabled(); SaveState(); } }; video.CheckedChanged+=formatChanged; audio.CheckedChanged+=formatChanged;
             quality.SelectedIndexChanged+=delegate { SaveState(); };
-            var qualityField=FieldFor(quality); qualityField.Margin=new Padding(18,0,0,0); settings.Controls.Add(formats,0,1); settings.Controls.Add(qualityField,1,1); Add(settings,18);
+            quality.Dock=DockStyle.Fill; quality.Margin=new Padding(0); settings.Controls.Add(quality,4,1); Add(settings,18);
             Add(LabelFor("Save &to"),0);
             folder.Text=String.IsNullOrWhiteSpace(state.Folder) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads","YouTube") : state.Folder;
             folder.Font=new Font("Segoe UI",11f); folder.AccessibleName="Save folder"; folder.TextChanged+=delegate { SaveState(); };
@@ -171,7 +174,9 @@ namespace YouTubeDownloader {
             Add(Row(toolsStatus,update,details),0);
             log.Visible=false; log.Multiline=true; log.ReadOnly=true; log.ScrollBars=ScrollBars.Vertical; log.Height=130; log.AccessibleName="Download details"; log.Font=new Font("Segoe UI",9f); Add(log,0);
             download.Enabled=false; check.Enabled=tools.Ready; AcceptButton=download;
-            foreach(var box in new[]{quality,theme}) { box.FlatStyle=FlatStyle.Flat; box.DrawMode=DrawMode.OwnerDrawFixed; box.ItemHeight=24; box.DrawItem+=DrawChoice; }
+            quality.FlatStyle=FlatStyle.Flat; quality.DrawMode=DrawMode.OwnerDrawFixed; quality.ItemHeight=38; quality.DrawItem+=DrawChoice;
+            EventHandler alignQualityHeight=delegate { int frame=quality.Height-quality.ItemHeight; if(quality.Height!=video.Height) quality.ItemHeight=Math.Max(1,video.Height-frame); };
+            video.SizeChanged+=alignQualityHeight; quality.HandleCreated+=alignQualityHeight;
             foreach(var box in new[]{url,folder,log}) box.BorderStyle=BorderStyle.None;
             Resize+=delegate { int available=Math.Max(480,scroll.ClientSize.Width-104); title.MaximumSize=new Size(available-32,0); subtitle.MaximumSize=new Size(available-32,0); progressDetail.MaximumSize=new Size(available,0); };
         }
@@ -229,7 +234,7 @@ namespace YouTubeDownloader {
             if(IsAudio) { qualityLabel.Text="MP3 encoding bitrate"; quality.Items.Add("192 kbps"); quality.SelectedIndex=0; quality.Enabled=false; }
             else {
                 qualityLabel.Text="Available video &quality";
-                if(checkedInfo==null || checkedInfo.Qualities.Count==0) { quality.Items.Add("Check a video link first"); quality.SelectedIndex=0; quality.Enabled=false; }
+                if(checkedInfo==null || checkedInfo.Qualities.Count==0) { quality.Items.Add("Paste a link first"); quality.SelectedIndex=0; quality.Enabled=false; }
                 else { foreach(var q in checkedInfo.Qualities) quality.Items.Add(q); quality.SelectedIndex=AvailableFormats.RecommendedIndex(checkedInfo.Qualities); quality.Enabled=!busy && !installingUpdate; }
             }
         }
@@ -248,13 +253,13 @@ namespace YouTubeDownloader {
         private void OpenCompletedFile() { try { if(lastFile==null || !File.Exists(lastFile)) { SetStatus("File is not available","The file may have been moved or deleted.",true); return; } Process.Start(new ProcessStartInfo(lastFile) { UseShellExecute=true }); } catch(Exception ex) { SetStatus("Could not open file",ex.Message,true); } }
         private void AddRecent(string file) { if(state.Recent==null) state.Recent=new List<string>(); state.Recent.RemoveAll(x=>String.Equals(x,file,StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0,file); state.Recent=state.Recent.Take(5).ToList(); recent.Items.Clear(); foreach(string path in state.Recent) recent.Items.Add(Path.GetFileName(path)); SaveState(); }
         private SavedState LoadState() { try { if(File.Exists(statePath)) return new JavaScriptSerializer().Deserialize<SavedState>(File.ReadAllText(statePath)) ?? new SavedState(); } catch { } return new SavedState(); }
-        private void SaveState() { if(initializing || state==null) return; try { state.Folder=folder.Text; state.Theme=theme.SelectedIndex==1 ? "Dark" : "Light"; state.Format=IsAudio ? 1 : 0; state.Quality=quality.SelectedIndex; File.WriteAllText(statePath,new JavaScriptSerializer().Serialize(state)); } catch { toolsStatus.Text="Settings could not be saved"; } }
+        private void SaveState() { if(initializing || state==null) return; try { state.Folder=folder.Text; state.Theme=theme.Checked ? "Dark" : "Light"; state.Format=IsAudio ? 1 : 0; state.Quality=quality.SelectedIndex; File.WriteAllText(statePath,new JavaScriptSerializer().Serialize(state)); } catch { toolsStatus.Text="Settings could not be saved"; } }
         private void ApplyTheme() {
-            colors=Palette.For(theme.SelectedIndex==1); SuspendLayout(); ApplyColors(this,colors.Page);
+            colors=Palette.For(theme.Checked); SuspendLayout(); ApplyColors(this,colors.Page);
             stage.ForeColor=statusMood==1 ? colors.Error : (statusMood==2 ? Accent : Ink); progressDetail.ForeColor=statusMood==1 ? colors.Error : Muted;
             ApplyTitleBarTheme(); ResumeLayout(true); Invalidate(true);
         }
-        private void ApplyTitleBarTheme() { if(!IsHandleCreated) return; try { int dark=theme.SelectedIndex==1 ? 1 : 0; DwmSetWindowAttribute(Handle,20,ref dark,4); } catch(DllNotFoundException) { } catch(EntryPointNotFoundException) { } }
+        private void ApplyTitleBarTheme() { if(!IsHandleCreated) return; try { int dark=theme.Checked ? 1 : 0; DwmSetWindowAttribute(Handle,20,ref dark,4); } catch(DllNotFoundException) { } catch(EntryPointNotFoundException) { } }
         private void ApplyColors(Control item,Color inherited) {
             Color back=(string)item.Tag=="surface" ? colors.Surface : ((string)item.Tag=="field" ? colors.Field : inherited);
             item.BackColor=back; item.ForeColor=(string)item.Tag=="muted" ? Muted : Ink;
@@ -262,6 +267,7 @@ namespace YouTubeDownloader {
             var choice=item as FormatChoice; if(choice!=null) { choice.Colors=colors; choice.Invalidate(); }
             var meter=item as ThemeProgress; if(meter!=null) { meter.Colors=colors; meter.Invalidate(); }
             var combo=item as ThemeCombo; if(combo!=null) { combo.Colors=colors; combo.Invalidate(); }
+            var toggle=item as ThemeSwitch; if(toggle!=null) { toggle.Colors=colors; toggle.Invalidate(); }
             if(item is TextBox || item is ComboBox || item is ListBox) { item.BackColor=item is ListBox ? colors.Page : colors.Field; item.ForeColor=Ink; }
             foreach(Control child in item.Controls) ApplyColors(child,back);
         }

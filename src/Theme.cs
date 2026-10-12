@@ -99,6 +99,37 @@ namespace YouTubeDownloader {
         protected override void Dispose(bool disposing) { if(disposing) animation.Dispose(); base.Dispose(disposing); }
     }
 
+    internal sealed class ThemeSwitch : CheckBox {
+        public Palette Colors=Palette.For(true);
+        private bool hover;
+        public ThemeSwitch() {
+            Appearance=Appearance.Button; AutoSize=false; Size=new Size(44,44); Cursor=Cursors.Hand;
+            SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.ResizeRedraw,true);
+            AccessibleName="Switch to light theme";
+        }
+        protected override void OnCheckedChanged(EventArgs e) { AccessibleName=Checked ? "Switch to light theme" : "Switch to dark theme"; Invalidate(); base.OnCheckedChanged(e); }
+        protected override void OnMouseEnter(EventArgs e) { hover=true; Invalidate(); base.OnMouseEnter(e); }
+        protected override void OnMouseLeave(EventArgs e) { hover=false; Invalidate(); base.OnMouseLeave(e); }
+        protected override void OnPaint(PaintEventArgs e) {
+            var p=Colors; e.Graphics.Clear(Parent==null ? p.Page : Parent.BackColor); e.Graphics.SmoothingMode=SmoothingMode.AntiAlias;
+            Color fill=hover ? p.Hover : p.Field;
+            using(var path=Drawing.Rounded(new Rectangle(0,0,Width-1,Height-1),6)) {
+                using(var brush=new SolidBrush(fill)) e.Graphics.FillPath(brush,path);
+                using(var pen=new Pen(p.Border)) e.Graphics.DrawPath(pen,path);
+            }
+            float x=Width/2f,y=Height/2f;
+            if(Checked) using(var pen=new Pen(p.Ink,1.8f)) {
+                e.Graphics.DrawEllipse(pen,x-5,y-5,10,10);
+                for(int ray=0;ray<8;ray++) { double a=ray*Math.PI/4; e.Graphics.DrawLine(pen,x+(float)Math.Cos(a)*9,y+(float)Math.Sin(a)*9,x+(float)Math.Cos(a)*13,y+(float)Math.Sin(a)*13); }
+            }
+            else {
+                using(var brush=new SolidBrush(p.Ink)) e.Graphics.FillEllipse(brush,x-10,y-10,20,20);
+                using(var brush=new SolidBrush(fill)) e.Graphics.FillEllipse(brush,x-3,y-13,19,19);
+            }
+            if(Focused && ShowFocusCues) ControlPaint.DrawFocusRectangle(e.Graphics,new Rectangle(4,4,Width-9,Height-9),p.Ink,fill);
+        }
+    }
+
     internal sealed class ThemeCombo : ComboBox {
         public Palette Colors=Palette.For(false);
         protected override void WndProc(ref Message message) {

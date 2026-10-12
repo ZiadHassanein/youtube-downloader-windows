@@ -16,11 +16,13 @@ internal static class InterfaceChecks {
         try {
             File.WriteAllText(path,"{\"Folder\":\"C:\\\\Downloads\\\\YouTube\",\"LastUrl\":\"https://youtu.be/jNQXAC9IVRw\",\"Format\":0,\"Recent\":[]}");
             using(var window=new MainWindow()) {
-                var url=Field<TextBox>(window,"url"); var theme=Field<ComboBox>(window,"theme");
+                var url=Field<TextBox>(window,"url"); var theme=Field<CheckBox>(window,"theme");
                 var video=Field<RadioButton>(window,"video"); var audio=Field<RadioButton>(window,"audio"); var quality=Field<ComboBox>(window,"quality");
                 Assert(url.Text=="","A legacy saved link is not restored");
-                var light=window.BackColor; theme.SelectedIndex=1;
-                Assert(window.BackColor!=light,"Dark theme changes the app palette");
+                Assert(theme.Checked,"Dark is the default theme");
+                var dark=window.BackColor; theme.Checked=false;
+                Assert(window.BackColor!=dark,"Icon toggle switches to light theme"); theme.Checked=true;
+                Assert(window.BackColor==dark,"Icon toggle switches back to dark theme");
                 Assert(File.ReadAllText(path).Contains("\"Theme\":\"Dark\""),"Theme preference is saved");
                 audio.Checked=true;
                 Assert(audio.Checked && !video.Checked,"MP3 radio selection is exclusive");
@@ -50,7 +52,7 @@ internal static class InterfaceChecks {
             }
             using(var reopened=new MainWindow()) {
                 Assert(Field<TextBox>(reopened,"url").Text=="","Restart always has an empty link");
-                Assert(Field<ComboBox>(reopened,"theme").SelectedIndex==1,"Restart restores dark theme");
+                Assert(Field<CheckBox>(reopened,"theme").Checked,"Restart restores dark theme");
             }
             string prefix=AppUpdates.Repository+"/releases/download/v1.1.0/";
             string release="{\"tag_name\":\"v1.1.0\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"YouTubeDownloader-v1.1.0-windows-x64.zip\",\"browser_download_url\":\""+prefix+"app.zip\"},{\"name\":\"checksums.json\",\"browser_download_url\":\""+prefix+"checksums.json\"}]}";
