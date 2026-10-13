@@ -6,13 +6,12 @@ A desktop app for saving YouTube videos or whole playlists as MP4 or extracting 
 
 **[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
 
-**English · dark (v1.0.14)**
+<p align="center">
+  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="400" alt="YouTube Downloader — English, dark theme (v1.0.14)"></a>
+  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="400" alt="YouTube Downloader — Arabic, light theme (v1.0.14)"></a>
+</p>
 
-![YouTube Downloader in English with the dark theme](assets/screenshot-en-dark.png)
-
-**Arabic · light (v1.0.14)**
-
-![YouTube Downloader in Arabic with the light theme](assets/screenshot-ar-light.png)
+English · dark and Arabic · light (v1.0.14). Tap or click a screenshot to view it full size.
 
 Version 1.0.14 keeps this design and reserves the task panel's full height when buttons and progress rows change. Version 1.0.13 moved playlist resume records into private app data.
 
