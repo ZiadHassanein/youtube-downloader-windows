@@ -7,7 +7,7 @@
         <Grid Margin="0,0,0,18" FlowDirection="LeftToRight">
           <Grid.ColumnDefinitions><ColumnDefinition Width="54"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <Image Source="pack://application:,,,/ViFree;component/Assets/header-logo.png" Width="42" Height="42" HorizontalAlignment="Left" AutomationProperties.Name="ViFree logo"/>
-          <TextBlock Grid.Column="1" Text="ViFree" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+          <TextBlock x:Name="BrandWordmark" Grid.Column="1" FontSize="24" VerticalAlignment="Center" AutomationProperties.Name="ViFree"><Run Text="Vi" FontWeight="Bold" Foreground="{DynamicResource Accent}"/><Run Text="Free" FontWeight="Medium" Foreground="{DynamicResource Ink}"/></TextBlock>
           <Button Grid.Column="2" Content="{Binding LanguageAction}" Command="{Binding LanguageCommand}" FontFamily="{StaticResource ArabicFont}" MinWidth="92" Margin="8,0" VerticalAlignment="Center" Style="{StaticResource ToolbarButton}" AutomationProperties.Name="{Binding LanguageAction}"/>
           <Button Grid.Column="3" Command="{Binding ThemeCommand}" Width="42" MinHeight="42" Padding="10" VerticalAlignment="Center" Style="{StaticResource ToolbarButton}" AutomationProperties.Name="{Binding ThemeAction}" ToolTip="{Binding ThemeAction}"><Path Data="{Binding ThemeIcon}" Stroke="{DynamicResource Accent}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Stretch="Uniform" Width="19" Height="19"/></Button>
         </Grid>
