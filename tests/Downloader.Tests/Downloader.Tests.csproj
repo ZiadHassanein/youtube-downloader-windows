@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType></PropertyGroup><ItemGroup><ProjectReference Include="../../src/Downloader.Core/Downloader.Core.csproj" /><ProjectReference Include="../../src/Downloader.Infrastructure/Downloader.Infrastructure.csproj" /><Compile Include="../CoreTests.cs" Link="CoreTests.cs" /></ItemGroup></Project>

@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Downloader.Core/Downloader.Core.csproj" /><EmbeddedResource Include="../../THIRD-PARTY-NOTICES.txt" LogicalName="YouTubeDownloader.ThirdPartyNotices" /></ItemGroup></Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Downloader.Core/Downloader.Core.csproj" />
+    <Project Path="src/Downloader.Infrastructure/Downloader.Infrastructure.csproj" />
+    <Project Path="src/Downloader.Desktop/Downloader.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Downloader.ProcessFixture/Downloader.ProcessFixture.csproj" />
+    <Project Path="tests/Downloader.Tests/Downloader.Tests.csproj" />
+    <Project Path="tests/Downloader.WpfTests/Downloader.WpfTests.csproj" />
+    <Project Path="tests/Downloader.LiveChecks/Downloader.LiveChecks.csproj" />
+  </Folder>
+</Solution>

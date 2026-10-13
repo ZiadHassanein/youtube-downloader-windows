@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><UseWPF>true</UseWPF><AssemblyName>YouTubeDownloader</AssemblyName>
+    <ApplicationIcon>../../assets/app.ico</ApplicationIcon>
+    <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><PublishTrimmed>false</PublishTrimmed><DebugType>none</DebugType>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Downloader.Core/Downloader.Core.csproj"/><ProjectReference Include="../Downloader.Infrastructure/Downloader.Infrastructure.csproj"/>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
+    <Resource Include="../../assets/header-logo.png" Link="Assets/header-logo.png"/><Resource Include="../../assets/app.ico" Link="Assets/app.ico"/>
+    <Resource Include="../../assets/fonts/*.otf" Link="Assets/Fonts/%(Filename)%(Extension)"/><Resource Include="../../assets/fonts/*.ttf" Link="Assets/Fonts/%(Filename)%(Extension)"/>
+
+  </ItemGroup>
+</Project>

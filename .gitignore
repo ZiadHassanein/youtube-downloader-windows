@@ -10,3 +10,8 @@ settings.json
 *.part
 *.ytdl
 *.log
+**/bin/
+**/obj/
+.impeccable/
+*.previous
+*.backup

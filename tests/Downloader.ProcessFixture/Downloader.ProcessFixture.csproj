@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><AssemblyName>FakeDownloader</AssemblyName></PropertyGroup><ItemGroup><Compile Include="../FakeDownloader.cs" Link="Program.cs" /></ItemGroup></Project>
