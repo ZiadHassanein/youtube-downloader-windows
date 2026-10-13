@@ -109,6 +109,7 @@ internal static class Program
                     foreach (bool dark in new[] { true, false })
                     {
                         if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                        await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
                         // Keep the expanded fixture scrolled, independently of language-specific line heights.
                         window.Height = 540;
                         viewport.MaxHeight = double.PositiveInfinity;
