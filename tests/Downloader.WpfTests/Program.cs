@@ -22,7 +22,7 @@ internal static class Program
     public static int Main(string[] args)
     {
         var app = new Application();
-        app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/YouTubeDownloader;component/Themes/Controls.xaml") });
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/ViFree;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
         Exception failure = null;
@@ -35,7 +35,7 @@ internal static class Program
                 var model = (MainViewModel)window.DataContext;
                 await Task.Delay(100);
                 window.UpdateLayout();
-                Check(window.Title == "YouTube Downloader" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
+                Check(window.Title == "ViFree" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.Length > 0 ? args[0] : root;
                 System.IO.Directory.CreateDirectory(captures);
@@ -117,7 +117,17 @@ internal static class Program
                 Check(model.HasPlaylist && model.WholePlaylist && model.Qualities.Any(q => q.Height == 1080), "Playlist-only input expands scope and offers maximum-quality choices");
                 await Task.Delay(50);
                 window.UpdateLayout();
-                Check(window.ActualHeight <= SystemParameters.WorkArea.Height, "Expanded playlist/status content stays within the work area");
+                Capture(window, System.IO.Path.Combine(captures, "expanded-work-area.png"));
+                var monitor = new MonitorInformation { Size = Marshal.SizeOf<MonitorInformation>() };
+                var nativeHandle = new WindowInteropHelper(window).Handle;
+                bool hasMonitor = GetMonitorInfo(MonitorFromWindow(nativeHandle, 2), ref monitor);
+                bool hasBounds = GetWindowRect(nativeHandle, out var nativeBounds);
+                Check(hasMonitor && hasBounds && nativeBounds.Top >= monitor.Work.Top - 8 &&
+                    nativeBounds.Bottom <= monitor.Work.Bottom + 8 &&
+                    nativeBounds.Bottom - nativeBounds.Top <= monitor.Work.Bottom - monitor.Work.Top + 16,
+                    "Expanded playlist/status content stays within its native monitor work area" +
+                    $" (actual={window.ActualHeight}, requested={window.Height}, primaryArea={SystemParameters.WorkArea.Height}, " +
+                    $"nativeTop={nativeBounds.Top}, nativeBottom={nativeBounds.Bottom}, workTop={monitor.Work.Top}, workBottom={monitor.Work.Bottom})");
                 model.Folder = System.IO.Path.Combine(root, "missing-folder");
                 model.OpenFolderCommand.Execute(null);
                 Check(model.NoticeVisible, "Folder failure shows an in-client notice");

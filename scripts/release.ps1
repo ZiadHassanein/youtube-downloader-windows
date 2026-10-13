@@ -3,7 +3,7 @@ if ($env:GITHUB_EVENT_NAME -ne 'push' -or $env:GITHUB_REF_TYPE -ne 'tag' -or
     $env:GITHUB_REF_NAME -notmatch '^v\d+\.\d+\.\d+$' -or !$env:GH_RELEASE_TOKEN) {
     throw 'Release publishing requires an explicit version tag and the job token.'
 }
-$repository = 'ZiadHassanein/youtube-downloader-windows'
+$repository = 'ZiadHassanein/ViFree'
 if ($env:GITHUB_REPOSITORY -ne $repository) { throw 'Unexpected release repository.' }
 & git merge-base --is-ancestor HEAD origin/main
 if ($LASTEXITCODE -ne 0) { throw 'Only a commit already merged to main can be released.' }
@@ -11,35 +11,29 @@ $version = $env:GITHUB_REF_NAME.Substring(1)
 $root = Split-Path -Parent $PSScriptRoot
 $sumPath = Join-Path $root 'dist/checksums-desktop.json'
 $sum = Get-Content -LiteralPath $sumPath -Raw | ConvertFrom-Json
-$expectedName = "YouTubeDownloader-v$version-win-x64.zip"
+$expectedName = "ViFree-v$version-win-x64.zip"
 if ($sum.File -ne $expectedName) { throw 'The artifact version does not match the tag.' }
 $zip = Join-Path $root ('dist/' + $expectedName)
 if ((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -ne $sum.Hash) { throw 'The tested artifact checksum does not match.' }
 $headers = @{Authorization = 'Bearer ' + $env:GH_RELEASE_TOKEN; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'}
 $api = "https://api.github.com/repos/$repository/releases"
 $url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
-$changes = if ($version -eq '2.0.2') {
-    'Aligns the link placeholder with the native typing position and removes duplicated input padding. Localized hints remain visible until typing starts and return when the link is cleared. Native caret and hint checks cover English and Arabic in both themes.'
-} elseif ($version -eq '2.0.1') {
-    'Fixes maximization: the native window fills the monitor work area, the form stays centered at a readable width, and the footer uses the bottom space. Restoring returns to normal content-fit sizing. Native maximization/restore checks cover English and Arabic in both themes.'
-} else { '' }
 $body = @"
 **[Download for Windows (.zip)]($url)**
 
-$changes
+**ViFree by Ziad Hassanein** — the new name and cobalt/white play-ribbon identity for YouTube Downloader.
 
-Extract one ZIP and open YouTubeDownloader.exe. Windows 10/11 x64; no separate .NET runtime or setup script. Compatible media tools are reused, and missing tools are prepared privately on the first pasted link.
+Extract the ZIP and open ViFree.exe. Windows 10/11 x64; missing media tools are prepared automatically.
 
-- Rebuilt WPF interface with an open layout, embedded English/Arabic fonts, light/dark themes, and crisp icons.
-- MP4 videos and playlists, plus MP3 at 192 or 320 kbps.
-- Shared download core, confirmed process cancellation, verified dependency acquisition, and recoverable manual updates.
-- Preferences and playlist resume records remain private. Links are never saved.
+- YouTube videos and playlists as MP4, or MP3 at 192/320 kbps.
+- English/Arabic and light/dark themes.
+- Verified manual updates; private settings and resume records.
 
-For v1.0.14, download this ZIP manually and extract it into a new writable folder. Import settings if needed. Existing media is retained.
+**Existing users:** close the older app and download this ZIP once into a new writable folder. ViFree reuses your existing private settings, history and prepared tools. Your downloaded media stays in place.
 
-The Windows build, local fixture checks, and EXE-only startup check passed before this release. A small live sample verified MP4, both MP3 settings, and playlist metadata. Windows 10/11 clean-machine testing and other DPI settings remain unverified. The app is unsigned and Windows may show SmartScreen. Protected and sign-in-only content is not supported; only save content you have permission to download.
+Windows checks and portable startup passed. The app is unsigned; clean-machine compatibility is not newly certified. Only save content you have permission to download.
 "@
-$payload = @{tag_name = $env:GITHUB_REF_NAME; target_commitish = $env:GITHUB_SHA; name = "YouTube Downloader $($env:GITHUB_REF_NAME)"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
+$payload = @{tag_name = $env:GITHUB_REF_NAME; target_commitish = $env:GITHUB_SHA; name = "ViFree $($env:GITHUB_REF_NAME)"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
 $release = Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body $payload
 foreach ($file in @($zip, $sumPath)) {
     $name = [Uri]::EscapeDataString((Split-Path -Leaf $file))

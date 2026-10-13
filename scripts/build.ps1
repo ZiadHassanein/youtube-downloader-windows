@@ -1,2 +1,2 @@
-param([string]$Version='2.0.2')
+param([string]$Version='3.0.0')
 & (Join-Path $PSScriptRoot 'package.ps1') -Version $Version

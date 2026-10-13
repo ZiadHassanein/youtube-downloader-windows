@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType><UseWPF>true</UseWPF><AssemblyName>YouTubeDownloader</AssemblyName>
+    <OutputType>WinExe</OutputType><UseWPF>true</UseWPF><AssemblyName>ViFree</AssemblyName><Product>ViFree</Product><Title>ViFree</Title><Description>ViFree video and audio downloader</Description>
     <ApplicationIcon>../../assets/app.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><PublishTrimmed>false</PublishTrimmed><DebugType>none</DebugType>

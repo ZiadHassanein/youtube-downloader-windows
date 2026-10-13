@@ -25,14 +25,14 @@ jobs:
       - name: Publish portable ZIP
         shell: pwsh
         run: |
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '2.0.2' }
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '3.0.0' }
           ./scripts/build.ps1 -Version $version
           ./scripts/smoke-exe.ps1 -Version $version
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: windows-desktop
           path: |
-            dist/YouTubeDownloader-v*-win-x64.zip
+            dist/ViFree-v*-win-x64.zip
             dist/checksums-desktop.json
           if-no-files-found: error
   release:

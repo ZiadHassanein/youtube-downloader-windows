@@ -1,19 +1,19 @@
-<p align="center"><img src="assets/header-logo.png" width="96" alt="YouTube Downloader logo"></p>
+<p align="center"><img src="assets/header-logo.png" width="96" alt="ViFree logo"></p>
 
-# YouTube Downloader
+# ViFree
 
 A free Windows app by **Ziad Hassanein** for downloading YouTube videos, Shorts and playlists as MP4 or MP3 (192/320 kbps). English and Arabic, with dark and light themes.
 
-**[Download for Windows (.zip)](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v2.0.2/YouTubeDownloader-v2.0.2-win-x64.zip)**
+**[Download for Windows (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v3.0.0/ViFree-v3.0.0-win-x64.zip)**
 
-Windows 10/11 x64. Extract the ZIP and open `YouTubeDownloader.exe`. No separate runtime or tool setup; missing tools download automatically when needed.
+Windows 10/11 x64. Extract the ZIP and open `ViFree.exe`. No separate runtime or tool setup; missing tools download automatically when needed.
 
 <p align="center">
   <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="400" alt="English, dark theme — v1.0.14"></a>
   <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="400" alt="Arabic, light theme — v1.0.14"></a>
 </p>
 
-Screenshots show v1.0.14.
+Screenshots show the previous YouTube Downloader v1.0.14.
 
 ## Use
 
@@ -21,7 +21,7 @@ Screenshots show v1.0.14.
 2. Choose MP4 or MP3, quality, and a save folder.
 3. Click **Download**. For playlists, choose **Whole playlist**.
 
-Updates are manual through **Check for updates**. Moving from v1.0.14 requires downloading the new ZIP once.
+Updates are manual through **Check for updates**. Existing YouTube Downloader users: download the new ZIP once; your settings and files are retained.
 
 Only download content you have permission to save. Protected and sign-in-only videos are unsupported.
 
@@ -29,7 +29,7 @@ Only download content you have permission to save. Protected and sign-in-only vi
 
 ## العربية
 
-نزّل ملف ZIP أعلاه وافتح `YouTubeDownloader.exe`. الصق الرابط، واختر الصيغة والجودة ومجلد الحفظ، ثم اضغط **تنزيل**. لقائمة تشغيل كاملة اختر **قائمة التشغيل كاملة**. الأدوات الناقصة تُجهّز تلقائيًا، والتحديثات يدوية.
+نزّل ملف ZIP أعلاه وافتح `ViFree.exe`. الصق الرابط، واختر الصيغة والجودة ومجلد الحفظ، ثم اضغط **تنزيل**. لقائمة تشغيل كاملة اختر **قائمة التشغيل كاملة**. الأدوات الناقصة تُجهّز تلقائيًا، والتحديثات يدوية.
 
 </div>
 

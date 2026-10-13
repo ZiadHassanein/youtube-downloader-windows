@@ -173,7 +173,7 @@ internal static class BoundaryChecks
     {
         string stage = Path.Combine(root, "package");
         Directory.CreateDirectory(stage);
-        File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "YouTubeDownloader.exe"));
+        File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "ViFree.exe"));
         File.WriteAllText(Path.Combine(stage, "README.txt"), "new readme");
         File.WriteAllText(Path.Combine(stage, "THIRD-PARTY-NOTICES.txt"), "new notices");
         var manifest = new PackageManifest
@@ -191,7 +191,7 @@ internal static class BoundaryChecks
         Check(AppUpdates.ValidatePackage(stage, new Version(2, 0, 0)) != null, "Exact desktop package hashes, architecture and executable version validate");
         foreach (string protectedName in new[]
         {
-            "YouTubeDownloader.exe",
+            "ViFree.exe",
             "README.txt",
             "Renamed.exe"
         }
@@ -203,13 +203,13 @@ internal static class BoundaryChecks
             foreach (string name in AppUpdates.PackageFiles)
                 File.WriteAllText(Path.Combine(target, name), "old bytes");
             if (protectedName == "Renamed.exe")
-                File.Move(Path.Combine(target, "YouTubeDownloader.exe"), Path.Combine(target, protectedName));
+                File.Move(Path.Combine(target, "ViFree.exe"), Path.Combine(target, protectedName));
             string protectedFile = Path.Combine(target, protectedName);
             File.SetAttributes(protectedFile, FileAttributes.ReadOnly);
             bool rejected = false;
             try
             {
-                UpdateTransaction.Launch(stage, Path.Combine(target, protectedName == "Renamed.exe" ? protectedName : "YouTubeDownloader.exe"), Environment.ProcessId);
+                UpdateTransaction.Launch(stage, Path.Combine(target, protectedName == "Renamed.exe" ? protectedName : "ViFree.exe"), Environment.ProcessId);
             }
             catch (UnauthorizedAccessException)
             {
@@ -236,12 +236,12 @@ internal static class BoundaryChecks
         {
             string target = Path.Combine(root, "target-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(target);
-            File.WriteAllText(Path.Combine(target, "YouTubeDownloader.exe"), "old exe");
+            File.WriteAllText(Path.Combine(target, "ViFree.exe"), "old exe");
             File.WriteAllText(Path.Combine(target, "README.txt"), "old readme");
             var journal = new UpdateJournal
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Target = Path.Combine(target, "YouTubeDownloader.exe"),
+                Target = Path.Combine(target, "ViFree.exe"),
                 Stage = stage,
                 Backup = Path.Combine(root, "backup-" + Guid.NewGuid().ToString("N")),
                 Version = "2.0.0",
@@ -273,7 +273,7 @@ internal static class BoundaryChecks
         Directory.CreateDirectory(committed);
         var success = new UpdateJournal
         {
-            Target = Path.Combine(committed, "YouTubeDownloader.exe"),
+            Target = Path.Combine(committed, "ViFree.exe"),
             Stage = stage,
             Backup = Path.Combine(root, "backup-success"),
             Version = "2.0.0"
@@ -300,6 +300,33 @@ internal static class BoundaryChecks
         }
 
         Check(oldRelease, "Legacy release names cannot be installed as native desktop payloads");
+        string releaseJson = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            draft = false,
+            prerelease = false,
+            tag_name = "v3.0.1",
+            assets = new[]
+            {
+                new { name = "ViFree-v3.0.1-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v3.0.1/ViFree-v3.0.1-win-x64.zip" },
+                new { name = "checksums-desktop.json", browser_download_url = AppUpdates.Repository + "/releases/download/v3.0.1/checksums-desktop.json" }
+            }
+        });
+        var release = AppUpdates.Parse(releaseJson, new Version(3, 0, 0));
+        Check(release.Version == new Version(3, 0, 1) && release.PackageName == "ViFree-v3.0.1-win-x64.zip",
+            "ViFree discovers a newer package with its required checksum asset");
+        Check(AppUpdates.Parse(releaseJson, new Version(3, 0, 1)) == null,
+            "An installed ViFree release is recognized as current");
+        foreach (string invalid in new[]
+        {
+            releaseJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree"),
+            releaseJson.Replace("ViFree-v3.0.1-win-x64.zip", "YouTubeDownloader-v3.0.1-win-x64.zip")
+        })
+        {
+            bool rejected = false;
+            try { AppUpdates.Parse(invalid, new Version(3, 0, 0)); }
+            catch (InvalidDataException) { rejected = true; }
+            Check(rejected, "A foreign repository or obsolete package name cannot supply a ViFree update");
+        }
         NativeStartupChecks(root, fixtureDirectory);
     }
 
@@ -323,13 +350,13 @@ internal static class BoundaryChecks
                 Directory.CreateDirectory(target);
                 foreach (string file in Directory.GetFiles(fixtureDirectory))
                     File.Copy(file, Path.Combine(target, Path.GetFileName(file)));
-                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(target, "YouTubeDownloader.exe"));
+                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(target, "ViFree.exe"));
                 File.WriteAllText(Path.Combine(target, "README.txt"), "old readme");
                 if (!acknowledge)
                     File.WriteAllText(Path.Combine(target, "no-ack.flag"), "fixture");
                 string stage = Path.Combine(jobs, Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(stage);
-                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "YouTubeDownloader.exe"));
+                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "ViFree.exe"));
                 File.WriteAllText(Path.Combine(stage, "README.txt"), "new readme");
                 File.WriteAllText(Path.Combine(stage, "THIRD-PARTY-NOTICES.txt"), "new notices");
                 var manifest = new PackageManifest
@@ -347,7 +374,7 @@ internal static class BoundaryChecks
                 var journal = new UpdateJournal
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Target = Path.Combine(target, "YouTubeDownloader.exe"),
+                    Target = Path.Combine(target, "ViFree.exe"),
                     Stage = stage,
                     Backup = Path.Combine(stage, "previous"),
                     Version = "2.0.0",

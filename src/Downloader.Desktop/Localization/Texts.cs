@@ -227,8 +227,8 @@ namespace YouTubeDownloader
                 "حُفظ الملف المكتمل، لكن تعذّر حفظ معلومات الاستئناف."
             },
             {
-                "YouTube Downloader",
-                "YouTube Downloader"
+                "ViFree",
+                "ViFree"
             },
             {
                 "Close",
@@ -251,8 +251,8 @@ namespace YouTubeDownloader
                 "رابط يوتيوب"
             },
             {
-                "YouTube Downloader logo",
-                "شعار YouTube Downloader"
+                "ViFree logo",
+                "شعار ViFree"
             },
             {
                 "Open the save folder and try opening the file there.",
