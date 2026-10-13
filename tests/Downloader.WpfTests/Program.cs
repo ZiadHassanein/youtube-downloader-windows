@@ -56,6 +56,7 @@ internal static class Program
                             model.LanguageCommand.Execute(null);
                         if (model.IsDark != dark)
                             model.ThemeCommand.Execute(null);
+                        await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
                         await Task.Delay(30);
                         window.UpdateLayout();
                         var field = (TextBox)window.FindName("LinkInput");
@@ -120,7 +121,8 @@ internal static class Program
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
                         Check(bar.Visibility == Visibility.Visible && Math.Abs(bar.ActualWidth - 16) < 1 && track.Thumb.ActualHeight < track.ActualHeight &&
                             (language == "ar" ? barBounds.Right <= bodyBounds.Left + 1 : barBounds.Left >= bodyBounds.Right - 1),
-                            "Scrollbar reserves a separate hit target with a proportional thumb in " + language + (dark ? " dark" : " light"));
+                            "Scrollbar reserves a separate hit target with a proportional thumb in " + language + (dark ? " dark" : " light") +
+                            $" (visibility={bar.Visibility}, width={bar.ActualWidth}, thumb={track.Thumb.ActualHeight}, track={track.ActualHeight}, bar={barBounds}, content={bodyBounds})");
                         viewport.ScrollToTop();
                         window.UpdateLayout();
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
