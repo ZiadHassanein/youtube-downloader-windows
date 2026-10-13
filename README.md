@@ -6,15 +6,15 @@ A desktop app for saving YouTube videos or whole playlists as MP4 or extracting 
 
 **[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
 
-| English · light (v1.0.12 interface) | Arabic · dark (v1.0.12 interface) |
-| --- | --- |
-| ![Downloader in English light theme](assets/screenshot-light.png) | ![Downloader in Arabic dark theme](assets/screenshot-ar-dark.png) |
+**English · dark (v1.0.14)**
+
+![YouTube Downloader in English with the dark theme](assets/screenshot-en-dark.png)
+
+**Arabic · light (v1.0.14)**
+
+![YouTube Downloader in Arabic with the light theme](assets/screenshot-ar-light.png)
 
 Version 1.0.14 keeps this design and reserves the task panel's full height when buttons and progress rows change. Version 1.0.13 moved playlist resume records into private app data.
-
-| Light option list · v1.0.7 | Dark option list · v1.0.7 |
-| --- | --- |
-| ![Expanded light dropdown](assets/quality-options-light.png) | ![Expanded dark dropdown](assets/quality-options-dark.png) |
 
 ## Get started
 
@@ -69,8 +69,6 @@ Sign-in-only videos and active live streams are not supported. A video link cont
 ## Playlist downloads
 
 Each playlist is saved in `Playlist [playlist-id]` inside the selected folder. MP4 qualities such as **Up to 1080p** are caps rather than claims about every entry. A video without a suitable format may fail; **Best available** removes the cap. MP3 offers 192 or 320 kbps encoding; this does not improve the original audio source.
-
-![Whole-playlist choice and resolution cap in a smaller app viewport](assets/playlist-options.png)
 
 The playlist title list is read once per pasted link, without fetching every video's formats in advance. Videos are downloaded sequentially with bounded retries, request pacing, and cancellable waits. Progress shows the current video and an approximate overall percentage based on item count. Private, removed, unavailable, and live entries are reported as failures and skipped. Rate-limit, network, or disk errors pause the queue; three consecutive unexpected failures also pause it. The final summary separates saved, already downloaded, failed, and remaining entries. YouTube limits can still occur.
 
