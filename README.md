@@ -1,12 +1,14 @@
 <p align="center"><img src="assets/header-logo.png" width="128" alt="YouTube Downloader YD logo"></p>
 
-# YouTube Downloader for Windows
+# YouTube Downloader for Windows — MP4, MP3 and Playlists
 
-A desktop app for saving YouTube videos or whole playlists as MP4 or extracting MP3 audio. Paste a link, choose a quality and a destination, then download.
+A free YouTube video and playlist downloader for Windows 10 and 11, created by **Ziad Hassanein**. Save videos and Shorts as MP4 or convert YouTube audio to MP3 at 192 or 320 kbps. Choose available video qualities and a save folder in an English or Arabic interface, with light and dark themes.
 
 **[Download for Windows (.zip)](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v1.0.14/YouTubeDownloader-v1.0.14-windows-x64.zip)**
 
 One ZIP includes the app, tool setup, and instructions.
+
+[How to download](#how-to-download-youtube-videos-on-windows) · [Frequently asked questions](#frequently-asked-questions) · [العربية](#برنامج-تنزيل-فيديوهات-يوتيوب-للويندوز)
 
 <p align="center">
   <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="400" alt="YouTube Downloader — English, dark theme (v1.0.14)"></a>
@@ -15,9 +17,9 @@ One ZIP includes the app, tool setup, and instructions.
 
 English · dark and Arabic · light (v1.0.14). Tap or click a screenshot to view it full size.
 
-Version 1.0.14 keeps this design and reserves the task panel's full height when buttons and progress rows change. Version 1.0.13 moved playlist resume records into private app data.
+Current Windows download: **v1.0.14**. See the [release history](https://github.com/ZiadHassanein/youtube-downloader-windows/releases) for changes.
 
-## Get started
+## How to download YouTube videos on Windows
 
 1. Click **Download for Windows (.zip)** above to download the complete app package directly.
 2. Extract the ZIP to a writable folder.
@@ -28,52 +30,79 @@ Version 1.0.14 keeps this design and reserves the task panel's full height when 
 
 Windows 10/11 x64 and .NET Framework 4.8 are required. Windows 11 includes the required framework. The first-time setup script requires WinGet.
 
-## Features
+## Video, audio and playlist features
 
-- Automatic video inspection and actual available-resolution choices.
-- A sensible default: the highest available resolution up to 1080p.
-- Support for normal video links, Shorts, and shared links.
-- Whole playlists in MP4 or MP3, with a cached title list, entry count, and overall progress.
-- Playlist video quality is explicitly a maximum, with a best-available option and lower resolutions used when needed. Single-video quality still shows actual available formats.
-- A paced playlist queue downloads one video at a time, continues past unavailable entries, and stops further requests on rate-limit, network, or storage errors.
-- Resume a playlist by pasting the same link with the same folder and format/quality: completed files still present are skipped before contacting YouTube, and partial files can resume.
-- MP4 output and MP3 audio encoding at 192 or 320 kbps, with 320 kbps as the default.
-- Progress, speed, cancellation, and resumable partial files.
-- Separate video filenames for different quality selections.
-- Existing completed files are preserved.
-- Defaults to Downloads without a YouTube subfolder; the previous default is migrated once and custom save folders are preserved.
-- Dark by default, with a sun/moon icon toggle and your theme choice remembered.
-- Smooth vector sun/moon icons that scale with the theme button at larger Windows display sizes.
-- English with an LTR layout or Arabic with an RTL layout, selectable from the header and remembered.
-- Language changes repaint immediately and keep every active control visible.
-- The English app name stays on the left in both languages, with a simpler link-to-download layout.
-- Immediate theme repaint with a brief 120 ms icon transition that respects Windows animation settings.
-- Equal-width MP4 / MP3 / quality controls filling the row, with rounded inputs and buttons.
-- A more spacious form with consistent label gaps, larger controls, readable typography, and clearer separation between task groups.
-- Refined quality dropdown with a larger chevron, themed rounded options, and a checkmark for the current selection.
-- Automatic checks on paste, a helpful link placeholder, and concise errors with recovery steps.
-- Clear feedback when the app is up to date or an update check fails.
-- A quiet update action with crisp refresh/download icons: left in English, right in Arabic, with the version on the opposite side.
-- Author credit stays on the left and social links stay on the right in both languages.
-- Theme-matched scrolling, anchored folder/update popovers, and automatic message dismissal after five seconds.
-- A larger transparent YD mark in the app header and taskbar.
-- Link cleared after a successful download; every launch starts with an empty link.
-- A larger centered Download action, matching Browse/Open folder controls, and recent-download history in a themed modal.
-- Show in folder after completion and for the selected recent download, with the file highlighted in File Explorer.
-- Saved preferences and history; idle status stays out of the way while progress and errors remain visible.
-- The window fits its content, and all popovers stay within the app's borders.
-- Dynamic task rows reserve their full height and bottom padding, keeping download and completion buttons above the update footer.
-- Checks GitHub for a new app version on launch; install it from inside the app.
+- **MP4 video downloads:** supports YouTube videos, Shorts, and shared links, with automatic inspection when you paste a link.
+- **Available video quality:** single-video choices reflect the source's available formats. The default is the highest available resolution up to 1080p.
+- **YouTube to MP3 conversion:** choose 192 or 320 kbps MP3 encoding; 320 kbps is the default. Higher encoding bitrates do not improve the original audio source.
+- **Whole YouTube playlists:** save a playlist as MP4 videos or MP3 audio, with an entry count, current-video progress, and overall progress.
+- **Resumable downloads:** keep completed files, resume partial files, and skip completed playlist entries still present in the same destination and output profile.
+- **Paced playlist queue:** downloads one video at a time, skips unavailable entries, and pauses on rate-limit, network, or storage errors. YouTube limits can still occur.
+- **English and Arabic:** switch between English LTR and Arabic RTL layouts, with the language choice remembered.
+- **Light and dark themes:** dark by default, with a sun/moon toggle, rounded controls, and remembered preferences.
+- **Local file controls:** choose a save folder, view recent downloads, open completed files, or reveal them in File Explorer. The default folder is Downloads.
+- **Progress and cancellation:** shows progress and speed, with cancellation that preserves completed and partial files. A successful download clears the pasted link; every launch starts with an empty link.
+- **Manual app updates:** check GitHub releases from the app and install a verified update only when you choose to. Downloader dependencies are managed separately.
 
 Sign-in-only videos and active live streams are not supported. A video link containing a playlist defaults to **This video**; **Whole playlist** is an explicit choice. Playlist-only links select the whole playlist. The app does not read browser cookies or automatically update its dependencies.
 
-## Playlist downloads
+## Download a YouTube playlist
 
 Each playlist is saved in `Playlist [playlist-id]` inside the selected folder. MP4 qualities such as **Up to 1080p** are caps rather than claims about every entry. A video without a suitable format may fail; **Best available** removes the cap. MP3 offers 192 or 320 kbps encoding; this does not improve the original audio source.
 
 The playlist title list is read once per pasted link, without fetching every video's formats in advance. Videos are downloaded sequentially with bounded retries, request pacing, and cancellable waits. Progress shows the current video and an approximate overall percentage based on item count. Private, removed, unavailable, and live entries are reported as failures and skipped. Rate-limit, network, or disk errors pause the queue; three consecutive unexpected failures also pause it. The final summary separates saved, already downloaded, failed, and remaining entries. YouTube limits can still occur.
 
 Resume records are stored privately under `%LOCALAPPDATA%\YouTubeDownloader\PlaylistState`, separately for each playlist destination, format, resolution cap, or MP3 bitrate. Completed downloads leave only media files in the playlist folder. Existing `.yd-completed-*.json` records from v1.0.12, including other output profiles, migrate into private storage the next time that playlist is downloaded. Deleted media is downloaded again. Cancellation keeps completed and partial files, and the link stays available after cancellation or partial failure. Fully successful downloads clear it.
+
+## Frequently asked questions
+
+### Is YouTube Downloader free?
+
+Yes. The Windows app is free to download and use. The direct download above provides one ZIP containing the executable, setup script, and instructions.
+
+### Can I download a whole YouTube playlist?
+
+Yes. Paste a playlist link, choose MP4 or MP3 and a quality, then click **Download**. A video link that also contains a playlist lets you choose **This video** or **Whole playlist**. Playlist-only links select the whole playlist automatically.
+
+### How do I convert YouTube audio to MP3 at 320 kbps?
+
+Paste a video or playlist link, select **Audio · MP3**, choose **320 kbps**, and click **Download**. You can also choose 192 kbps. These are output encoding bitrates; they do not restore detail missing from the source audio.
+
+### Which video qualities can I download?
+
+For one video, the app lists the actual available resolutions after checking the link. For a playlist, the selected quality is a maximum: each video uses a suitable available format up to that limit. **Best available** removes the playlist resolution cap.
+
+### Does the program work on every PC?
+
+The supported target is Windows 10 or 11 on an x64 PC with .NET Framework 4.8. The app also needs yt-dlp, FFmpeg, and Deno. The setup script uses WinGet to install missing tools. macOS, Linux, and mobile devices are not supported by this Windows release.
+
+### Where are downloaded videos and MP3 files saved?
+
+Files go to Downloads by default, or to the writable folder you select. Playlists use a `Playlist [playlist-id]` subfolder. **Show in folder** reveals a completed file in File Explorer. Playlist resume records stay in private app data rather than in the media folder.
+
+### Do I need to sign in to YouTube?
+
+The app does not use YouTube sign-in or read browser cookies. Sign-in-only videos and active live streams are not supported. Removed, private, and otherwise unavailable playlist entries may be skipped.
+
+### Is this an official YouTube app?
+
+No. YouTube Downloader is an independent Windows program by Ziad Hassanein, not an official Google or YouTube product. Downloads must comply with [YouTube's terms](https://www.youtube.com/static?template=terms) and the relevant content permissions.
+
+<div dir="rtl">
+
+## برنامج تنزيل فيديوهات يوتيوب للويندوز
+
+برنامج **YouTube Downloader** من **Ziad Hassanein** هو برنامج مجاني لويندوز 10 و11 بنظام 64 بت. يتيح تنزيل فيديوهات يوتيوب والمقاطع القصيرة وقوائم التشغيل بصيغة MP4، أو حفظ الصوت بصيغة MP3 بمعدل ترميز 192 أو 320 كيلوبت/ثانية. يدعم واجهة عربية من اليمين إلى اليسار وواجهة إنجليزية، مع الوضعين الداكن والفاتح.
+
+### طريقة التحميل من يوتيوب
+
+1. [نزّل ملف ZIP الخاص بالبرنامج](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v1.0.14/YouTubeDownloader-v1.0.14-windows-x64.zip) وفك الضغط في مجلد قابل للكتابة.
+2. شغّل `SetupTools.cmd` إذا كانت أدوات yt-dlp أو FFmpeg أو Deno غير متوفرة، ثم افتح `YouTubeDownloader.exe`.
+3. الصق رابط فيديو أو قائمة تشغيل، واختر صيغة MP4 أو MP3 والجودة ومجلد الحفظ، ثم اضغط **تنزيل**.
+
+تظهر جودة الفيديو المتاحة بعد فحص الرابط. في قوائم التشغيل، الجودة المختارة هي حد أقصى وليست ضمانًا لجودة جميع الفيديوهات. ترميز MP3 بمعدل 320 كيلوبت/ثانية لا يحسّن جودة الصوت الأصلي. يتطلب البرنامج .NET Framework 4.8، ويستخدم إعداد الأدوات WinGet. لا يدعم هذا الإصدار الهواتف أو macOS أو Linux.
+
+</div>
 
 ## App updates
 
