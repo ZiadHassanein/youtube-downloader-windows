@@ -64,6 +64,30 @@ internal static class Program
                         var field = (TextBox)window.FindName("LinkInput");
                         Check(field.FlowDirection == FlowDirection.LeftToRight && window.FlowDirection == FlowDirection.LeftToRight, "URL editor and branding shell retain physical LTR in " + language);
                         Check(model.ContentDirection == (language == "ar" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight), "Task content direction follows " + language);
+                        var placeholder = (TextBlock)window.FindName("LinkPlaceholder");
+                        field.Focus();
+                        field.CaretIndex = 0;
+                        window.UpdateLayout();
+                        var caret = field.GetRectFromCharacterIndex(0);
+                        var hintBounds = placeholder.TransformToVisual(field).TransformBounds(new Rect(placeholder.RenderSize));
+                        Check(!caret.IsEmpty && Math.Abs(caret.Left - hintBounds.Left) <= 1 &&
+                            placeholder.Visibility == Visibility.Visible && placeholder.FlowDirection == model.ContentDirection,
+                            "Empty-link caret and placeholder use the same text inset in " + language + (dark ? " dark" : " light") +
+                            $" (caret={caret}, hint={hintBounds}, visibility={placeholder.Visibility}, direction={placeholder.FlowDirection})");
+                        Capture(window, System.IO.Path.Combine(captures, "placeholder-" + language + (dark ? "-dark" : "-light") + ".png"));
+                        field.Text = "h";
+                        field.CaretIndex = 1;
+                        window.UpdateLayout();
+                        await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+                        var firstCharacter = field.GetRectFromCharacterIndex(0);
+                        Check(placeholder.Visibility == Visibility.Collapsed && model.Url == "h" && field.CaretIndex == 1 &&
+                            Math.Abs(firstCharacter.Left - caret.Left) <= 1,
+                            "Typing replaces the hint without moving the text origin in " + language + (dark ? " dark" : " light"));
+                        Capture(window, System.IO.Path.Combine(captures, "typed-" + language + (dark ? "-dark" : "-light") + ".png"));
+                        field.Clear();
+                        window.UpdateLayout();
+                        Check(placeholder.Visibility == Visibility.Visible && model.Url == "",
+                            "Clearing restores the localized hint in " + language + (dark ? " dark" : " light"));
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 

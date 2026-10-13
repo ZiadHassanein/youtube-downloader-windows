@@ -1,4 +1,4 @@
-param([string]$Version = '2.0.1')
+param([string]$Version = '2.0.2')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $projectRoot "dist/YouTubeDownloader-$Version-win-x64/YouTubeDownloader.exe"

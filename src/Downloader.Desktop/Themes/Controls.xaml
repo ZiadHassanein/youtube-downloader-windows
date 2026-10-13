@@ -90,7 +90,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="TextBox">
           <Border x:Name="Face" CornerRadius="8" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
-            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+            <ScrollViewer x:Name="PART_ContentHost" />
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
