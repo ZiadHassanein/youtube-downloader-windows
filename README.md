@@ -4,7 +4,7 @@
 
 A free Windows app by **Ziad Hassanein**. Save YouTube videos, Shorts and playlists as MP4, or audio as MP3 at 192 or 320 kbps. Choose actual available video qualities in an English or Arabic interface, with light and dark themes.
 
-**[Download for Windows (.zip)](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v2.0.0/YouTubeDownloader-v2.0.0-win-x64.zip)**
+**[Download for Windows (.zip)](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v2.0.1/YouTubeDownloader-v2.0.1-win-x64.zip)**
 
 Extract one ZIP and open `YouTubeDownloader.exe`. No separate .NET runtime, installer, WinGet, or tool setup script is needed. Missing media tools are prepared privately when you first paste a link. Windows 10/11 x64.
 
@@ -95,7 +95,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for project boundaries and release behavi
 
 برنامج **YouTube Downloader** من **Ziad Hassanein** هو برنامج مجاني لويندوز 10 و11 بنظام 64 بت. يتيح حفظ الفيديوهات والمقاطع القصيرة وقوائم التشغيل بصيغة MP4، أو الصوت بصيغة MP3 بمعدل ترميز 192 أو 320 كيلوبت/ثانية. يدعم العربية والإنجليزية والوضعين الداكن والفاتح.
 
-1. [نزّل ملف ZIP](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v2.0.0/YouTubeDownloader-v2.0.0-win-x64.zip) وفك الضغط في مجلد قابل للكتابة.
+1. [نزّل ملف ZIP](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v2.0.1/YouTubeDownloader-v2.0.1-win-x64.zip) وفك الضغط في مجلد قابل للكتابة.
 2. افتح `YouTubeDownloader.exe` والصق الرابط. يجهّز البرنامج الأدوات الناقصة تلقائيًا في مجلد بيانات خاص دون خطوات إعداد إضافية.
 3. اختر الصيغة والجودة ومجلد الحفظ ثم اضغط **تنزيل**.
 

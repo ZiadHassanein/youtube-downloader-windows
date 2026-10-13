@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using YouTubeDownloader;
@@ -65,6 +67,7 @@ internal static class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
+                await MaximizeChecks(window, model, captures);
                 window.Width = 820;
                 await Task.Delay(50);
                 window.UpdateLayout();
@@ -164,14 +167,70 @@ internal static class Program
     private static void Capture(Window window, string file)
     {
         var dpi = VisualTreeHelper.GetDpi(window);
-        var root = (FrameworkElement)window.FindName("Root");
-        var bitmap = new RenderTargetBitmap((int)Math.Ceiling((root.ActualWidth + root.Margin.Left + root.Margin.Right) * dpi.DpiScaleX), (int)Math.Ceiling((root.ActualHeight + root.Margin.Top + root.Margin.Bottom) * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        GetClientRect(new WindowInteropHelper(window).Handle, out var client);
+        var bitmap = new RenderTargetBitmap(client.Right - client.Left, client.Bottom - client.Top, dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
         bitmap.Render(window);
         var png = new PngBitmapEncoder();
         png.Frames.Add(BitmapFrame.Create(bitmap));
         using var output = System.IO.File.Create(file);
         png.Save(output);
     }
+
+    private static async Task MaximizeChecks(Window window, MainViewModel model, string captures)
+    {
+        double normalWidth = window.Width;
+        window.WindowState = WindowState.Maximized;
+        await Task.Delay(120);
+        var handle = new WindowInteropHelper(window).Handle;
+        var info = new MonitorInformation { Size = Marshal.SizeOf<MonitorInformation>() };
+        Check(GetMonitorInfo(MonitorFromWindow(handle, 2), ref info), "The native monitor work area is available for maximization checks");
+        foreach (string language in new[] { "en", "ar" })
+            foreach (bool dark in new[] { true, false })
+            {
+                if (model.IsArabic != (language == "ar")) model.LanguageCommand.Execute(null);
+                if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
+                window.UpdateLayout();
+                GetWindowRect(handle, out var bounds);
+                Check(window.WindowState == WindowState.Maximized && double.IsPositiveInfinity(window.MaxHeight) &&
+                    bounds.Left <= info.Work.Left + 1 && bounds.Top <= info.Work.Top + 1 && bounds.Right >= info.Work.Right - 1 && bounds.Bottom >= info.Work.Bottom - 1,
+                    "Maximization fills the native work area in " + language + (dark ? " dark" : " light"));
+                var root = (FrameworkElement)window.FindName("Root");
+                var viewport = (ScrollViewer)window.FindName("Viewport");
+                var footer = (FrameworkElement)window.FindName("FooterContent");
+                var footerBounds = footer.TransformToAncestor(viewport).TransformBounds(new Rect(0, 0, footer.ActualWidth, footer.ActualHeight));
+                double center = root.PointToScreen(new Point(root.ActualWidth / 2, 0)).X;
+                Check(root.ActualWidth <= 1041 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
+                    Math.Abs(footerBounds.Bottom - viewport.ActualHeight) <= 2,
+                    "The maximized form stays centered at a readable width with its footer at the bottom");
+                Capture(window, System.IO.Path.Combine(captures, "maximized-" + language + (dark ? "-dark" : "-light") + ".png"));
+            }
+        window.WindowState = WindowState.Normal;
+        await Task.Delay(100);
+        window.UpdateLayout();
+        var page = (FrameworkElement)window.FindName("PageContent");
+        Check(Math.Abs(window.Width - normalWidth) <= 1 && page.MinHeight == 0 && window.ActualHeight < SystemParameters.WorkArea.Height,
+            $"Restoring returns to content-fit sizing without inheriting the maximized height (state={window.WindowState}, width={window.Width}, height={window.ActualHeight}, pageMin={page.MinHeight})");
+        Capture(window, System.IO.Path.Combine(captures, "restored.png"));
+        window.WindowState = WindowState.Minimized;
+        await Task.Delay(60);
+        Check(Math.Abs(window.RestoreBounds.Width - normalWidth) <= 1, "Minimizing preserves the normal restore width");
+        window.WindowState = WindowState.Normal;
+        await Task.Delay(100);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeBounds { public int Left, Top, Right, Bottom; }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MonitorInformation { public int Size; public NativeBounds Monitor, Work; public uint Flags; }
+    [DllImport("user32.dll")]
+    private static extern bool GetClientRect(IntPtr window, out NativeBounds bounds);
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(IntPtr window, out NativeBounds bounds);
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr window, uint flags);
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInformation info);
 
     private sealed class EmptyStorage : IPlaylistStorage
     {

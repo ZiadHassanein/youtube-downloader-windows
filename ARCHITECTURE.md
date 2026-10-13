@@ -8,7 +8,7 @@ The desktop app uses WPF on .NET 10 and CommunityToolkit.Mvvm. The download engi
 | `Downloader.Infrastructure` | YouTube provider, native process containment, media validation, tool preparation, persistence and update transactions | Core, Windows APIs |
 | `Downloader.Desktop` | WPF views, themes, localization, view models, dialogs and desktop actions | Core, Infrastructure, CommunityToolkit.Mvvm |
 
-Open `Downloader.slnx` for the full solution. Features belong in their owning module rather than the window's code-behind. Window code handles native presentation, content sizing and lifecycle; view models coordinate commands. Each new provider must implement `IMediaProvider`, including URL resolution and normalization, readiness, inspection and item downloading. The current adapter accepts YouTube links only. Multi-provider routing and browser extensions have not been implemented.
+Open `Downloader.slnx` for the full solution. Features belong in their owning module rather than the window's code-behind. Window code handles native presentation, content sizing and lifecycle; view models coordinate commands. Normal sizing fits content within the current monitor's work area. Maximization uses Windows bounds with a centered width limit and bottom footer; minimization preserves restore bounds. Each new provider must implement `IMediaProvider`, including URL resolution and normalization, readiness, inspection and item downloading. The current adapter accepts YouTube links only. Multi-provider routing and browser extensions have not been implemented.
 
 ## Operation lifecycle
 

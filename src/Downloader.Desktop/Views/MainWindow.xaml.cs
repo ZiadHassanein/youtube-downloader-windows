@@ -32,6 +32,7 @@ public partial class MainWindow : Window
         model.NoticeRequested += PlaceNotice;
         PageContent.SizeChanged += (_, _) => QueueFit();
         SizeChanged += (_, _) => QueueFit();
+        StateChanged += (_, _) => QueueFit();
         model.PropertyChanged += (_, args) =>
         {
             if (string.IsNullOrEmpty(args.PropertyName))
@@ -81,17 +82,25 @@ public partial class MainWindow : Window
 
     private void FitContent()
     {
+        if (WindowState == WindowState.Minimized)
+            return;
+        SizeToContent = SizeToContent.Manual;
+        if (WindowState == WindowState.Maximized)
+        {
+            Viewport.MaxHeight = double.PositiveInfinity;
+            PageContent.MinHeight = Viewport.ActualHeight;
+            return;
+        }
+        PageContent.MinHeight = 0;
         var area = CurrentWorkArea();
-        double boundedHeight = Math.Max(MinHeight, Math.Min(area.Height, SystemParameters.WorkArea.Height) - 16);
-        if (Math.Abs(MaxHeight - boundedHeight) > 1)
-            MaxHeight = boundedHeight;
+        double boundedHeight = Math.Max(MinHeight, area.Height - 16);
         double maximum = Math.Max(240, boundedHeight - Root.Margin.Top - Root.Margin.Bottom - SystemParameters.CaptionHeight - 20);
         if (Math.Abs(Viewport.MaxHeight - maximum) > 1)
             Viewport.MaxHeight = maximum;
-        PageContent.Measure(new Size(Math.Max(1, ActualWidth - Root.Margin.Left - Root.Margin.Right - 20), double.PositiveInfinity));
+        double contentWidth = Viewport.ActualWidth - (Viewport.ComputedVerticalScrollBarVisibility == Visibility.Visible ? 26 : 0);
+        PageContent.Measure(new Size(Math.Max(1, contentWidth), double.PositiveInfinity));
         double chrome = Math.Max(SystemParameters.CaptionHeight + 8, ActualHeight - Root.ActualHeight - Root.Margin.Top - Root.Margin.Bottom);
         double desired = Math.Clamp(PageContent.DesiredSize.Height + Root.Margin.Top + Root.Margin.Bottom + chrome + 8, MinHeight, boundedHeight);
-        SizeToContent = SizeToContent.Manual;
         if (Math.Abs(Height - desired) > 1)
             Height = desired;
         if (Top + ActualHeight > area.Bottom)

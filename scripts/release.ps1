@@ -18,8 +18,13 @@ if ((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -ne $sum.Hash) { thr
 $headers = @{Authorization = 'Bearer ' + $env:GH_RELEASE_TOKEN; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'}
 $api = "https://api.github.com/repos/$repository/releases"
 $url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
+$changes = if ($version -eq '2.0.1') {
+    'Fixes maximization: the native window fills the monitor work area, the form stays centered at a readable width, and the footer uses the bottom space. Restoring returns to normal content-fit sizing. Native maximization/restore checks cover English and Arabic in both themes.'
+} else { '' }
 $body = @"
 **[Download for Windows (.zip)]($url)**
+
+$changes
 
 Extract one ZIP and open YouTubeDownloader.exe. Windows 10/11 x64; no separate .NET runtime or setup script. Compatible media tools are reused, and missing tools are prepared privately on the first pasted link.
 

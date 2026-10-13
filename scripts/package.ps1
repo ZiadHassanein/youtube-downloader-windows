@@ -1,4 +1,4 @@
-param([string]$Version='2.0.0')
+param([string]$Version='2.0.1')
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
 $env:DOTNET_CLI_HOME=Join-Path $projectRoot 'build/dotnet-home'
