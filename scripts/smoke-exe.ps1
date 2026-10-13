@@ -1,4 +1,4 @@
-param([string]$Version = '3.0.1')
+param([string]$Version = '3.0.2')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $projectRoot "dist/ViFree-$Version-win-x64/ViFree.exe"

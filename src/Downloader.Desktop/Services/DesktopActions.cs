@@ -46,17 +46,6 @@ public sealed class DesktopActions
         return dialog.ShowDialog(owner) == true ? dialog.FolderName : null;
     }
 
-    public string SelectSettings()
-    {
-        var dialog = new OpenFileDialog
-        {
-            Title = "Import previous app settings",
-            Filter = "App settings (settings.json)|settings.json|JSON files (*.json)|*.json",
-            CheckFileExists = true
-        };
-        return dialog.ShowDialog(owner) == true ? dialog.FileName : null;
-    }
-
     public void OpenFolder(string folder) => Process.Start(new ProcessStartInfo(Path.GetFullPath(folder)) { UseShellExecute = true });
     public void OpenMedia(string file, bool reveal)
     {
@@ -119,42 +108,6 @@ public sealed class DesktopActions
         FontSize = 15,
         Icon = owner.Icon
     };
-    public bool ConfirmImport(SavedState state, Func<string, string> t)
-    {
-        var dialog = Dialog(t("Import settings"));
-        var panel = new StackPanel
-        {
-            Margin = new Thickness(24)
-        };
-        panel.Children.Add(new TextBlock { Text = t("Replace your current preferences with these settings?"), FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) });
-        panel.Children.Add(new TextBlock { Text = state.Folder ?? AppPaths.Downloads, TextWrapping = TextWrapping.Wrap, MaxHeight = 80 });
-        panel.Children.Add(new TextBlock { Text = state.Language + " · " + state.Theme + " · " + state.AudioBitrate + " kbps", Margin = new Thickness(0, 8, 0, 20) });
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right
-        };
-        var cancel = new Button
-        {
-            Content = t("Cancel"),
-            IsCancel = true,
-            MinWidth = 100
-        };
-        var import = new Button
-        {
-            Content = t("Import settings"),
-            MinWidth = 130,
-            Margin = new Thickness(12, 0, 0, 0),
-            Style = (Style)Application.Current.Resources["PrimaryButton"]
-        };
-        import.Click += (_, _) => dialog.DialogResult = true;
-        buttons.Children.Add(cancel);
-        buttons.Children.Add(import);
-        panel.Children.Add(buttons);
-        dialog.Content = panel;
-        return dialog.ShowDialog() == true;
-    }
-
     public void ShowHistory(IEnumerable<string> history, Func<string, string> t)
     {
         var dialog = Dialog(t("Recent downloads"), 460);

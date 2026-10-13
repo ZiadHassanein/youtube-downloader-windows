@@ -101,14 +101,6 @@ public sealed class SettingsRepository
         }
     }
 
-    public SavedState ReadImport(string file) => Read(file) ?? throw new InvalidDataException("This file does not contain valid app settings.");
-    public SavedState Import(string file)
-    {
-        var state = ReadImport(file);
-        Save(state);
-        return state;
-    }
-
     public void Save(SavedState state)
     {
         Directory.CreateDirectory(directory);

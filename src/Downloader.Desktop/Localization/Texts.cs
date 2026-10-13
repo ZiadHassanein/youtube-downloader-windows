@@ -67,30 +67,6 @@ namespace YouTubeDownloader
                 "أدوات الوسائط جاهزة."
             },
             {
-                "Import settings",
-                "استيراد الإعدادات"
-            },
-            {
-                "Replace your current preferences with these settings?",
-                "هل تريد استبدال تفضيلاتك الحالية بهذه الإعدادات؟"
-            },
-            {
-                "Settings imported",
-                "تم استيراد الإعدادات"
-            },
-            {
-                "Your previous settings are ready to use. The original file was kept.",
-                "إعداداتك السابقة جاهزة للاستخدام. تم الاحتفاظ بالملف الأصلي."
-            },
-            {
-                "Could not import settings",
-                "تعذّر استيراد الإعدادات"
-            },
-            {
-                "Choose a valid settings file from the previous app folder and try again.",
-                "اختر ملف إعدادات صالحًا من مجلد التطبيق السابق وجرّب مرة أخرى."
-            },
-            {
                 "Check your internet connection, then paste the link again to retry.",
                 "تحقق من اتصال الإنترنت، ثم الصق الرابط مجددًا لإعادة المحاولة."
             },

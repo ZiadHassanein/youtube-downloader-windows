@@ -343,32 +343,6 @@ public sealed partial class MainViewModel
         }
     }
 
-    private void ImportSettings()
-    {
-        string source = actions.SelectSettings();
-        if (source == null)
-            return;
-        try
-        {
-            var imported = settings.ReadImport(source);
-            if (!actions.ConfirmImport(imported, T))
-                return;
-            settings.Save(imported);
-            state = imported;
-            folder = AppPaths.InitialFolder(state.Folder, state.FolderVersion == 0);
-            state.FolderVersion = 1;
-            audio = state.Format == 1;
-            ThemeResources.Apply(IsDark);
-            RefreshQualities();
-            NotifyPresentation();
-            ShowNotice("Settings imported", "Your previous settings are ready to use. The original file was kept.", false, "folder");
-        }
-        catch
-        {
-            ShowNotice("Could not import settings", "Choose a valid settings file from the previous app folder and try again.", true, "folder");
-        }
-    }
-
     public async Task CloseAsync()
     {
         debounce?.Cancel();

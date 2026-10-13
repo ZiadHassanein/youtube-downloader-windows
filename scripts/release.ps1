@@ -31,6 +31,7 @@ Extract the ZIP and open **ViFree.exe**. Windows 10/11 x64. Missing media tools 
 - YouTube videos and playlists as MP4, or MP3 at 192/320 kbps.
 - English/Arabic and light/dark themes.
 - Manual updates from this public download repository.
+- A simpler footer; preferences save automatically.
 
 **Existing users through 3.0.0:** close the older app and download this ZIP once into a new writable folder. Your settings, history and downloaded media are retained.
 

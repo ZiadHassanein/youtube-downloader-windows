@@ -26,7 +26,7 @@ The executable includes its .NET runtime. Media-tool binaries remain vendor down
 
 ## Persistence
 
-`SettingsRepository` stores validated preferences and a bounded recent-file history in LocalAppData. Writes are flushed and atomically replaced with a backup. A damaged primary can recover from the backup without overwriting it; importing relocated settings retains the source. Pasted URLs are never persisted.
+`SettingsRepository` stores validated preferences and a bounded recent-file history in LocalAppData. Writes are flushed and atomically replaced with a backup. A damaged primary can recover from the backup without overwriting it. Existing legacy preferences migrate automatically on first load while retaining their source. Pasted URLs are never persisted.
 
 ViFree keeps the existing `LocalAppData/YouTubeDownloader` data identity and desktop mutex. The public name and executable change to ViFree; settings, history, resume records and prepared tools remain available. Older YouTube Downloader copies require one manual ZIP download for this rename. Subsequent ViFree releases use the verified manual updater.
 

@@ -117,11 +117,13 @@ internal static class ReliabilityChecks
 
         Check(File.ReadAllText(settings.FilePath) == before, "Failed settings commit preserves prior valid bytes");
         settings.BeforeReplace = null;
-        string legacy = Path.Combine(settingsRoot, "legacy.json");
+        string legacyDirectory = Path.Combine(settingsRoot, "previous-app");
+        Directory.CreateDirectory(legacyDirectory);
+        string legacy = Path.Combine(legacyDirectory, "settings.json");
         File.WriteAllText(legacy, "{\"Language\":\"ar\",\"Theme\":\"Light\",\"AudioBitrate\":192,\"LastUrl\":\"https://youtu.be/jNQXAC9IVRw\",\"Recent\":[null]}");
         string source = File.ReadAllText(legacy);
-        settings.Import(legacy);
-        Check(settings.Load().AudioBitrate == 192 && File.ReadAllText(legacy) == source && !File.ReadAllText(settings.FilePath).Contains("LastUrl"), "Relocated settings import works after defaults and preserves source without a URL");
+        var migratedSettings = new SettingsRepository(Path.Combine(settingsRoot, "migrated-preferences"));
+        Check(migratedSettings.Load(legacyDirectory).AudioBitrate == 192 && File.ReadAllText(legacy) == source && !File.ReadAllText(migratedSettings.FilePath).Contains("LastUrl"), "Automatic legacy migration preserves original settings without persisting a URL");
         var invalidRoot = Path.Combine(settingsRoot, "invalid-tools");
         Directory.CreateDirectory(invalidRoot);
         File.WriteAllText(Path.Combine(invalidRoot, "yt-dlp.exe"), "not executable");

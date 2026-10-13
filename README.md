@@ -4,16 +4,16 @@
 
 A free Windows app by **Ziad Hassanein** for downloading YouTube videos, Shorts and playlists as MP4 or MP3 (192/320 kbps). English and Arabic, with dark and light themes.
 
-**[Download for Windows (.zip)](https://github.com/ZiadHassanein/ViFree-Downloads/releases/download/v3.0.1/ViFree-v3.0.1-win-x64.zip)**
+**[Download for Windows (.zip)](https://github.com/ZiadHassanein/ViFree-Downloads/releases/download/v3.0.2/ViFree-v3.0.2-win-x64.zip)**
 
 Windows 10/11 x64. Extract the ZIP and open `ViFree.exe`. No separate runtime or tool setup; missing tools download automatically when needed.
 
 <p align="center">
-  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="400" alt="English, dark theme — v1.0.14"></a>
-  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="400" alt="Arabic, light theme — v1.0.14"></a>
+  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="48%" alt="ViFree v3.0.2 — English, dark theme"></a>
+  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="48%" alt="ViFree v3.0.2 — Arabic, light theme"></a>
 </p>
 
-Screenshots show the previous YouTube Downloader v1.0.14.
+ViFree v3.0.2. Click either screenshot for full size.
 
 ## Use
 

@@ -70,7 +70,6 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFileCommand = new RelayCommand(() => OpenMedia(false), () => HasFile && IsIdle);
         RevealCommand = new RelayCommand(() => OpenMedia(true), () => HasFile && IsIdle);
         HistoryCommand = new RelayCommand(() => actions.ShowHistory(state.Recent, T), () => IsIdle);
-        ImportCommand = new RelayCommand(ImportSettings, () => IsIdle);
         SocialCommand = new RelayCommand<string>(kind =>
         {
             try
@@ -237,7 +236,6 @@ public sealed partial class MainViewModel : ObservableObject
     public string CancelLabel => T(downloads.Operations.State == OperationState.Cancelling ? "Cancelling…" : "Cancel");
     public string OpenFileLabel => T("Open file");
     public string RevealLabel => T("Show in folder");
-    public string ImportLabel => T("Import settings");
     public string DismissLabel => T("Dismiss update message");
     public string LanguageAction => IsArabic ? "English" : "العربية";
     public string ThemeAction => T(IsDark ? "Switch to light theme" : "Switch to dark theme");
@@ -268,7 +266,6 @@ public sealed partial class MainViewModel : ObservableObject
     public IRelayCommand OpenFileCommand { get; }
     public IRelayCommand RevealCommand { get; }
     public IRelayCommand HistoryCommand { get; }
-    public IRelayCommand ImportCommand { get; }
     public IRelayCommand<string> SocialCommand { get; }
     public IRelayCommand DismissNoticeCommand { get; }
 
@@ -295,7 +292,6 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFileCommand?.NotifyCanExecuteChanged();
         RevealCommand?.NotifyCanExecuteChanged();
         HistoryCommand?.NotifyCanExecuteChanged();
-        ImportCommand?.NotifyCanExecuteChanged();
         UpdateCommand?.NotifyCanExecuteChanged();
     }
 
