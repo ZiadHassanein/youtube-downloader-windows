@@ -4,7 +4,9 @@
 
 A desktop app for saving YouTube videos or whole playlists as MP4 or extracting MP3 audio. Paste a link, choose a quality and a destination, then download.
 
-**[Download the latest Windows release](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/latest)**
+**[Download for Windows (.zip)](https://github.com/ZiadHassanein/youtube-downloader-windows/releases/download/v1.0.14/YouTubeDownloader-v1.0.14-windows-x64.zip)**
+
+One ZIP includes the app, tool setup, and instructions.
 
 <p align="center">
   <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="400" alt="YouTube Downloader — English, dark theme (v1.0.14)"></a>
@@ -17,7 +19,7 @@ Version 1.0.14 keeps this design and reserves the task panel's full height when 
 
 ## Get started
 
-1. Download `YouTubeDownloader-v1.0.14-windows-x64.zip` from the release page.
+1. Click **Download for Windows (.zip)** above to download the complete app package directly.
 2. Extract the ZIP to a writable folder.
 3. If yt-dlp, FFmpeg, or Deno are missing, run `SetupTools.cmd` once. It installs only missing tools through Windows Package Manager.
 4. Open `YouTubeDownloader.exe` and paste a video or playlist link. For a video link that also contains a playlist, choose **This video** or **Whole playlist**.
