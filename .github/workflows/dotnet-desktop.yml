@@ -25,7 +25,7 @@ jobs:
       - name: Publish portable ZIP
         shell: pwsh
         run: |
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '3.0.0' }
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '3.0.1' }
           ./scripts/build.ps1 -Version $version
           ./scripts/smoke-exe.ps1 -Version $version
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -41,7 +41,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -50,8 +50,13 @@ jobs:
         with:
           name: windows-desktop
           path: dist
-      - name: Publish the tested tag package
+      - name: Publish the tested tag package to public downloads
         shell: pwsh
         env:
-          GH_RELEASE_TOKEN: ${{ github.token }}
-        run: ./scripts/release.ps1
+          GH_RELEASE_TOKEN: ${{ secrets.VIFREE_DOWNLOADS_TOKEN }}
+        run: |
+          if ($env:GH_RELEASE_TOKEN) {
+            ./scripts/release.ps1
+          } else {
+            Write-Output '::notice::Tested package is ready in windows-desktop. Public publication requires VIFREE_DOWNLOADS_TOKEN or a manual release upload.'
+          }

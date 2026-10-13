@@ -1,4 +1,4 @@
-param([string]$Version='3.0.0')
+param([string]$Version='3.0.1')
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
 $env:DOTNET_CLI_HOME=Join-Path $projectRoot 'build/dotnet-home'
@@ -18,7 +18,7 @@ On the first pasted link, the app checks compatible installed media tools and pr
 Updates are manual: choose Check for updates and then Install when a newer verified desktop package is available. Copies of YouTube Downloader require one manual ZIP download to switch to ViFree. Existing preferences and downloaded files are retained.
 Preferences are kept in LocalAppData/YouTubeDownloader. To import relocated v1 settings, choose Import settings. Existing settings and media are retained. Links are not saved.
 Only download content you have permission to save. Protected and sign-in-only content is not supported. YouTube limits can still occur.
-Source and releases: https://github.com/ZiadHassanein/ViFree
+Downloads and support: https://github.com/ZiadHassanein/ViFree-Downloads
 '@
 [IO.File]::WriteAllText((Join-Path $package 'README.txt'),$instructions,[Text.UTF8Encoding]::new($false))
 $files=@('ViFree.exe','README.txt','THIRD-PARTY-NOTICES.txt')

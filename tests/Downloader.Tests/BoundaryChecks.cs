@@ -300,6 +300,8 @@ internal static class BoundaryChecks
         }
 
         Check(oldRelease, "Legacy release names cannot be installed as native desktop payloads");
+        Check(AppUpdates.Repository == "https://github.com/ZiadHassanein/ViFree-Downloads",
+            "Updates use the public download repository independently of private source access");
         string releaseJson = System.Text.Json.JsonSerializer.Serialize(new
         {
             draft = false,
@@ -319,6 +321,7 @@ internal static class BoundaryChecks
         foreach (string invalid in new[]
         {
             releaseJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree"),
+            releaseJson.Replace(AppUpdates.Repository, "https://github.com/ZiadHassanein/ViFree"),
             releaseJson.Replace("ViFree-v3.0.1-win-x64.zip", "YouTubeDownloader-v3.0.1-win-x64.zip")
         })
         {
