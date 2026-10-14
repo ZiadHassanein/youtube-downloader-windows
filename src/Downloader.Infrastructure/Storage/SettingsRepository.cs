@@ -165,6 +165,7 @@ public sealed class SettingsRepository
         state.Format = state.Format == 1 ? 1 : 0;
         state.Quality = Math.Clamp(state.Quality, 0, 100);
         state.AudioBitrate = state.AudioBitrate == 192 ? 192 : 320;
+        if (!Enum.IsDefined(state.AudioEncoding)) state.AudioEncoding = AudioEncoding.Mp3;
         state.FolderVersion = state.FolderVersion == 1 ? 1 : 0;
         if (!ValidPath(state.Folder))
             state.Folder = null;

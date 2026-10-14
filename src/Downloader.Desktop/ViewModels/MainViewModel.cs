@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace YouTubeDownloader;
-public sealed record QualityChoice(string Label, string Key = null, int Height = 0, int Bitrate = 0)
+public sealed record QualityChoice(string Label, string Key = null, int Height = 0, int Bitrate = 0, MediaSelection Selection = null)
 {
     public override string ToString() => Label;
 }
@@ -33,6 +33,7 @@ public sealed partial class MainViewModel : ObservableObject
         this.settings = settings;
         this.actions = actions;
         state = settings.Load();
+        encoding = Encodings.FirstOrDefault(e => e.Encoding == state.AudioEncoding) ?? Encodings[0];
         folder = AppPaths.InitialFolder(state.Folder, state.FolderVersion == 0);
         state.FolderVersion = 1;
         audio = state.Format == 1;
@@ -42,6 +43,7 @@ public sealed partial class MainViewModel : ObservableObject
         DownloadCommand = new AsyncRelayCommand(DownloadAsync, () => CanDownload);
         CancelCommand = new RelayCommand(() =>
         {
+            Queue.Stop();
             downloads.Cancel();
             OnPropertyChanged(nameof(CancelLabel));
         }, () => IsBusy);
@@ -83,6 +85,7 @@ public sealed partial class MainViewModel : ObservableObject
         });
         DismissNoticeCommand = new RelayCommand(() => NoticeVisible = false);
         UpdateCommand = new AsyncRelayCommand(UpdateAsync, () => IsIdle);
+        InitializeWorkflows();
         downloads.Progress += p => actions.Dispatch(() =>
         {
             if (IsBusy && p.OperationId == downloads.Operations.CurrentId)
@@ -106,7 +109,7 @@ public sealed partial class MainViewModel : ObservableObject
     public FontFamily ContentFont => (FontFamily)Application.Current.Resources[IsArabic ? "ArabicFont" : "LatinFont"];
     public bool IsDark => !state.ThemeSelected || state.Theme == "Dark";
     public FlowDirection ContentDirection => IsArabic ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
-    public bool IsBusy => downloads.Operations.IsBusy;
+    public bool IsBusy => downloads.Operations.IsBusy || Queue.IsRunning;
     public bool IsIdle => !IsBusy;
 
     public bool HasPlaylist
@@ -130,6 +133,9 @@ public sealed partial class MainViewModel : ObservableObject
                 return;
             videoInfo = null;
             playlistInfo = null;
+            selectedPlaylistIds = null;
+            playlistCaptions = new();
+            RefreshCaptions();
             checkedUrl = null;
             ParseScope();
             RefreshQualities();
@@ -217,16 +223,16 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    public bool CanChooseQuality => IsIdle && (Audio || playlistInfo != null || videoInfo?.Qualities.Count > 0);
+    public bool CanChooseQuality => IsIdle && (Audio ? !OutputProfiles.IsLossless(SelectedEncoding.Encoding) : playlistInfo != null || videoInfo?.Qualities.Count > 0);
     public bool CanDownload => IsIdle && checkedUrl == Url.Trim() && (WholePlaylist ? playlistInfo != null : videoInfo != null && (Audio ? videoInfo.HasAudio : SelectedQuality?.Key != null));
-    public string LinkLabel => T("YouTube link");
+    public string LinkLabel => T("Video link");
     public string LinkPlaceholder => T("Videos, Shorts, and playlists");
     public string PasteLabel => T("Paste");
     public string SingleLabel => T("This video");
     public string PlaylistLabel => T("Whole playlist");
     public string FormatLabel => T("Save as");
     public string VideoLabel => T("Video · MP4");
-    public string AudioLabel => T("Audio · MP3");
+    public string AudioLabel => T("Audio") + " · " + SelectedEncoding.Label;
     public string QualityLabel => T("Quality");
     public string FolderLabel => T("Save to");
     public string BrowseLabel => T("Browse…");
@@ -240,7 +246,7 @@ public sealed partial class MainViewModel : ObservableObject
     public string LanguageAction => IsArabic ? "English" : "العربية";
     public string ThemeAction => T(IsDark ? "Switch to light theme" : "Switch to dark theme");
     public string ThemeIcon => IsDark ? "M 12 0 L 12 3 M 12 21 L 12 24 M 0 12 L 3 12 M 21 12 L 24 12 M 3 3 L 5 5 M 19 19 L 21 21 M 3 21 L 5 19 M 19 5 L 21 3 M 16 12 A 4 4 0 1 1 8 12 A 4 4 0 1 1 16 12" : "M 12 3 C 7.03 3 3 7.03 3 12 C 3 16.97 7.03 21 12 21 C 16.3 21 19.9 18 20.8 14 C 17 15 13 13.6 11.2 10.3 C 9.9 7.9 10.25 4.8 12 3 Z";
-    public string VersionLabel => "v" + AppUpdates.Current.ToString(3);
+    public string VersionLabel => "v" + AppUpdates.Current.ToString(3) + (ReleaseChannel.IsPreview ? " · Preview 1" : "");
     public bool HasFile => lastFile != null;
     public bool HasStatus => statusHeading.Length > 0;
     public string StatusHeading => T(statusHeading);
@@ -293,10 +299,13 @@ public sealed partial class MainViewModel : ObservableObject
         RevealCommand?.NotifyCanExecuteChanged();
         HistoryCommand?.NotifyCanExecuteChanged();
         UpdateCommand?.NotifyCanExecuteChanged();
+        RefreshWorkflowAvailability();
     }
 
     private void NotifyPresentation()
     {
+        RefreshCaptions();
+        SyncQueue();
         OnPropertyChanged(string.Empty);
         RefreshAvailability();
     }

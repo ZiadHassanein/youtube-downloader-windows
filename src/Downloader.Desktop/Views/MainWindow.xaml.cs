@@ -31,12 +31,16 @@ public partial class MainWindow : Window
         DataContext = model;
         model.NoticeRequested += PlaceNotice;
         PageContent.SizeChanged += (_, _) => QueueFit();
+        foreach (FrameworkElement section in PageContent.Children)
+            section.SizeChanged += (_, _) => QueueFit();
         SizeChanged += (_, _) => QueueFit();
         StateChanged += (_, _) => QueueFit();
         model.PropertyChanged += (_, args) =>
         {
             if (string.IsNullOrEmpty(args.PropertyName))
                 ApplyTitleBar();
+            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.OptionsVisible) or nameof(MainViewModel.HasPlaylist) or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.NoticeVisible))
+                QueueFit();
             if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading))
             {
                 var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading : StatusHeading;
@@ -87,20 +91,28 @@ public partial class MainWindow : Window
         SizeToContent = SizeToContent.Manual;
         if (WindowState == WindowState.Maximized)
         {
+            PageContent.RowDefinitions[2].Height = new GridLength(1, GridUnitType.Star);
             Viewport.MaxHeight = double.PositiveInfinity;
             PageContent.MinHeight = Viewport.ActualHeight;
             return;
         }
         PageContent.MinHeight = 0;
+        PageContent.RowDefinitions[2].Height = new GridLength(0);
         var area = CurrentWorkArea();
         double boundedHeight = Math.Max(MinHeight, area.Height - 16);
         double maximum = Math.Max(240, boundedHeight - Root.Margin.Top - Root.Margin.Bottom - SystemParameters.CaptionHeight - 20);
         if (Math.Abs(Viewport.MaxHeight - maximum) > 1)
             Viewport.MaxHeight = maximum;
         double contentWidth = Viewport.ActualWidth - (Viewport.ComputedVerticalScrollBarVisibility == Visibility.Visible ? 26 : 0);
-        PageContent.Measure(new Size(Math.Max(1, contentWidth), double.PositiveInfinity));
+        // Measure content rows independently: a live star row may retain space from an expanded view.
+        double contentHeight = 0;
+        foreach (FrameworkElement section in PageContent.Children)
+        {
+            section.Measure(new Size(Math.Max(1, contentWidth), double.PositiveInfinity));
+            contentHeight += section.DesiredSize.Height;
+        }
         double chrome = Math.Max(SystemParameters.CaptionHeight + 8, ActualHeight - Root.ActualHeight - Root.Margin.Top - Root.Margin.Bottom);
-        double desired = Math.Clamp(PageContent.DesiredSize.Height + Root.Margin.Top + Root.Margin.Bottom + chrome + 8, MinHeight, boundedHeight);
+        double desired = Math.Clamp(contentHeight + Root.Margin.Top + Root.Margin.Bottom + chrome + 8, MinHeight, boundedHeight);
         if (Math.Abs(Height - desired) > 1)
             Height = desired;
         if (Top + ActualHeight > area.Bottom)

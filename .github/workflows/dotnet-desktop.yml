@@ -1,8 +1,7 @@
-name: Windows desktop
+name: Windows preview
 on:
   push:
     branches: ['**']
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -22,41 +21,20 @@ jobs:
       - name: Test core, native processes, recovery and WPF
         shell: pwsh
         run: ./scripts/test.ps1
-      - name: Publish portable ZIP
+      - name: Package portable preview and browser companion
         shell: pwsh
         run: |
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '3.0.2' }
-          ./scripts/build.ps1 -Version $version
+          $version = '4.0.0-preview.1'
+          ./scripts/package.ps1 -Version $version -Preview
           ./scripts/smoke-exe.ps1 -Version $version
+          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --native-host "./dist/ViFree-$version-win-x64/ViFree.exe"
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged browser host checks failed.' }
+          ./scripts/package-browser.ps1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: windows-desktop
+          name: windows-preview
           path: |
             dist/ViFree-v*-win-x64.zip
             dist/checksums-desktop.json
+            dist/ViFree-browser-preview.zip
           if-no-files-found: error
-  release:
-    if: github.event_name == 'push' && github.ref_type == 'tag'
-    needs: build
-    runs-on: windows-2025
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: windows-desktop
-          path: dist
-      - name: Publish the tested tag package to public downloads
-        shell: pwsh
-        env:
-          GH_RELEASE_TOKEN: ${{ secrets.VIFREE_DOWNLOADS_TOKEN }}
-        run: |
-          if ($env:GH_RELEASE_TOKEN) {
-            ./scripts/release.ps1
-          } else {
-            Write-Output '::notice::Tested package is ready in windows-desktop. Public publication requires VIFREE_DOWNLOADS_TOKEN or a manual release upload.'
-          }

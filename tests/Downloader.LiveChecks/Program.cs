@@ -4,6 +4,7 @@ internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--workflows") return await WorkflowLiveChecks.Run(args[1]);
         try
         {
             string root = Path.GetFullPath(args[0]);

@@ -5,6 +5,7 @@ public sealed class DependencyManager : IDisposable
     private readonly string[] locations;
     private readonly ToolProbe probe = new();
     private readonly VerifiedDownloads downloads;
+    public string CacheDirectory => cache;
     internal Func<ToolArtifact, string, CancellationToken, Task> AcquireArtifact { get; set; }
     internal Action BeforePromote { get; set; }
 
@@ -149,7 +150,7 @@ public sealed class DependencyManager : IDisposable
 
     private (string Yt, string Ffmpeg, string Ffprobe, string Deno) DiscoverPieces(CancellationToken token)
     {
-        string yt = null, deno = null, ffmpeg = null, ffprobe = null;
+        string yt = ToolRefresh.FindVerified(cache, token), deno = null, ffmpeg = null, ffprobe = null;
         foreach (string folder in locations)
         {
             token.ThrowIfCancellationRequested();

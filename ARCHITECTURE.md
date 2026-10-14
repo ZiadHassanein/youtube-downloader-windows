@@ -1,54 +1,53 @@
 # Application structure
 
-The desktop app uses WPF on .NET 10 and CommunityToolkit.Mvvm. The download engine, operating-system services and interface are separate projects.
+ViFree uses three projects. Core depends only on .NET; operating-system and third-party code stay outside it.
 
-| Project | Responsibility | Dependencies |
+| Project | Owns | Dependencies |
 | --- | --- | --- |
-| `Downloader.Core` | Provider contract, operation ownership, request snapshots, playlist scheduling and domain models | .NET only; platform-neutral |
-| `Downloader.Infrastructure` | YouTube provider, native process containment, media validation, tool preparation, persistence and update transactions | Core, Windows APIs |
-| `Downloader.Desktop` | WPF views, themes, localization, view models, dialogs and desktop actions | Core, Infrastructure, CommunityToolkit.Mvvm |
+| Downloader.Core | Media contracts, immutable selections, output profiles, request snapshots, operation ownership, playlist scheduling, session queue | .NET only, target net10.0 |
+| Downloader.Infrastructure | yt-dlp adapter and link routing, process containment, file validation, verified tools, storage, updates, browser transport and registration | Core, Windows APIs |
+| Downloader.Desktop | WPF views, commands, presentation state, localization, themes and desktop actions | Core, Infrastructure, CommunityToolkit.Mvvm |
 
-Open `Downloader.slnx` for the full solution. Features belong in their owning module rather than the window's code-behind. Window code handles native presentation, content sizing and lifecycle; view models coordinate commands. Normal sizing fits content within the current monitor's work area. Maximization uses Windows bounds with a centered width limit and bottom footer; minimization preserves restore bounds. Each new provider must implement `IMediaProvider`, including URL resolution and normalization, readiness, inspection and item downloading. The current adapter accepts YouTube links only. Multi-provider routing and browser extensions have not been implemented.
+Open `Downloader.slnx`. Windows x64 is the shipping target. Features on this branch are preview-only; main and stable publication await the owner's tests.
 
-## Operation lifecycle
+## Boundaries and extension points
 
-`OperationCoordinator` permits one inspection, download or update at a time. Its lease remains held through process teardown. Changing the pasted input cancels pending inspection; the view model checks input generation and operation identity before accepting results or progress. Providers receive a separate progress sink for each call. Core stamps progress with the source lease and rejects expired callbacks.
+`IMediaProvider` owns readiness, normalization/resolution, metadata inspection and an individual download. `DownloadService` accepts this interface, acquires operation leases, snapshots requests and orchestrates media/playlist work. Additional adapters can implement that contract without depending on WPF. `IMediaMaintenance` is separate so providers need not implement tool updates. `IPlaylistStorage` receives the complete output profile when validating completion; it does not assume that all audio is MP3.
 
-`DownloadService` snapshots a request before asynchronous work. Single-video quality keys are bound to inspected URLs by the YouTube provider. Playlist resolution choices are per-item maximums. The sequential playlist scheduler records unavailable entries and continues, waits between requests, and stops on rate-limit, connection, storage or repeated unexpected failures. Cancellation preserves completed media and resumable partial files.
+`IMediaLinkResolver` and the injectable `MediaLinkRouter` separate YouTube-specific URL/scope rules from generic public HTTP(S) URLs. The yt-dlp adapter handles supported websites; routing a URL does not prove its current extractor works. Unsupported, login, DRM and access failures remain explicit. The current baseline has YouTube/Vimeo fixtures; live evidence is separate.
 
-## Native processes and tools
+`DownloadOptions.Snapshot()` is the single copy boundary for all output-affecting options and playlist entries. `MediaSelection` is immutable, bound to the canonical URL, and created only by inspected metadata. The adapter revalidates it before downloading; lost selected formats fail with refresh guidance. New uninspected queue links and playlists use quality caps independently.
 
-`WindowsProcessRunner` creates a process suspended, supplies a restricted inherited-handle list, assigns it to a kill-on-close Windows job, and only then resumes execution. Containment failure prevents execution. Output is drained with bounds; timeouts and cancellation terminate the job and check that no active children remain. Completed media must be inside the chosen folder and pass an FFprobe container/stream/duration check.
+`OutputProfiles` defines extension/encoding and resume identity. Caption language/source/format belongs to that identity. `CaptionMetadata` reads actual manual/automatic tracks. `MediaFiles` checks contained, nonempty allowed outputs; `MediaValidator` checks duration, container and expected streams with FFprobe. Missing subtitles report a warning and prevent that incomplete subtitle profile from being skipped on resume.
 
-`DependencyManager` checks compatible private, app-local and installed executables without changing them. FFmpeg and FFprobe must be a coherent pair. Only missing component groups are acquired. `ToolManifest` pins official source URLs, versions, sizes, hashes and extraction limits. HTTPS origins and redirects are restricted; archives reject traversal, aliases, duplicate names and links. A private staging directory becomes active only after integrity, extraction and capability checks pass. A preparation lock prevents duplicate activation.
+## Operation and queue ownership
 
-The executable includes its .NET runtime. Media-tool binaries remain vendor downloads and are privately prepared on first use. Their license/source notices are embedded and materialized for EXE-only use. `THIRD-PARTY-NOTICES.txt` records versions, licenses and vendor source/build links. Updating pinned tools requires reviewing that manifest and the notices together.
+`OperationCoordinator` permits one inspection, download or update at a time, holds the lease through teardown, and rejects late progress. Input generation guards prevent old metadata from replacing a newer pasted link.
 
-## Persistence
+`DownloadQueue` is a session-only state machine with a 100-job limit. It snapshots each job, permits one sequential dispatcher, paces jobs, retries transient transport failure once, and halts on rate limits, access/authorization/storage failures or exhausted transport retries. Explicit retry changes failed/cancelled jobs back to pending; active jobs cannot be removed. Cancellation retains pending jobs and completed media. It never restarts downloads on app launch. `DownloadService.DownloadQueueItemAsync` owns metadata resolution and download execution; the view model projects state and commands.
 
-`SettingsRepository` stores validated preferences and a bounded recent-file history in LocalAppData. Writes are flushed and atomically replaced with a backup. A damaged primary can recover from the backup without overwriting it. Existing legacy preferences migrate automatically on first load while retaining their source. Pasted URLs are never persisted.
+`PlaylistScheduler` retains selected entry order, processes one video at a time, records completed outputs privately, and revalidates files before skipping. Output-profile identity prevents incorrect skips across encodings or captions. Individual unavailable entries are counted; site/storage failures stop the playlist.
 
-ViFree keeps the existing `LocalAppData/YouTubeDownloader` data identity and desktop mutex. The public name and executable change to ViFree; settings, history, resume records and prepared tools remain available. Older YouTube Downloader copies require one manual ZIP download for this rename. Subsequent ViFree releases use the verified manual updater.
+## Processes, tools and persistence
 
-Playlist resume records live in private app data and are keyed by normalized destination, playlist and output profile. Completed media is rechecked before skipping an item. Legacy records found beside media are migrated privately. Existing downloaded files and global tool installations are retained.
+`WindowsProcessRunner` starts children suspended, assigns a kill-on-close Windows job with restricted inherited handles, then resumes. Containment failure blocks execution. Bounded output, deadlines and cancellation confirm teardown. Arguments are separate values; external yt-dlp configuration, plugins and remote components are disabled.
 
-## Manual updates and releases
+`DependencyManager` discovers compatible installed tools or privately acquires missing pinned yt-dlp, FFmpeg/ffprobe and Deno with hash/size checks, bounded extraction, locks and staged promotion. Global installations remain unchanged. `ToolRefresh` is an explicit idle operation: bounded official release metadata and published SHA256 identify a newer yt-dlp executable, which is verified and staged in a versioned private cache. Failed refresh retains the previous tools. FFmpeg/Deno compatibility and app-managed pins remain separate from that extractor update.
 
-Updates start only from an explicit user command. A downloaded release must match its SHA-256, four package files, manifest architecture, file hashes and executable version. The native package uses a distinct ZIP/checksum naming scheme; migration from the previous Framework app requires one manual ZIP download.
+`SettingsRepository` saves atomically and recovers backups. Links and pending queue items are not persisted. Preview settings/tools/resume records use `LocalAppData/ViFreePreview`; stable data remains in its existing location. No telemetry or credential/cookie import is added.
 
-Before closing the app, replacement access is checked for the actual executable and companions. Protected files leave the app running with a manual download action. The helper waits for the original process, makes durable backups before replacement, and writes a private transaction journal. A new process must confirm startup with the journal identity and its PID/start time. Only then is the update committed and process containment released. Startup failure stops the candidate tree before restoration. Failed recovery retains backups and a recovery record; interrupted transactions are recovered by an external helper on a later launch.
+## Browser integration
 
-The Windows workflow builds, runs fixture checks, publishes one portable ZIP and performs an EXE-only render check with an empty runtime root. Release publishing requires an explicit version tag whose commit is already on `main`; the build must pass first. Public packages and the updater use `ZiadHassanein/ViFree-Downloads`, separate from the source repository. Public tags point at that repository's documentation branch, never the source commit. A draft release is made public only after the ZIP and machine-readable checksum upload successfully. Branch builds do not publish releases. No signing certificate or Store package is included.
+The companion requests activeTab/contextMenus/nativeMessaging only. Explicit user action sends a versioned open-link JSON message, never a download command. No content scripts, website-wide permission or local HTTP server is used.
 
-For automatic cross-repository publication, the source repository needs `VIFREE_DOWNLOADS_TOKEN`, a destination-scoped fine-grained token with Contents write permission on `ViFree-Downloads`. The built-in source `GITHUB_TOKEN` cannot publish to another repository. Without the secret, CI retains the tested `windows-desktop` artifact for manual release upload. No credential is committed or automatically created. ViFree copies through 3.0.0 need one manual download to change channels; later verified updates work without access to the source repository.
+`BrowserIdentity` holds public development IDs. `BrowserProtocol` owns strict bounded framing/schema. `BrowserHost` validates the caller and handles stdin/stdout. `BrowserLinkTransport` uses a current-user-only named pipe to the preview app. `BrowserRegistration` owns explicit per-user manifests/registry values and removes only its own values. Moving the EXE requires re-enabling the connection. Production extension-store distribution is deferred.
 
-## Verification
+These restrictions do not authenticate hostile same-user software exclusively or sandbox yt-dlp network redirects. Public-link filtering is not a complete network sandbox.
 
-- Core fixtures cover formats, safe arguments, queue counting, resume, migration and stop conditions.
-- Native process fixtures exercise real child cancellation, descendants, containment failure and bounded probes.
-- Boundary checks exercise malformed archives, bad hashes/origins, partial tool reuse, protected targets, durable rollback and startup acknowledgement.
-- Service checks exercise mixed available/unavailable playlists and delayed callbacks across operations.
-- WPF checks cover both languages and themes, minimum width, automatic inspection, quality choices, cancellation, expanded content and transient notice bounds.
-- Optional live checks use a small sample and playlist metadata; they are separate from deterministic CI.
+## Validation and delivery
 
-The target is Windows 10/11 x64. A self-contained host startup test does not prove clean-machine compatibility on every PC. Additional DPI settings, ARM64, clean Windows 10/11 images, real screen readers and a live high-contrast session remain separate validation work.
+`pwsh -File scripts/check.ps1` builds/runs Core, process/recovery/storage, media workflow, WPF and browser-JavaScript fixtures. Tests cover real operation teardown, stale progress, malformed archives/checksums, queue order/retry/cancel/halt, immutable selection across inspections, output profiles and caption resume, browser framing/origins/pipe delivery, languages/themes and monitor bounds. Live checks remain separately opt-in.
+
+The preview workflow packages a self-contained win-x64 single EXE plus notices/instructions/manifest in one ZIP, and the optional companion separately. `smoke-exe.ps1` renders from an EXE-only directory and checks the runtime is embedded in the executable's own package, retaining a host trace. This is host evidence, not clean Windows 10/11 certification.
+
+No tag publication or release job runs on the preview workflow. No merge, stable replacement, code-signing or browser-store submission is implied. macOS/Linux, compression and scheduling are deferred.

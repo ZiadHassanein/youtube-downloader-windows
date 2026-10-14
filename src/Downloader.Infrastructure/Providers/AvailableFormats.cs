@@ -36,12 +36,13 @@ namespace YouTubeDownloader
             }
 
             var qualities = new List<VideoQuality>();
+            bool hasAudio = HasAudio(info);
             foreach (var group in sources.GroupBy(f => f.Resolution).OrderByDescending(g => g.Key))
             {
                 var alternatives = new List<string>();
                 foreach (var source in group.OrderByDescending(s => s.H264).ThenByDescending(s => s.Direct).ThenByDescending(s => s.Fps).ThenByDescending(s => s.Bitrate))
                 {
-                    if (source.Audio)
+                    if (source.Audio || !hasAudio)
                         alternatives.Add(source.Id);
                     else
                     {

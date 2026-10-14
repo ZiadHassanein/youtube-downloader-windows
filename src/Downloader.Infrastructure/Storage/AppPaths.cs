@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace YouTubeDownloader;
 public static class AppPaths
 {
-    public static string UserData => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YouTubeDownloader");
+    public static string UserData => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ReleaseChannel.IsPreview ? "ViFreePreview" : "YouTubeDownloader");
 
     public static string Downloads
     {

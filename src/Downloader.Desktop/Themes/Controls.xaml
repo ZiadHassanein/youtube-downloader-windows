@@ -257,11 +257,17 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="ScrollViewer">
-          <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Grid.Column="0" CanContentScroll="{TemplateBinding CanContentScroll}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}"/>
-            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Margin="10,4,0,4" Orientation="Vertical" Style="{StaticResource WorkspaceScrollBar}" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Value="{TemplateBinding VerticalOffset}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+          <Grid FlowDirection="LeftToRight" ClipToBounds="True">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Grid.Column="1" FlowDirection="{TemplateBinding FlowDirection}" ClipToBounds="True" CanContentScroll="{TemplateBinding CanContentScroll}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="{TemplateBinding Padding}"/>
+            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="2" Margin="10,4,0,4" Orientation="Vertical" Style="{StaticResource WorkspaceScrollBar}" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Value="{TemplateBinding VerticalOffset}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
           </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="FlowDirection" Value="RightToLeft">
+              <Setter TargetName="PART_VerticalScrollBar" Property="Grid.Column" Value="0"/>
+              <Setter TargetName="PART_VerticalScrollBar" Property="Margin" Value="0,4,10,4"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

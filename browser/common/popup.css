@@ -1,0 +1,12 @@
+:root { color-scheme: light dark; --page: #f6f5f1; --ink: #1d2329; --muted: #56616c; --accent: #275bd8; --on-accent: #fff; }
+@media (prefers-color-scheme: dark) { :root { --page: #17191e; --ink: #f3f1ed; --muted: #b8b7b3; --accent: #7499ff; --on-accent: #0e1f46; } }
+* { box-sizing: border-box; }
+body { width: 304px; padding: 20px; margin: 0; font: 14px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--page); }
+header { display: flex; gap: 12px; align-items: center; font-size: 22px; }
+p { color: var(--muted); margin: 14px 0; }
+button { display: block; width: 100%; min-height: 44px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); cursor: pointer; }
+button:hover { filter: brightness(.93); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button:disabled { opacity: .6; cursor: wait; }
+#status { margin-bottom: 0; overflow-wrap: anywhere; }
+::selection { color: var(--on-accent); background: var(--accent); }

@@ -4,6 +4,7 @@ namespace YouTubeDownloader
     {
         public int Resolution;
         public string SelectionKey;
+        public MediaSelection Selection { get; internal set; }
         internal string Selector;
         public override string ToString()
         {

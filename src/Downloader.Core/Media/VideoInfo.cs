@@ -2,6 +2,8 @@ namespace YouTubeDownloader
 {
     public sealed class VideoInfo
     {
+        public List<CaptionChoice> Captions = new();
+        public PlaylistInfo Collection;
         public string Title, Uploader;
         public double Duration;
         public bool Live;

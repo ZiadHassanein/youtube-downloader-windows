@@ -8,6 +8,11 @@ public sealed partial class MainViewModel
 
     private async Task UpdateAsync(CancellationToken token)
     {
+        if (ReleaseChannel.IsPreview)
+        {
+            ShowNotice("Preview build", "This test build stays separate from stable releases. Updates will be enabled after testing.", false, "update");
+            return;
+        }
         using var operation = downloads.Operations.Begin(OperationState.Updating, token);
         try
         {

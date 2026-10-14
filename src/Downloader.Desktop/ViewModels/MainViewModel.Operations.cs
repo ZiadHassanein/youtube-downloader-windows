@@ -28,7 +28,9 @@ public sealed partial class MainViewModel
     {
         var previous = SelectedQuality;
         Qualities.Clear();
-        if (Audio)
+        if (Audio && OutputProfiles.IsLossless(SelectedEncoding.Encoding))
+            Qualities.Add(new QualityChoice(T("Source quality"), Bitrate: state.AudioBitrate));
+        else if (Audio)
             foreach (int bitrate in new[]
             {
                 192,
@@ -53,7 +55,7 @@ public sealed partial class MainViewModel
                 Qualities.Add(new QualityChoice(cap == 0 ? T("Best available") : F("Up to {0}p", cap), Height: cap));
         else if (videoInfo != null)
             foreach (var choice in videoInfo.Qualities)
-                Qualities.Add(new QualityChoice(choice.Resolution + "p", choice.SelectionKey, choice.Resolution));
+                Qualities.Add(new QualityChoice(choice.Resolution + "p", choice.SelectionKey, choice.Resolution, Selection: choice.Selection));
         if (Qualities.Count == 0)
             Qualities.Add(new QualityChoice(T("Quality")));
         SelectedQuality = Audio ? Qualities.First(q => q.Bitrate == state.AudioBitrate) : Qualities.FirstOrDefault(q => previous != null && q.Key == previous.Key && q.Height == previous.Height) ?? (WholePlaylist && playlistInfo != null ? Qualities.First(q => q.Height == 1080) : videoInfo?.Qualities.Count > 0 ? Qualities[videoInfo.RecommendedIndex] : Qualities[0]);
@@ -137,12 +139,27 @@ public sealed partial class MainViewModel
                 var result = await downloads.InspectAsync(candidate, PreparationProgress(generation), token);
                 if (generation != inputGeneration || candidate != Url.Trim() || playlist != WholePlaylist)
                     return;
+                if (result.Collection != null)
+                {
+                    playlistInfo = result.Collection;
+                    videoInfo = null;
+                    hasPlaylist = true;
+                    canSingle = false;
+                    wholePlaylist = true;
+                    selectedPlaylistIds = null;
+                    OnPropertyChanged(nameof(HasPlaylist));
+                    OnPropertyChanged(nameof(WholePlaylist));
+                    OnPropertyChanged(nameof(SingleVideo));
+                }
+                else
+                {
                 if (result.Live)
                     throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
                 if (result.Qualities.Count == 0 && !result.HasAudio)
-                    throw new InvalidOperationException("YouTube did not return downloadable formats for this video.");
+                    throw new InvalidOperationException("The site did not return downloadable formats for this video.");
                 videoInfo = result;
                 playlistInfo = null;
+                }
             }
 
             checkedUrl = candidate;
@@ -150,6 +167,7 @@ public sealed partial class MainViewModel
             ShowProgress = false;
             NotifyStatus();
             RefreshQualities();
+            RefreshCaptions();
         }
         catch (OperationCanceledException)
         {
@@ -177,21 +195,12 @@ public sealed partial class MainViewModel
     {
         if (!CanDownload)
             return;
-        var choice = SelectedQuality;
-        var request = new DownloadOptions
-        {
-            Url = downloads.Normalize(Url, WholePlaylist),
-            Folder = Folder?.Trim(),
-            Audio = Audio,
-            AudioBitrate = state.AudioBitrate,
-            Height = choice?.Height ?? 0,
-            QualityKey = choice?.Key,
-            Playlist = WholePlaylist ? playlistInfo : null
-        };
+        DownloadOptions request = null;
         lastFile = null;
         OnPropertyChanged(nameof(HasFile));
         try
         {
+            request = CurrentRequest();
             if (string.IsNullOrWhiteSpace(request.Folder) || !Path.IsPathFullyQualified(request.Folder))
                 throw new ArgumentException("Choose a valid folder on this computer with Browse.");
             SetStatus("Connecting", "Preparing your download…", false, true);
@@ -202,13 +211,13 @@ public sealed partial class MainViewModel
             {
                 bool complete = result.Failed == 0 && result.Remaining == 0 && result.StopReason == null;
                 string summary = F("{0} saved · {1} already downloaded · {2} failed · {3} remaining", result.Completed - result.Skipped, result.Skipped, result.Failed, result.Remaining);
-                SetStatus(complete ? "Playlist complete" : result.Remaining > 0 ? "Playlist paused" : "Playlist finished with errors", summary + (complete ? "" : "\n" + T(result.StopReason ?? "Run the same playlist again to resume. Completed files are kept.")), !complete);
+                SetStatus(complete ? "Playlist complete" : result.Remaining > 0 ? "Playlist paused" : "Playlist finished with errors", summary + (complete ? "" : "\n" + T(result.StopReason ?? "Run the same playlist again to resume. Completed files are kept.")) + (result.Warning == null ? "" : "\n" + T(result.Warning)), !complete);
                 if (complete)
                     ClearLink();
             }
             else
             {
-                SetStatus("Download complete", Path.GetFileName(result.FilePath), false);
+                SetStatus("Download complete", Path.GetFileName(result.FilePath) + (result.Warning == null ? "" : "\n" + T(result.Warning)), false);
                 ClearLink();
             }
 
@@ -332,7 +341,7 @@ public sealed partial class MainViewModel
             if (!File.Exists(lastFile) || !new[]
             {
                 ".mp4",
-                ".mp3"
+                ".mp3", ".m4a", ".opus", ".wav", ".flac"
             }.Contains(Path.GetExtension(lastFile), StringComparer.OrdinalIgnoreCase))
                 throw new IOException();
             actions.OpenMedia(lastFile, reveal);
@@ -347,6 +356,7 @@ public sealed partial class MainViewModel
     {
         debounce?.Cancel();
         noticeLifetime?.Cancel();
+        Queue.Stop();
         downloads.Cancel();
         await inspection;
         await downloads.Operations.WaitForIdleAsync();
@@ -354,6 +364,9 @@ public sealed partial class MainViewModel
             await DownloadCommand.ExecutionTask;
         if (UpdateCommand.ExecutionTask != null)
             await UpdateCommand.ExecutionTask;
+        if (QueueStartCommand.ExecutionTask != null) await QueueStartCommand.ExecutionTask;
+        if (ToolRefreshCommand.ExecutionTask != null) await ToolRefreshCommand.ExecutionTask;
+        if (CaptionLanguagesCommand.ExecutionTask != null) await CaptionLanguagesCommand.ExecutionTask;
         Save();
         downloads.Dispose();
     }
@@ -363,12 +376,16 @@ public sealed partial class MainViewModel
         string text = exception.Message.ToLowerInvariant();
         if (exception is ArgumentException)
             return exception.Message;
+        if (text.Contains("selected subtitles")) return "The selected subtitles are no longer available. Refresh output options or choose no subtitles.";
         if (text.Contains("429") || text.Contains("too many requests"))
-            return "YouTube is limiting downloads right now. Wait a few minutes, then try again.";
-        if (text.Contains("private") || text.Contains("sign in") || text.Contains("age-restricted"))
+            return "This site is limiting downloads right now. Wait a few minutes, then try again.";
+        if (text.Contains("no longer available") || text.Contains("requested format"))
+            return "That quality is no longer available. Paste the link again to refresh the options.";
+        if (text.Contains("unsupported url") || text.Contains("no suitable extractor")) return "This site or link is not supported. Try a public video link.";
+        if (text.Contains("private") || text.Contains("sign in") || text.Contains("logged-in") || text.Contains("login") || text.Contains("age-restricted"))
             return "This video requires sign-in. Try a publicly available video.";
         if (text.Contains("403"))
-            return "YouTube refused this download. Wait a little, then paste the link again.";
+            return "This site refused this download. Wait a little, then paste the link again.";
         if (DownloadErrors.IsDiskFull(text))
             return "The drive is full. Free some space or choose another save folder.";
         if (exception is UnauthorizedAccessException || text.Contains("permission") || text.Contains("access is denied"))

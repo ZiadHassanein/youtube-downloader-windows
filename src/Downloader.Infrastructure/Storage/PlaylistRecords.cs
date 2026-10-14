@@ -25,7 +25,7 @@ namespace YouTubeDownloader
         {
             get
             {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YouTubeDownloader", "PlaylistState");
+                return Path.Combine(AppPaths.UserData, "PlaylistState");
             }
         }
 
