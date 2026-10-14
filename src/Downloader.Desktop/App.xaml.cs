@@ -43,7 +43,7 @@ public partial class App : Application
         else
             MainWindow = new MainWindow();
         MainWindow.Show();
-        if (!smoke && ReleaseChannel.IsPreview)
+        if (!smoke)
         {
             browserLifetime = new();
             _ = BrowserLinkTransport.ListenAsync(link => Dispatcher.Invoke(() =>

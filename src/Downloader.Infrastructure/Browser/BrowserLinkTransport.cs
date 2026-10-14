@@ -7,7 +7,7 @@ using System.Text.Json;
 namespace YouTubeDownloader;
 public static class BrowserLinkTransport
 {
-    public static string PipeName => "ViFree.Preview." + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User.Value)))[..24];
+    public static string PipeName => (ReleaseChannel.IsPreview ? "ViFree.Preview." : "ViFree.") + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User.Value)))[..24];
     internal static async Task<bool> TrySendAsync(string url, int milliseconds, CancellationToken token)
     {
         try

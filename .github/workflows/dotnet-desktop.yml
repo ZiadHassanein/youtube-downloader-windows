@@ -1,4 +1,4 @@
-name: Windows preview
+name: Windows build
 on:
   push:
     branches: ['**']
@@ -21,20 +21,19 @@ jobs:
       - name: Test core, native processes, recovery and WPF
         shell: pwsh
         run: ./scripts/test.ps1
-      - name: Package portable preview and browser companion
+      - name: Package and verify portable app
         shell: pwsh
         run: |
-          $version = '4.0.0-preview.1'
-          ./scripts/package.ps1 -Version $version -Preview
+          $version = '4.0.0'
+          ./scripts/package.ps1 -Version $version
           ./scripts/smoke-exe.ps1 -Version $version
+          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --package "./dist/ViFree-v$version-win-x64.zip"
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged app checks failed.' }
           dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --native-host "./dist/ViFree-$version-win-x64/ViFree.exe"
           if ($LASTEXITCODE -ne 0) { throw 'Packaged browser host checks failed.' }
-          ./scripts/package-browser.ps1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: windows-preview
+          name: windows-app
           path: |
-            dist/ViFree-v*-win-x64.zip
-            dist/checksums-desktop.json
-            dist/ViFree-browser-preview.zip
+            dist/ViFree-v4.0.0-win-x64.zip
           if-no-files-found: error

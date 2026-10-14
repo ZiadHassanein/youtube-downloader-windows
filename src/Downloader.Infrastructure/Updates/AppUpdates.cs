@@ -8,7 +8,7 @@ namespace YouTubeDownloader;
 public sealed class AppRelease
 {
     public Version Version;
-    public string PackageUrl, ChecksumUrl, PackageName;
+    public string PackageUrl, ChecksumUrl, PackageName, PackageHash;
 }
 
 public sealed class PackageManifest
@@ -50,25 +50,35 @@ public static class AppUpdates
             return null;
         if (!Version.TryParse(root.GetProperty("tag_name").GetString()?.TrimStart('v', 'V'), out var version) || version.Build < 0 || Compare(version) <= Compare(current))
             return null;
-        string name = "ViFree-v" + version.ToString(3) + "-win-x64.zip", package = null, checksum = null;
+        string name = "ViFree-v" + version.ToString(3) + "-win-x64.zip", package = null, checksum = null, packageHash = null;
         foreach (var asset in root.GetProperty("assets").EnumerateArray())
         {
             string url = asset.GetProperty("browser_download_url").GetString(), file = asset.GetProperty("name").GetString();
             if (!Trusted(url))
                 continue;
             if (file == name)
+            {
                 package = url;
+                if (asset.TryGetProperty("digest", out var digest) && digest.ValueKind != JsonValueKind.Null)
+                {
+                    string value = digest.ValueKind == JsonValueKind.String ? digest.GetString() : null;
+                    if (!Regex.IsMatch(value ?? "", "^sha256:[A-Fa-f0-9]{64}$"))
+                        throw new InvalidDataException("The release package digest is invalid.");
+                    packageHash = value[7..];
+                }
+            }
             if (file == "checksums-desktop.json")
                 checksum = url;
         }
 
-        if (package == null || checksum == null)
+        if (package == null || (packageHash == null && checksum == null))
             throw new InvalidDataException("This release has no verified desktop package yet.");
         return new AppRelease
         {
             Version = version,
             PackageName = name,
             PackageUrl = package,
+            PackageHash = packageHash,
             ChecksumUrl = checksum
         };
     }
@@ -89,11 +99,18 @@ public static class AppUpdates
 
     public static async Task<string> PrepareAsync(AppRelease release, CancellationToken token)
     {
-        if (!Trusted(release.PackageUrl) || !Trusted(release.ChecksumUrl))
+        if (!Trusted(release.PackageUrl) || (release.ChecksumUrl != null && !Trusted(release.ChecksumUrl)))
             throw new InvalidDataException("The update address is invalid.");
         using var client = new VerifiedDownloads();
-        var sum = Json.Deserialize<Dictionary<string, string>>(await client.TextAsync(release.ChecksumUrl, Repository + "/releases/download/", 4096, token).ConfigureAwait(false));
-        if (!sum.TryGetValue("Hash", out var hash) || !Regex.IsMatch(hash, "^[A-Fa-f0-9]{64}$") || !sum.TryGetValue("File", out var filename) || filename != release.PackageName)
+        string hash = release.PackageHash;
+        if (release.ChecksumUrl != null)
+        {
+            var sum = Json.Deserialize<Dictionary<string, string>>(await client.TextAsync(release.ChecksumUrl, Repository + "/releases/download/", 4096, token).ConfigureAwait(false));
+            if (!sum.TryGetValue("Hash", out var legacyHash) || !sum.TryGetValue("File", out var filename) || filename != release.PackageName || (hash != null && !string.Equals(hash, legacyHash, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidDataException("The update checksum is invalid.");
+            hash = legacyHash;
+        }
+        if (!Regex.IsMatch(hash ?? "", "^[A-Fa-f0-9]{64}$"))
             throw new InvalidDataException("The update checksum is invalid.");
         string stage = Path.Combine(AppPaths.UserData, "Updates", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(stage);

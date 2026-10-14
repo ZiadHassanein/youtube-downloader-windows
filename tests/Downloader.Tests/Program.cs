@@ -5,6 +5,7 @@ internal static class Program
         try
         {
             if (args.Length == 2 && args[0] == "--native-host") return await NativeHostChecks.Run(args[1]);
+            if (args.Length == 2 && args[0] == "--package") return PackageArtifactChecks.Run(args[1]);
             var output = AppContext.BaseDirectory;
             foreach (string file in Directory.GetFiles(args[0]))
                 File.Copy(file, Path.Combine(output, Path.GetFileName(file)), true);

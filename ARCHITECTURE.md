@@ -8,7 +8,7 @@ ViFree uses three projects. Core depends only on .NET; operating-system and thir
 | Downloader.Infrastructure | yt-dlp adapter and link routing, process containment, file validation, verified tools, storage, updates, browser transport and registration | Core, Windows APIs |
 | Downloader.Desktop | WPF views, commands, presentation state, localization, themes and desktop actions | Core, Infrastructure, CommunityToolkit.Mvvm |
 
-Open `Downloader.slnx`. Windows x64 is the shipping target. Features on this branch are preview-only; main and stable publication await the owner's tests.
+Open `Downloader.slnx`. Windows x64 is the shipping target. The current release is v4.0.0; preview builds can still isolate their data with ViFreePreview=true.
 
 ## Boundaries and extension points
 
@@ -48,6 +48,6 @@ These restrictions do not authenticate hostile same-user software exclusively or
 
 `pwsh -File scripts/check.ps1` builds/runs Core, process/recovery/storage, media workflow, WPF and browser-JavaScript fixtures. Tests cover real operation teardown, stale progress, malformed archives/checksums, queue order/retry/cancel/halt, immutable selection across inspections, output profiles and caption resume, browser framing/origins/pipe delivery, languages/themes and monitor bounds. Live checks remain separately opt-in.
 
-The preview workflow packages a self-contained win-x64 single EXE plus notices/instructions/manifest in one ZIP, and the optional companion separately. `smoke-exe.ps1` renders from an EXE-only directory and checks the runtime is embedded in the executable's own package, retaining a host trace. This is host evidence, not clean Windows 10/11 certification.
+The Windows workflow packages a self-contained win-x64 EXE plus notices/instructions/manifest and optional Browser companions in one ZIP. Updates verify the published GitHub asset SHA256 digest (with legacy checksum-asset fallback) and replace only app files. `smoke-exe.ps1` renders from an EXE-only directory and checks the runtime is embedded in the executable's own package, retaining a host trace. This is host evidence, not clean Windows 10/11 certification.
 
-No tag publication or release job runs on the preview workflow. No merge, stable replacement, code-signing or browser-store submission is implied. macOS/Linux, compression and scheduling are deferred.
+The build workflow uploads a test artifact. Release publishing requires an explicit version tag and an already-merged source commit; it uploads only the single app ZIP. Code-signing and browser-store submission remain separate. macOS/Linux, compression and scheduling are deferred.

@@ -52,7 +52,7 @@ namespace YouTubeDownloader
             { "Use selection", "استخدام التحديد" },
             { "Choose at least one available video.", "اختر فيديو متاحًا واحدًا على الأقل." },
             { "Send a link from your browser", "إرسال رابط من المتصفح" },
-            { "Keep the preview in a permanent folder. Enable the connection here, then load the companion extension from the browser ZIP. Chrome, Edge and Firefox are supported for local testing.", "ضع النسخة التجريبية في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من ملف المتصفح المضغوط. يدعم الاختبار المحلي Chrome وEdge وFirefox." },
+            { "Keep ViFree in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading.", "ضع ViFree في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من مجلد Browser المرفق مع التطبيق. يدعم التحميل المحلي Chrome وEdge وFirefox." },
             { "Click the extension or right-click a link to open it in ViFree. Nothing downloads until you choose Download.", "انقر الإضافة أو انقر بزر الفأرة الأيمن على رابط لفتحه في ViFree. لا يبدأ التنزيل حتى تختار تنزيل." },
             { "Enable connection", "تفعيل الاتصال" },
             { "Disable connection", "تعطيل الاتصال" },
