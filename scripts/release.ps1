@@ -28,23 +28,30 @@ $body = @"
 
 Extract the ZIP and open **ViFree.exe**. Windows 10/11 x64. Missing media tools are prepared automatically.
 
-- YouTube videos and playlists as MP4, or MP3 at 192/320 kbps.
+- MP4 video, MP3 (192/320 kbps), M4A, Opus, WAV and FLAC.
+- Queue, playlist selection, subtitles and supported public sites.
 - English/Arabic and light/dark themes.
-- Manual updates from this public download repository.
-- A simpler footer; preferences save automatically.
+- Optional browser companions inside Browser in this same ZIP.
+- Manual, verified app updates; missing tools are prepared automatically.
 
-**Existing users through 3.0.0:** close the older app and download this ZIP once into a new writable folder. Your settings, history and downloaded media are retained.
+**Existing v3.x/preview users:** close the older app and download this ZIP once into a new writable folder. Stable settings, history and downloaded media are retained; preview preferences stay separate.
+
+SHA-256: $($sum.Hash.ToLowerInvariant())
 
 By **Ziad Hassanein**. Only save content you have permission to download.
 "@
 $payload = @{tag_name = $env:GITHUB_REF_NAME; target_commitish = 'main'; name = "ViFree $($env:GITHUB_REF_NAME)"; body = $body; draft = $true; prerelease = $false} | ConvertTo-Json
 $release = Invoke-RestMethod -Uri $api -Method Post -Headers $headers -ContentType 'application/json' -Body $payload
-foreach ($file in @($zip, $sumPath)) {
-    $name = [Uri]::EscapeDataString((Split-Path -Leaf $file))
-    $upload = "https://uploads.github.com/repos/$repository/releases/$($release.id)/assets?name=$name"
-    $type = if ($file.EndsWith('.zip')) { 'application/zip' } else { 'application/json' }
-    $asset = Invoke-RestMethod -Uri $upload -Method Post -Headers $headers -ContentType $type -InFile $file
-    if ($asset.state -ne 'uploaded') { throw 'A release asset did not finish uploading. The release remains a draft.' }
+$name = [Uri]::EscapeDataString($expectedName)
+$upload = "https://uploads.github.com/repos/$repository/releases/$($release.id)/assets?name=$name"
+$asset = Invoke-RestMethod -Uri $upload -Method Post -Headers $headers -ContentType 'application/zip' -InFile $zip
+if ($asset.state -ne 'uploaded') { throw 'The ZIP did not finish uploading. The release remains a draft.' }
+for($attempt=0; $attempt -lt 10 -and !$asset.digest; $attempt++) {
+    Start-Sleep -Milliseconds 500
+    $asset=Invoke-RestMethod -Uri "https://api.github.com/repos/$repository/releases/assets/$($asset.id)" -Headers $headers
 }
+if ($asset.size -ne (Get-Item -LiteralPath $zip).Length -or $asset.digest -ne ('sha256:'+$sum.Hash.ToLowerInvariant())) { throw 'The uploaded ZIP digest did not match. The release remains a draft.' }
+$releaseAssets=Invoke-RestMethod -Uri "$api/$($release.id)/assets" -Headers $headers
+if (@($releaseAssets).Count -ne 1 -or $releaseAssets[0].name -ne $expectedName) { throw 'The release must contain exactly one ZIP asset.' }
 $published = Invoke-RestMethod -Uri "$api/$($release.id)" -Method Patch -Headers $headers -ContentType 'application/json' -Body '{"draft":false,"make_latest":"true"}'
 Write-Output "Published $($published.html_url)"

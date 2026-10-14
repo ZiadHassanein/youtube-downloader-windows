@@ -318,6 +318,21 @@ internal static class BoundaryChecks
             "ViFree discovers a newer package with its required checksum asset");
         Check(AppUpdates.Parse(releaseJson, new Version(3, 0, 1)) == null,
             "An installed ViFree release is recognized as current");
+        string digest = new('a', 64);
+        string zipOnlyJson = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            draft = false, prerelease = false, tag_name = "v4.0.0",
+            assets = new[] { new { name = "ViFree-v4.0.0-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v4.0.0/ViFree-v4.0.0-win-x64.zip", digest = "sha256:" + digest } }
+        });
+        var zipOnly = AppUpdates.Parse(zipOnlyJson, new Version(3, 0, 2));
+        Check(zipOnly.PackageHash == digest && zipOnly.ChecksumUrl == null, "A single-ZIP release uses GitHub's published SHA256 without a separate checksum asset");
+        Check(AppUpdates.Parse(zipOnlyJson, new Version(4, 0, 0)) == null, "The current single-ZIP release is recognized as up to date");
+        foreach (string invalid in new[] { zipOnlyJson.Replace("sha256:" + digest, "sha256:bad"), zipOnlyJson.Replace("sha256:", "sha1:"), zipOnlyJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree") })
+        {
+            bool rejected = false;
+            try { AppUpdates.Parse(invalid, new Version(3, 0, 2)); } catch (InvalidDataException) { rejected = true; }
+            Check(rejected, "Invalid or foreign single-ZIP digests cannot supply an update");
+        }
         foreach (string invalid in new[]
         {
             releaseJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree"),

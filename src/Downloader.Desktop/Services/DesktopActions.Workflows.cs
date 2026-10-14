@@ -64,7 +64,7 @@ public sealed partial class DesktopActions
         var dialog = Dialog(t("Browser integration"), 400);
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = t("Send a link from your browser"), FontSize = 20, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
-        panel.Children.Add(new TextBlock { Text = t("Keep the preview in a permanent folder. Enable the connection here, then load the companion extension from the browser ZIP. Chrome, Edge and Firefox are supported for local testing."), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["Muted"], Margin = new Thickness(0, 12, 0, 0) });
+        panel.Children.Add(new TextBlock { Text = t("Keep ViFree in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["Muted"], Margin = new Thickness(0, 12, 0, 0) });
         panel.Children.Add(new TextBlock { Text = t("Click the extension or right-click a link to open it in ViFree. Nothing downloads until you choose Download."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 20) });
         var buttons = new WrapPanel();
         var enable = new Button { Content = t("Enable connection"), Style = (Style)Application.Current.Resources["PrimaryButton"] };

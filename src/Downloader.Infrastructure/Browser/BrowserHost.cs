@@ -30,11 +30,11 @@ public static class BrowserHost
                     await Task.Delay(200, timeout.Token).ConfigureAwait(false);
                     sent = await BrowserLinkTransport.TrySendAsync(url, 250, timeout.Token).ConfigureAwait(false);
                 }
-                if (!sent) throw new IOException("Open ViFree Preview and try sending the link again.");
+                if (!sent) throw new IOException("Open ViFree and try sending the link again.");
             }
-            response = new { ok = true, message = "Link opened in ViFree Preview. Review it before downloading." };
+            response = new { ok = true, message = "Link opened in ViFree. Review it before downloading." };
         }
-        catch { response = new { ok = false, message = "Could not send this link. Open ViFree Preview and enable browser integration, then try again." }; }
+        catch { response = new { ok = false, message = "Could not send this link. Open ViFree and enable browser integration, then try again." }; }
         try { await BrowserProtocol.WriteAsync(Console.OpenStandardOutput(), response, CancellationToken.None).ConfigureAwait(false); } catch (IOException) { }
     }
 }

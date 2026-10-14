@@ -1,6 +1,6 @@
 # ViFree 4.0.0 Preview 1
 
-Main and the public stable release stay unchanged until the owner tests this build.
+Historical test-build notes: this preview was reviewed before promotion to v4.0.0.
 
 Extract the preview ZIP and open `ViFree.exe`. The .NET runtime is bundled; missing compatible media tools are prepared automatically. An internet connection is required. Preview settings, tools and playlist records use `LocalAppData/ViFreePreview`; pending queue links are not persisted. App updates are disabled in the preview.
 
@@ -16,4 +16,4 @@ Try these workflows:
 
 Verified on the development Windows host: Core and infrastructure regressions, queue/recovery fixtures, 56 WPF checks, browser JavaScript and packaged native messaging, standalone EXE startup, and real FFmpeg conversion/FFprobe validation for all five audio formats. A live YouTube inspection/download passed. Vimeo's fixture path passed; its live sample required login and remains unverified. Actual browser loading and clean Windows 10/11 execution remain owner tests. Protected and sign-in media and extension-store distribution are unsupported.
 
-For development, use .NET 10 SDK and Node.js 20+ on Windows. Run `pwsh -File scripts/check.ps1`. Package with `pwsh -File scripts/package.ps1 -Version 4.0.0-preview.1 -Preview`, then `pwsh -File scripts/smoke-exe.ps1 -Version 4.0.0-preview.1` and `pwsh -File scripts/package-browser.ps1`.
+For development, use .NET 10 SDK and Node.js 20+ on Windows. Run `pwsh -File scripts/check.ps1`. Package with `pwsh -File scripts/package.ps1 -Version 4.0.0-preview.1 -Preview`, then `pwsh -File scripts/smoke-exe.ps1 -Version 4.0.0-preview.1` ; the optional companion is included in Browser in the app ZIP.
