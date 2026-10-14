@@ -258,11 +258,17 @@ internal static class Program
                 var root = (FrameworkElement)window.FindName("Root");
                 var viewport = (ScrollViewer)window.FindName("Viewport");
                 var footer = (FrameworkElement)window.FindName("FooterContent");
+                // Small desktops can require scrolling even when the window is maximized.
+                viewport.ScrollToEnd();
+                window.UpdateLayout();
                 var footerBounds = footer.TransformToAncestor(viewport).TransformBounds(new Rect(0, 0, footer.ActualWidth, footer.ActualHeight));
                 double center = root.PointToScreen(new Point(root.ActualWidth / 2, 0)).X;
                 Check(root.ActualWidth <= 1041 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
                     Math.Abs(footerBounds.Bottom - viewport.ActualHeight) <= 2,
-                    "The maximized form stays centered at a readable width with its footer at the bottom");
+                    "The maximized form stays centered at a readable width with its footer reachable at the bottom" +
+                    $" (footerBottom={footerBounds.Bottom}, viewportHeight={viewport.ActualHeight}, scrollableHeight={viewport.ScrollableHeight})");
+                viewport.ScrollToTop();
+                window.UpdateLayout();
                 Capture(window, System.IO.Path.Combine(captures, "maximized-" + language + (dark ? "-dark" : "-light") + ".png"));
             }
         window.WindowState = WindowState.Normal;
