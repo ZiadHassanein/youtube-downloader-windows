@@ -98,10 +98,15 @@ internal static class Program
                     await Task.Delay(80);
                     window.UpdateLayout();
                     double compactHeight = window.ActualHeight;
+                    var content = (FrameworkElement)window.FindName("PageContent");
+                    double compactContentHeight = content.DesiredSize.Height;
                     model.OptionsVisible = true;
                     await Task.Delay(80);
                     window.UpdateLayout();
-                    Check(window.ActualHeight > compactHeight + 80, "Output options expand the normal window in " + (arabic ? "Arabic" : "English"));
+                    double expectedHeight = Math.Min(compactHeight + 80, SystemParameters.WorkArea.Height - 16);
+                    Check(content.DesiredSize.Height > compactContentHeight + 80 && window.ActualHeight >= expectedHeight - 2,
+                        "Output options expand content and respect the available screen height in " + (arabic ? "Arabic" : "English") +
+                        $" (window={window.ActualHeight}, compact={compactHeight}, content={content.DesiredSize.Height}, compactContent={compactContentHeight})");
                     model.OptionsVisible = false;
                     await Task.Delay(80);
                     window.UpdateLayout();
