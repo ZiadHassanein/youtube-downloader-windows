@@ -4,6 +4,7 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 2 && args[0] == "--native-host") return await NativeHostChecks.Run(args[1]);
             var output = AppContext.BaseDirectory;
             foreach (string file in Directory.GetFiles(args[0]))
                 File.Copy(file, Path.Combine(output, Path.GetFileName(file)), true);
@@ -12,6 +13,7 @@ internal static class Program
             await ReliabilityChecks.Run(args[0]);
             await BoundaryChecks.Run(args[0]);
             await ServiceChecks.Run();
+            await WorkflowChecks.Run(args[0]);
             return 0;
         }
         catch (Exception ex)

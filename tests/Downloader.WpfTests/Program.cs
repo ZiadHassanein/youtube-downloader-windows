@@ -91,6 +91,22 @@ internal static class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
+                foreach (bool arabic in new[] { false, true })
+                {
+                    if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
+                    model.OptionsVisible = false;
+                    await Task.Delay(80);
+                    window.UpdateLayout();
+                    double compactHeight = window.ActualHeight;
+                    model.OptionsVisible = true;
+                    await Task.Delay(80);
+                    window.UpdateLayout();
+                    Check(window.ActualHeight > compactHeight + 80, "Output options expand the normal window in " + (arabic ? "Arabic" : "English"));
+                    model.OptionsVisible = false;
+                    await Task.Delay(80);
+                    window.UpdateLayout();
+                    Check(Math.Abs(window.ActualHeight - compactHeight) <= 2, "Closing output options removes reserved space in " + (arabic ? "Arabic" : "English"));
+                }
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
                 await Task.Delay(50);
@@ -158,11 +174,16 @@ internal static class Program
                         var bodyBounds = body.TransformToAncestor(page).TransformBounds(new Rect(0, 0, body.ActualWidth, body.ActualHeight));
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
                         Check(bar.Visibility == Visibility.Visible && Math.Abs(bar.ActualWidth - 16) < 1 && track.Thumb.ActualHeight < track.ActualHeight &&
-                            (language == "ar" ? barBounds.Right <= bodyBounds.Left + 1 : barBounds.Left >= bodyBounds.Right - 1),
+                            (language == "ar" ? bodyBounds.Left - barBounds.Right >= 9 : barBounds.Left - bodyBounds.Right >= 9),
                             "Scrollbar reserves a separate hit target with a proportional thumb in " + language + (dark ? " dark" : " light") +
                             $" (visibility={bar.Visibility}, width={bar.ActualWidth}, thumb={track.Thumb.ActualHeight}, track={track.ActualHeight}, bar={barBounds}, content={bodyBounds})");
                         viewport.ScrollToTop();
                         window.UpdateLayout();
+                        var presenter = (FrameworkElement)viewport.Template.FindName("PART_ScrollContentPresenter", viewport);
+                        var input = (FrameworkElement)window.FindName("LinkInput");
+                        var inputBounds = input.TransformToAncestor(presenter).TransformBounds(new Rect(input.RenderSize));
+                        Check(inputBounds.Left >= -0.5 && inputBounds.Right <= presenter.ActualWidth + .5,
+                            "The full input border remains inside the scroll viewport in " + language + (dark ? " dark" : " light"));
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
                     }
                 }
@@ -276,7 +297,7 @@ internal static class Program
             {
             }
         };
-        public bool IsCompleted(string folder, string file, bool audio) => true;
+        public bool IsCompleted(string folder, string file, DownloadOptions options, bool requireCaptions = false) => true;
     }
 
     private sealed class FakeProvider : IMediaProvider

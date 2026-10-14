@@ -47,7 +47,7 @@ internal static class ServiceChecks
             {
             }
         };
-        public bool IsCompleted(string folder, string file, bool audio) => true;
+        public bool IsCompleted(string folder, string file, DownloadOptions options, bool requireCaptions = false) => true;
     }
 
     private sealed class FixtureProvider : IMediaProvider

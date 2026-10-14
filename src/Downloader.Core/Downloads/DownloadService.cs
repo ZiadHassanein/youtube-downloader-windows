@@ -1,6 +1,6 @@
 namespace YouTubeDownloader;
 // All front ends use the same bounded application operations, including later extensions.
-public sealed class DownloadService : IDisposable
+public sealed partial class DownloadService : IDisposable
 {
     private readonly IMediaProvider provider;
     private readonly IPlaylistStorage playlists;
@@ -32,6 +32,12 @@ public sealed class DownloadService : IDisposable
 
     public string Normalize(string url, bool playlist) => provider.Normalize(url, playlist);
     public MediaTargets ResolveTargets(string input) => provider.ResolveTargets(input);
+    public async Task<string> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
+    {
+        using var operation = Operations.Begin(OperationState.Updating, token);
+        if (provider is not IMediaMaintenance maintenance) throw new NotSupportedException("This provider does not support tool maintenance.");
+        return await maintenance.RefreshToolsAsync(BoundProgress(operation.Id, p => progress?.Report(p)), operation.Token).ConfigureAwait(false);
+    }
     public async Task<VideoInfo> InspectAsync(string url, IProgress<DownloadProgress> preparation, CancellationToken token)
     {
         var canonical = provider.Normalize(url, false);
@@ -54,25 +60,12 @@ public sealed class DownloadService : IDisposable
     {
         if (options == null)
             throw new ArgumentNullException(nameof(options));
-        options = new DownloadOptions
-        {
-            Url = options.Url,
-            Folder = options.Folder,
-            QualityKey = options.QualityKey,
-            FormatSelector = options.FormatSelector,
-            Audio = options.Audio,
-            Height = options.Height,
-            AudioBitrate = options.AudioBitrate,
-            PlaylistItem = options.PlaylistItem,
-            ResumeDirectory = options.ResumeDirectory,
-            Playlist = options.Playlist == null ? null : new PlaylistInfo
-            {
-                Id = options.Playlist.Id,
-                Url = options.Playlist.Url,
-                Title = options.Playlist.Title,
-                Entries = options.Playlist.Entries.Select(e => new PlaylistEntry { Id = e.Id, Title = e.Title, MediaUrl = e.MediaUrl == null ? null : provider.Normalize(e.MediaUrl, false) }).ToList()
-            }
-        };
+        options = options.Snapshot();
+        if (options.Playlist != null && options.Playlist.Entries.Count is < 1 or > 1000)
+            throw new ArgumentException("Choose between one and 1,000 playlist videos.");
+        if (options.Playlist != null)
+            foreach (var entry in options.Playlist.Entries)
+                if (entry.MediaUrl != null) entry.MediaUrl = provider.Normalize(entry.MediaUrl, false);
         options.Url = provider.Normalize(options.Url, options.Playlist != null);
         using var operation = Operations.Begin(OperationState.Preparing, token);
         await provider.EnsureReadyAsync(BoundProgress(operation.Id, p => preparation?.Report(p)), operation.Token).ConfigureAwait(false);

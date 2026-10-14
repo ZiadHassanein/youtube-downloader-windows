@@ -9,5 +9,5 @@ public sealed class PlaylistSession
 public interface IPlaylistStorage
 {
     PlaylistSession Open(DownloadOptions options);
-    bool IsCompleted(string folder, string file, bool audio);
+    bool IsCompleted(string folder, string file, DownloadOptions options, bool requireCaptions = false);
 }

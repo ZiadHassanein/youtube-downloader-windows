@@ -7,24 +7,34 @@ namespace YouTubeDownloader
     {
         public static PlaylistInfo Read(string url, Dictionary<string, object> data)
         {
-            var link = VideoLink.Parse(url);
+            url = MediaLink.Normalize(url, true);
+            bool youtube = new YouTubeLinkResolver().Supports(new Uri(url));
+            var link = youtube ? VideoLink.Parse(url) : null;
             object entries, title;
-            if (link.PlaylistUrl == null || !data.TryGetValue("entries", out entries) || !(entries is IEnumerable))
+            if ((youtube && link.PlaylistUrl == null) || !data.TryGetValue("entries", out entries) || !(entries is IEnumerable))
                 throw new InvalidOperationException("The playlist could not be read. Check the link and try again.");
             var info = new PlaylistInfo
             {
-                Id = link.PlaylistId,
-                Url = link.PlaylistUrl,
+                Id = youtube ? link.PlaylistId : Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(url))).Substring(0, 24),
+                Url = url,
                 Title = data.TryGetValue("title", out title) && title != null ? Convert.ToString(title) : "Playlist"
             };
             foreach (object value in (IEnumerable)entries)
             {
+                if (info.Entries.Count >= 1000) throw new InvalidOperationException("Choose a playlist with at most 1,000 videos.");
                 var entry = value as Dictionary<string, object>;
                 object id, name;
                 string videoId = entry != null && entry.TryGetValue("id", out id) && id != null ? Convert.ToString(id) : null;
-                if (videoId != null && !Regex.IsMatch(videoId, "^[A-Za-z0-9_-]{11}$"))
+                if (videoId != null && !Regex.IsMatch(videoId, youtube ? "^[A-Za-z0-9_-]{11}$" : "^[A-Za-z0-9_.-]{1,96}$"))
                     videoId = null;
-                info.Entries.Add(new PlaylistEntry { Id = videoId, MediaUrl = videoId == null ? null : "https://www.youtube.com/watch?v=" + videoId, Title = entry != null && entry.TryGetValue("title", out name) && name != null ? Convert.ToString(name) : "Unavailable video" });
+                string mediaUrl = null;
+                if (videoId != null)
+                {
+                    if (youtube) mediaUrl = "https://www.youtube.com/watch?v=" + videoId;
+                    else if (entry.TryGetValue("webpage_url", out var page) || entry.TryGetValue("url", out page))
+                        try { mediaUrl = MediaLink.Normalize(Convert.ToString(page), false); } catch (ArgumentException) { }
+                }
+                info.Entries.Add(new PlaylistEntry { Id = videoId, MediaUrl = mediaUrl, Title = entry != null && entry.TryGetValue("title", out name) && name != null ? Convert.ToString(name) : "Unavailable video" });
             }
 
             if (info.Entries.Count == 0)

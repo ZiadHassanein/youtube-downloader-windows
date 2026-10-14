@@ -6,7 +6,7 @@ using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace YouTubeDownloader;
-public sealed class DesktopActions
+public sealed partial class DesktopActions
 {
     private readonly Window owner;
     public DesktopActions(Window owner)
@@ -52,7 +52,7 @@ public sealed class DesktopActions
         if (!File.Exists(file) || !new[]
         {
             ".mp4",
-            ".mp3"
+            ".mp3", ".m4a", ".opus", ".wav", ".flac"
         }.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
             throw new IOException("File is not available.");
         if (!reveal)

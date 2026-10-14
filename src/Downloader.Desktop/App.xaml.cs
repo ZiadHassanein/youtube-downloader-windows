@@ -4,9 +4,16 @@ namespace YouTubeDownloader;
 public partial class App : Application
 {
     private Mutex instance;
-    protected override void OnStartup(StartupEventArgs args)
+    private CancellationTokenSource browserLifetime;
+    protected override async void OnStartup(StartupEventArgs args)
     {
         base.OnStartup(args);
+        if (BrowserHost.IsInvocation(args.Args))
+        {
+            await BrowserHost.RunAsync(args.Args);
+            Shutdown();
+            return;
+        }
         bool smoke = args.Args.Length == 2 && args.Args[0] == "--smoke-test";
         if (!smoke && AppUpdates.RunHelper(args.Args))
         {
@@ -14,7 +21,7 @@ public partial class App : Application
             return;
         }
 
-        instance = new Mutex(true, smoke ? "Local\\YouTubeDownloader.Smoke." + Environment.ProcessId : "Local\\YouTubeDownloader.Desktop", out bool first);
+        instance = new Mutex(true, smoke ? "Local\\YouTubeDownloader.Smoke." + Environment.ProcessId : ReleaseChannel.IsPreview ? "Local\\ViFree.Preview.Desktop" : "Local\\YouTubeDownloader.Desktop", out bool first);
         if (!first)
         {
             Shutdown();
@@ -36,11 +43,23 @@ public partial class App : Application
         else
             MainWindow = new MainWindow();
         MainWindow.Show();
+        if (!smoke && ReleaseChannel.IsPreview)
+        {
+            browserLifetime = new();
+            _ = BrowserLinkTransport.ListenAsync(link => Dispatcher.Invoke(() =>
+            {
+                bool accepted = ((MainViewModel)MainWindow.DataContext).ReceiveBrowserLink(link);
+                if (accepted) { if (MainWindow.WindowState == WindowState.Minimized) MainWindow.WindowState = WindowState.Normal; MainWindow.Activate(); }
+                return accepted;
+            }), browserLifetime.Token);
+        }
     }
 
     protected override void OnExit(ExitEventArgs args)
     {
         instance?.Dispose();
+        browserLifetime?.Cancel();
+        browserLifetime?.Dispose();
         base.OnExit(args);
     }
 }

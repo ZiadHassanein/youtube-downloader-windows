@@ -40,7 +40,6 @@ namespace YouTubeDownloader
         {
             var session = storage.Open(options);
             string folder = session.Folder;
-            string profile = options.Audio ? "mp3-" + options.AudioBitrate : "mp4-" + options.Height;
             var completed = session.Completed;
             var result = new DownloadResult
             {
@@ -58,7 +57,7 @@ namespace YouTubeDownloader
                 if (itemStarted != null)
                     itemStarted(done + 1, result.Total, entry.Title);
                 string file;
-                if (entry.Id != null && completed.TryGetValue(entry.Id, out file) && storage.IsCompleted(folder, file, options.Audio))
+                if (entry.Id != null && completed.TryGetValue(entry.Id, out file) && storage.IsCompleted(folder, file, options, requireCaptions: true))
                 {
                     result.Skipped++;
                     result.Completed++;
@@ -82,15 +81,13 @@ namespace YouTubeDownloader
                     }
 
                     token.ThrowIfCancellationRequested();
-                    var item = new DownloadOptions
-                    {
-                        Url = entry.Url,
-                        Folder = folder,
-                        Audio = options.Audio,
-                        AudioBitrate = options.AudioBitrate,
-                        Height = options.Height,
-                        PlaylistItem = true
-                    };
+                    var item = options.Snapshot();
+                    item.Url = entry.Url;
+                    item.Folder = folder;
+                    item.Playlist = null;
+                    item.PlaylistItem = true;
+                    item.Selection = null;
+                    item.QualityKey = null;
                     var saved = download(item, token);
                     if (saved.Cancelled)
                     {
@@ -99,12 +96,13 @@ namespace YouTubeDownloader
                     }
 
                     file = saved.FilePath;
-                    if (!storage.IsCompleted(folder, file, options.Audio))
+                    if (!storage.IsCompleted(folder, file, options))
                         throw new InvalidOperationException("The downloader did not produce a completed file.");
                     completed[entry.Id] = file;
                     result.Files.Add(file);
                     result.FilePath = file;
                     result.Completed++;
+                    if (saved.Warning != null) result.Warning = "Some requested subtitles were unavailable. The media files were saved.";
                     consecutiveFailures = 0;
                     try
                     {

@@ -67,7 +67,7 @@ internal sealed class ToolProbe
             if (!a.StartsWith("N-") && (!int.TryParse(a.Split('.')[0], out int major) || major < 6))
                 return false;
             string encoders = Capture(ffmpeg, token, "-hide_banner", "-encoders"), muxers = Capture(ffmpeg, token, "-hide_banner", "-muxers");
-            return encoders.Contains("libmp3lame") && Regex.IsMatch(encoders, @"\baac\s") && Regex.IsMatch(muxers, @"\bmp4\b") && Regex.IsMatch(muxers, @"\bmp3\b");
+            return new[] { "libmp3lame", "libopus", "flac", "pcm_s16le" }.All(encoders.Contains) && Regex.IsMatch(encoders, @"\baac\s") && new[] { "mp4", "mp3", "ogg", "wav", "flac" }.All(format => Regex.IsMatch(muxers, @"\b" + format + @"\b"));
         }
         catch (OperationCanceledException)
         {

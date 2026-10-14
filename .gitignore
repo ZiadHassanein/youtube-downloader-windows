@@ -7,6 +7,12 @@ settings.json
 *.zip
 *.mp4
 *.mp3
+*.m4a
+*.opus
+*.wav
+*.flac
+*.srt
+*.vtt
 *.part
 *.ytdl
 *.log
