@@ -10,6 +10,7 @@
   <Geometry x:Key="FolderIcon">M1,5 L1,18 19,18 19,5 9,5 7,2 1,2 Z</Geometry>
   <Geometry x:Key="OpenFolderIcon">M1,8 L1,3 7,3 9,5 18,5 18,8 M1,8 L20,8 16,18 1,18 Z</Geometry>
   <Geometry x:Key="PlusIcon">M10,2 L10,18 M2,10 L18,10</Geometry>
+  <Geometry x:Key="OptionsIcon">M2,5 L7,5 M12,5 L18,5 M2,15 L11,15 M16,15 L18,15 M7,2 L7,8 12,8 12,2 Z M11,12 L11,18 16,18 16,12 Z</Geometry>
   <Geometry x:Key="CheckIcon">M2,10 L7,15 18,3</Geometry>
   <Geometry x:Key="ChevronIcon">M2,5 L9,12 16,5</Geometry>
   <Geometry x:Key="PlayMark">F0 M10,4 Q7,2 7,6 L7,58 Q7,62 11,60 L60,34 Q64,32 60,30 Z M7,44 L32,26 35,31 7,51 Z</Geometry>

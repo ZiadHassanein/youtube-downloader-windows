@@ -41,6 +41,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--options-modal"))
+                {
+                    await CheckOutputOptionsModal(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF options-modal checks passed.");
+                    return;
+                }
                 if (args.Contains("--maintenance"))
                 {
                     await CheckDownloaderMaintenance(window, model, provider, captures);
@@ -113,27 +119,7 @@ internal static partial class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
-                foreach (bool arabic in new[] { false, true })
-                {
-                    if (model.IsArabic != arabic) model.LanguageCommand.Execute(null);
-                    model.OptionsVisible = false;
-                    await Task.Delay(80);
-                    window.UpdateLayout();
-                    double compactHeight = window.ActualHeight;
-                    var content = (FrameworkElement)WpfTree.Find(window, "PageContent");
-                    double compactContentHeight = content.DesiredSize.Height;
-                    model.OptionsVisible = true;
-                    await Task.Delay(80);
-                    window.UpdateLayout();
-                    double expectedHeight = Math.Min(compactHeight + 80, SystemParameters.WorkArea.Height - 16);
-                    Check(content.DesiredSize.Height > compactContentHeight + 80 && window.ActualHeight >= expectedHeight - 2,
-                        "Output options expand content and respect the available screen height in " + (arabic ? "Arabic" : "English") +
-                        $" (window={window.ActualHeight}, compact={compactHeight}, content={content.DesiredSize.Height}, compactContent={compactContentHeight})");
-                    model.OptionsVisible = false;
-                    await Task.Delay(80);
-                    window.UpdateLayout();
-                    Check(Math.Abs(window.ActualHeight - compactHeight) <= 2, "Closing output options removes reserved space in " + (arabic ? "Arabic" : "English"));
-                }
+                await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
@@ -346,6 +332,8 @@ internal static partial class Program
         public bool IsReady => true;
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
         public int DownloadDelayMilliseconds = 10000;
+        public List<CaptionChoice> CaptionTracks = new();
+        public Action<CancellationToken> InspectionHook;
         public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
         public Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token) => MaintenanceHandler(progress, token);
 
@@ -357,27 +345,32 @@ internal static partial class Program
             return new(link.VideoUrl, link.PlaylistUrl);
         }
 
-        public VideoInfo Inspect(string url, CancellationToken token, IProgress<DownloadProgress> progress = null) => new()
+        public VideoInfo Inspect(string url, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
-            Title = "Local UI fixture",
-            Uploader = "Local test fixture",
-            Duration = 504,
-            ThumbnailUrl = ThumbnailAddress,
-            HasAudio = true,
-            Qualities = new()
+            InspectionHook?.Invoke(token);
+            return new()
             {
-                new()
+                Title = "Local UI fixture",
+                Uploader = "Local test fixture",
+                Duration = 504,
+                ThumbnailUrl = ThumbnailAddress,
+                Captions = CaptionTracks,
+                HasAudio = true,
+                Qualities = new()
                 {
-                    Resolution = 720,
-                    SelectionKey = "hd"
-                },
-                new()
-                {
-                    Resolution = 480,
-                    SelectionKey = "sd"
+                    new()
+                    {
+                        Resolution = 720,
+                        SelectionKey = "hd"
+                    },
+                    new()
+                    {
+                        Resolution = 480,
+                        SelectionKey = "sd"
+                    }
                 }
-            }
-        };
+            };
+        }
         public PlaylistInfo InspectPlaylist(string url, CancellationToken token, IProgress<DownloadProgress> progress = null) => new()
         {
             Id = "PLFixture",

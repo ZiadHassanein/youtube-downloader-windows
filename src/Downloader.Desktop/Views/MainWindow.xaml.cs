@@ -59,11 +59,12 @@ public partial class MainWindow : Window
                 ViewMotion.Reveal(MediaPreview.PreviewContent);
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
-            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.OptionsVisible)
-                or nameof(MainViewModel.HasPlaylist) or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.NoticeVisible)
+            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.HasPlaylist)
+                or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.MainNoticeVisible)
                 or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HasMediaPreview))
                 QueueFit();
-            if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading))
+            if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading)
+                && !(args.PropertyName == nameof(MainViewModel.NoticeHeading) && model.OptionsNoticeVisible))
             {
                 var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
                     model.SettingsVisible ? SettingsPane.ActiveDownload.StatusHeading :
@@ -118,17 +119,7 @@ public partial class MainWindow : Window
 
     private void ApplyTitleBar()
     {
-        int enabled = model.IsDark && !SystemParameters.HighContrast ? 1 : 0;
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle != IntPtr.Zero)
-            try
-            {
-                if (DwmSetWindowAttribute(handle, 20, ref enabled, 4) != 0)
-                    DwmSetWindowAttribute(handle, 19, ref enabled, 4);
-            }
-            catch (DllNotFoundException)
-            {
-            }
+        ThemeResources.ApplyTitleBar(this, model.IsDark);
     }
 
     private void QueueFit()
@@ -167,7 +158,7 @@ public partial class MainWindow : Window
         if (Top < area.Top) Top = area.Top;
     }
 
-    private Rect CurrentWorkArea()
+    internal Rect CurrentWorkArea()
     {
         var source = PresentationSource.FromVisual(this);
         var handle = new WindowInteropHelper(this).Handle;
@@ -186,6 +177,7 @@ public partial class MainWindow : Window
 
     private void PlaceNotice(string kind)
     {
+        if (kind == "options") return;
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
             model.SettingsVisible = kind != "folder";
@@ -246,8 +238,6 @@ public partial class MainWindow : Window
 
     [DllImport("user32.dll")]
     private static extern IntPtr MonitorFromWindow(IntPtr window, uint flags);
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int size);
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
 }

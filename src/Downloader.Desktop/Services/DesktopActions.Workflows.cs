@@ -5,6 +5,20 @@ using System.Windows.Media;
 namespace YouTubeDownloader;
 public sealed partial class DesktopActions
 {
+    public void ShowOutputOptions(MainViewModel model)
+    {
+        var workArea = owner is MainWindow main ? main.CurrentWorkArea() : SystemParameters.WorkArea;
+        var dialog = new OutputOptionsWindow
+        {
+            Owner = owner, DataContext = model, Icon = owner.Icon,
+            Width = Math.Min(540, owner.ActualWidth - 48),
+            MaxHeight = Math.Min(owner.ActualHeight - 48, workArea.Height - 48)
+        };
+        var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
+        dialog.ShowDialog();
+        if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
+    }
+
     public void ShowQueue(MainViewModel model)
     {
         var dialog = new QueueWindow { Owner = owner, DataContext = model, Icon = owner.Icon };

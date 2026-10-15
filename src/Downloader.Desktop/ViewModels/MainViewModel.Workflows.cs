@@ -38,7 +38,6 @@ public sealed partial class MainViewModel
     public IReadOnlyList<EncodingChoice> Encodings { get; } = new[] { new EncodingChoice("MP3", AudioEncoding.Mp3), new EncodingChoice("M4A", AudioEncoding.M4a), new EncodingChoice("Opus", AudioEncoding.Opus), new EncodingChoice("WAV", AudioEncoding.Wav), new EncodingChoice("FLAC", AudioEncoding.Flac) };
     private EncodingChoice encoding;
     private CaptionChoice caption;
-    private bool optionsVisible;
     private CaptionFormat captionFormat = CaptionFormat.Srt;
     private HashSet<string> selectedPlaylistIds;
     private List<CaptionChoice> playlistCaptions = new();
@@ -50,7 +49,8 @@ public sealed partial class MainViewModel
     public CaptionChoice SelectedCaption { get => caption; set => SetProperty(ref caption, value); }
     public bool SrtCaptions { get => captionFormat == CaptionFormat.Srt; set { if (value) { captionFormat = CaptionFormat.Srt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); } } }
     public bool VttCaptions { get => captionFormat == CaptionFormat.Vtt; set { if (value) { captionFormat = CaptionFormat.Vtt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); } } }
-    public bool OptionsVisible { get => optionsVisible; set => SetProperty(ref optionsVisible, value); }
+    public bool OptionsNoticeVisible => NoticeVisible && noticeAnchor == "options";
+    public bool MainNoticeVisible => NoticeVisible && noticeAnchor != "options";
     public bool CanSelectPlaylist => IsIdle && playlistInfo != null;
     public bool CanGetCaptionLanguages => IsIdle && playlistInfo != null;
     public bool HasQueue => QueueItems.Count > 0;
@@ -58,6 +58,8 @@ public sealed partial class MainViewModel
     public string QueueLabel => F("Queue ({0})", QueueItems.Count);
     public string PlaylistSelectionLabel => playlistInfo == null ? T("Choose videos") : F("Choose videos ({0}/{1})", selectedPlaylistIds?.Count ?? playlistInfo.Entries.Count, playlistInfo.Entries.Count);
     public string OptionsLabel => T("More options");
+    public string DoneLabel => T("Done");
+    public string CaptionFormatLabel => T("Subtitle file format");
     public string AudioFormatLabel => T("Audio format");
     public string CaptionsLabel => T("Subtitles");
     public string CaptionLanguagesLabel => T("Get subtitle languages");
@@ -94,7 +96,7 @@ public sealed partial class MainViewModel
     private void InitializeWorkflows()
     {
         QueueCommand = new RelayCommand(() => actions.ShowQueue(this));
-        OptionsCommand = new RelayCommand(() => OptionsVisible = !OptionsVisible, () => IsIdle);
+        OptionsCommand = new RelayCommand(() => actions.ShowOutputOptions(this), () => IsIdle);
         AddQueueCommand = new RelayCommand(() =>
         {
             try { Queue.Add(CurrentRequest(), videoInfo?.Title ?? playlistInfo?.Title); ShowNotice("Added to queue", T("Open the queue to start or manage downloads."), false, "folder"); }
@@ -120,9 +122,13 @@ public sealed partial class MainViewModel
                 playlistCaptions = metadata.Captions;
                 RefreshCaptions();
                 SetStatus("", "", false);
-                ShowNotice("Subtitles", "Languages shown come from the first available playlist video. Availability may vary for other videos.", false, "folder");
+                ShowNotice("Subtitles", "Languages shown come from the first available playlist video. Availability may vary for other videos.", false, "options");
             }
-            catch (Exception ex) { ShowNotice("Subtitles", FriendlyError(ex), true, "folder"); }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+            catch (Exception ex)
+            {
+                ShowNotice("Subtitles", FriendlyError(ex, "Check your internet connection, then choose Get subtitle languages to try again."), true, "options");
+            }
             finally { RefreshAvailability(); }
         }, () => CanGetCaptionLanguages);
         Queue.Changed += () => actions.Dispatch(SyncQueue);

@@ -300,6 +300,8 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(NoticeHeading));
         OnPropertyChanged(nameof(NoticeDetail));
         OnPropertyChanged(nameof(NoticeBrush));
+        OnPropertyChanged(nameof(MainNoticeVisible));
+        OnPropertyChanged(nameof(OptionsNoticeVisible));
         NoticeRequested?.Invoke(anchor);
         if (noticeLifetime != null)
             _ = ExpireNotice(noticeLifetime);
@@ -376,7 +378,7 @@ public sealed partial class MainViewModel
         downloads.Dispose();
     }
 
-    private static string FriendlyError(Exception exception)
+    private static string FriendlyError(Exception exception, string networkRecovery = "Check your internet connection, then paste the link again to retry.")
     {
         string text = exception.Message.ToLowerInvariant();
         if (exception is ArgumentException)
@@ -396,7 +398,7 @@ public sealed partial class MainViewModel
         if (exception is UnauthorizedAccessException || text.Contains("permission") || text.Contains("access is denied"))
             return "We can't save in that folder. Choose another folder with Browse.";
         if (exception is HttpRequestException or TimeoutException || text.Contains("network") || text.Contains("connection"))
-            return "Check your internet connection, then paste the link again to retry.";
+            return networkRecovery;
         if (text.Contains("integrity") || text.Contains("compatible") || text.Contains("media tool"))
             return "Media tools could not be prepared. Paste the link again to retry.";
         if (text.Contains("unavailable") || text.Contains("removed"))

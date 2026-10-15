@@ -8,6 +8,8 @@ namespace YouTubeDownloader
         {
             { "New download", "تنزيل جديد" },
             { "More options", "خيارات إضافية" },
+            { "Done", "تم" },
+            { "Subtitle file format", "صيغة ملف الترجمة" },
             { "Ready to download", "جاهز للتنزيل" },
             { "Playlist", "قائمة تشغيل" },
             { "Recent", "التنزيلات الأخيرة" },
@@ -35,6 +37,7 @@ namespace YouTubeDownloader
             { "Subtitles", "الترجمة" },
             { "Automatic", "تلقائية" },
             { "Get subtitle languages", "جلب لغات الترجمة" },
+            { "Check your internet connection, then choose Get subtitle languages to try again.", "تحقّق من اتصالك بالإنترنت، ثم اضغط «جلب لغات الترجمة» لإعادة المحاولة." },
             { "No subtitles", "بدون ترجمة" },
             { "Add to queue", "إضافة للقائمة" },
             { "Start queue", "بدء التنزيلات" },

@@ -262,7 +262,18 @@ public sealed partial class MainViewModel : ObservableObject
     public bool ShowProgress { get => showProgress; private set => SetProperty(ref showProgress, value); }
     public bool Indeterminate { get => indeterminate; private set => SetProperty(ref indeterminate, value); }
     public double Progress { get => progress; private set => SetProperty(ref progress, value); }
-    public bool NoticeVisible { get => noticeVisible; private set => SetProperty(ref noticeVisible, value); }
+    public bool NoticeVisible
+    {
+        get => noticeVisible;
+        private set
+        {
+            if (SetProperty(ref noticeVisible, value))
+            {
+                OnPropertyChanged(nameof(MainNoticeVisible));
+                OnPropertyChanged(nameof(OptionsNoticeVisible));
+            }
+        }
+    }
     public string NoticeHeading => T(noticeHeading);
     public string NoticeDetail => T(noticeDetail);
     public Brush NoticeBrush => (Brush)Application.Current.Resources[noticeError ? "Error" : "Ink"];
