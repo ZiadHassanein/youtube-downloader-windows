@@ -1,0 +1,117 @@
+using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
+using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using YouTubeDownloader;
+
+internal static partial class Program
+{
+    private static async Task CheckHeader(Window window, MainViewModel model, string captures)
+    {
+        var header = (FrameworkElement)WpfTree.Find(window, "HeaderContent");
+        var brand = (FrameworkElement)WpfTree.Find(window, "BrandWordmark");
+        var actions = (FrameworkElement)WpfTree.Find(window, "HeaderActions");
+        var language = (Button)WpfTree.Find(window, "LanguageButton");
+        var settings = (Button)WpfTree.Find(window, "SettingsButton");
+        model.Audio = true;
+        model.SelectedQuality = model.Qualities.First(q => q.Bitrate == 320);
+        foreach (bool arabic in new[] { false, true })
+            foreach (bool dark in new[] { false, true })
+                foreach (double width in new[] { 820d, 1160d })
+                {
+                    model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
+                    if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                    window.Width = width;
+                    await Task.Delay(150);
+                    window.UpdateLayout();
+                    Rect Bounds(FrameworkElement element) => element.TransformToAncestor(window).TransformBounds(new Rect(element.RenderSize));
+                    var brandBounds = Bounds(brand);
+                    var actionBounds = Bounds(actions);
+                    Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&
+                        Bounds(settings).Top > Bounds(header).Bottom,
+                        "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
+                    Check(Equals(((TextBlock)brand).Foreground, Application.Current.Resources["Ink"]) && ((TextBlock)brand).FontWeight == FontWeights.Bold,
+                        "The wordmark keeps the reference's strong readable treatment across themes");
+                    string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width < 1000 ? "-compact" : "-wide");
+                    CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
+                    language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    await Task.Delay(120);
+                    var menu = language.ContextMenu;
+                    var choices = menu.Items.OfType<MenuItem>().ToArray();
+                    Check(menu.IsOpen && ReferenceEquals(menu.DataContext, model) && choices.Count(c => c.IsChecked) == 1 &&
+                        (string)choices.Single(c => c.IsChecked).CommandParameter == (arabic ? "ar" : "en"),
+                        "The language menu opens and identifies the current language");
+                    var popup = (HwndSource)PresentationSource.FromVisual(menu);
+                    GetClientRect(popup.Handle, out var client);
+                    var nativeSize = popup.CompositionTarget.TransformFromDevice.Transform(new Vector(client.Right, client.Bottom));
+                    Check(choices.All(c => c.IsVisible && c.ActualHeight >= 40) && menu.ActualWidth <= nativeSize.X + 1 && menu.ActualHeight <= nativeSize.Y + 1,
+                        "Both language choices fit their actual native popup");
+                    if (width < 1000) CaptureVisual(popup.RootVisual, System.IO.Path.Combine(captures, "language-" + variant + ".png"), client.Right, client.Bottom);
+                    var next = choices.Single(c => (string)c.CommandParameter == (arabic ? "en" : "ar"));
+                    ((IInvokeProvider)new MenuItemAutomationPeer(next).GetPattern(PatternInterface.Invoke)).Invoke();
+                    await Task.Delay(150);
+                    Check(!menu.IsOpen && model.IsArabic != arabic && model.SelectedQuality.Bitrate == 320 &&
+                        model.CurrentLanguageLabel == (model.IsArabic ? "العربية" : "English"),
+                        "Selecting a language closes the menu, updates its label and preserves audio quality");
+                }
+        bool previousLanguage = model.IsArabic;
+        model.SelectLanguageCommand.Execute("unsupported");
+        Check(model.IsArabic == previousLanguage && !model.SelectLanguageCommand.CanExecute("unsupported"),
+            "Unsupported language values cannot alter the application state");
+        settings.Command.Execute(null);
+        await Task.Delay(100);
+        Check(model.SettingsVisible && ((FrameworkElement)WpfTree.Find(window, "ToolRefreshAnchor")).IsVisible,
+            "Footer Settings keeps app updates, browser integration and maintenance accessible");
+        ((Button)WpfTree.Find(window, "BrandButton")).Command.Execute(null);
+        Check(!model.SettingsVisible, "The brand returns from Settings to the download form");
+        Exception dialogFailure = null;
+        _ = window.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            Window history = null;
+            try
+            {
+                history = window.OwnedWindows.Cast<Window>().Single();
+                Check(history.Title == model.HistoryLabel && history.IsVisible && history.Owner == window,
+                    "The new header action opens the existing recent-downloads dialog");
+            }
+            catch (Exception ex) { dialogFailure = ex; }
+            finally { history?.Close(); }
+        }));
+        ((Button)WpfTree.Find(window, "RecentDownloadsButton")).Command.Execute(null);
+        if (dialogFailure != null) throw dialogFailure;
+        using var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/ViFree;component/Assets/app.ico")).Stream;
+        var frames = new IconBitmapDecoder(iconStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames;
+        Check(frames.Select(frame => frame.PixelWidth).SequenceEqual(new[] { 16, 24, 32, 48, 64, 128, 256 }),
+            "The app icon contains seven native sizes instead of a stretched small bitmap");
+        using var logoStream = Application.GetResourceStream(new Uri("pack://application:,,,/ViFree;component/Assets/header-logo.png")).Stream;
+        var logo = new FormatConvertedBitmap(BitmapFrame.Create(logoStream), PixelFormats.Bgra32, null, 0);
+        byte[] pixels = new byte[logo.PixelWidth * logo.PixelHeight * 4];
+        logo.CopyPixels(pixels, logo.PixelWidth * 4, 0);
+        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(360 * 512 + 48) * 4 + 3] == 0 &&
+            pixels[(350 * 512 + 120) * 4 + 3] == 0 && pixels[(250 * 512 + 300) * 4 + 3] == 255,
+            "The high-resolution logo preserves clean outside edges and its transparent diagonal notch");
+        model.Audio = false;
+        await Task.Delay(200);
+        window.UpdateLayout();
+        Capture(window, System.IO.Path.Combine(captures, "header-workspace.png"));
+    }
+
+    private static void CaptureVisual(Visual visual, string path, int width = 0, int height = 0)
+    {
+        var dpi = VisualTreeHelper.GetDpi(visual);
+        if (visual is FrameworkElement element)
+        {
+            width = (int)Math.Ceiling(element.ActualWidth * dpi.DpiScaleX);
+            height = (int)Math.Ceiling(element.ActualHeight * dpi.DpiScaleY);
+        }
+        var bitmap = new RenderTargetBitmap(width, height, dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using var stream = System.IO.File.Create(path);
+        encoder.Save(stream);
+    }
+}

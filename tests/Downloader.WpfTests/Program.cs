@@ -41,6 +41,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--header"))
+                {
+                    await CheckHeader(window, model, captures);
+                    Console.WriteLine(count + " WPF header checks passed.");
+                    return;
+                }
                 if (args.Contains("--options-modal"))
                 {
                     await CheckOutputOptionsModal(window, model, provider, captures);
@@ -119,6 +125,7 @@ internal static partial class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
+                await CheckHeader(window, model, captures);
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await MaximizeChecks(window, model, captures);

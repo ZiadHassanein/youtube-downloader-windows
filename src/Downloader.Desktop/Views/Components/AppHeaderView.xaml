@@ -1,0 +1,66 @@
+<UserControl x:Class="YouTubeDownloader.AppHeaderView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ FlowDirection="LeftToRight" FontFamily="{Binding ContentFont}">
+ <UserControl.Resources>
+  <Style x:Key="LanguageMenuItem" TargetType="MenuItem">
+   <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+   <Setter Property="MinHeight" Value="42"/>
+   <Setter Property="Template"><Setter.Value>
+    <ControlTemplate TargetType="MenuItem">
+     <Border x:Name="Face" Background="Transparent" CornerRadius="6" Padding="10,8">
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Path x:Name="Check" Data="{StaticResource CheckIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="14" Height="14" Visibility="Hidden"/>
+       <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+      </Grid>
+     </Border>
+     <ControlTemplate.Triggers>
+      <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}"/></Trigger>
+      <Trigger Property="IsChecked" Value="True"><Setter TargetName="Check" Property="Visibility" Value="Visible"/></Trigger>
+      <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
+     </ControlTemplate.Triggers>
+    </ControlTemplate>
+   </Setter.Value></Setter>
+  </Style>
+ </UserControl.Resources>
+ <Border Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="24,16">
+  <Grid>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Left" Padding="0" AutomationProperties.Name="{Binding NewDownloadLabel}">
+    <StackPanel Orientation="Horizontal">
+     <Path x:Name="BrandMark" Data="{StaticResource PlayMark}" Fill="{StaticResource BrandFill}" Width="38" Height="42" Stretch="Uniform" Margin="0,0,16,0" AutomationProperties.Name="ViFree logo"/>
+     <TextBlock x:Name="BrandWordmark" Text="ViFree" FontFamily="{StaticResource LatinFont}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" AutomationProperties.Name="ViFree"/>
+    </StackPanel>
+   </Button>
+   <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+    <Button x:Name="RecentDownloadsButton" Command="{Binding HistoryCommand}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding HistoryLabel}">
+     <StackPanel Orientation="Horizontal" FlowDirection="{Binding ContentDirection}">
+      <Path Data="{StaticResource HistoryIcon}" Style="{StaticResource LineIcon}" Width="20" Height="20" Margin="0,0,10,0"/>
+      <TextBlock Text="{Binding HistoryLabel}" VerticalAlignment="Center" FontSize="13"/>
+     </StackPanel>
+    </Button>
+    <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>
+    <Button x:Name="LanguageButton" Click="LanguageClicked" PreviewKeyDown="LanguageKeyDown" IsEnabled="{Binding IsIdle}" Style="{StaticResource ToolbarButton}" Padding="4,6" AutomationProperties.Name="{Binding LanguageLabel}" AutomationProperties.HelpText="{Binding CurrentLanguageLabel}" ToolTip="{Binding LanguageLabel}">
+     <Button.ContextMenu>
+      <ContextMenu DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="176" Placement="Bottom" VerticalOffset="6">
+       <ContextMenu.Template><ControlTemplate TargetType="ContextMenu">
+        <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border>
+       </ControlTemplate></ContextMenu.Template>
+       <MenuItem x:Name="EnglishChoice" Header="English" FontFamily="{StaticResource LatinFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="en" IsChecked="{Binding IsEnglish,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
+       <MenuItem x:Name="ArabicChoice" Header="العربية" FontFamily="{StaticResource ArabicFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="ar" IsChecked="{Binding IsArabic,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
+      </ContextMenu>
+     </Button.ContextMenu>
+     <StackPanel Orientation="Horizontal">
+      <Path Data="{StaticResource GlobeIcon}" Style="{StaticResource LineIcon}" Width="20" Height="20" Margin="0,0,9,0"/>
+      <TextBlock Text="{Binding CurrentLanguageLabel}" VerticalAlignment="Center" FontSize="14"/>
+      <Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/>
+     </StackPanel>
+    </Button>
+    <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>
+    <Button x:Name="ThemeButton" Command="{Binding ThemeCommand}" Style="{StaticResource ToolbarButton}" Width="42" Padding="9" AutomationProperties.Name="{Binding ThemeAction}" ToolTip="{Binding ThemeAction}">
+     <Path Data="{Binding ThemeIcon}" Stroke="{DynamicResource Ink}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="22" Height="22"/>
+    </Button>
+   </StackPanel>
+  </Grid>
+ </Border>
+</UserControl>

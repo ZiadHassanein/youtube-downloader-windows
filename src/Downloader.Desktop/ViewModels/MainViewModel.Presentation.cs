@@ -24,9 +24,12 @@ public sealed partial class MainViewModel
     }
     public IRelayCommand SettingsCommand { get; private set; }
     public IRelayCommand NewDownloadCommand { get; private set; }
+    public IRelayCommand<string> SelectLanguageCommand { get; private set; }
+    public string CurrentLanguageLabel => IsArabic ? "العربية" : "English";
+    public string LanguageLabel => T("Language");
+    public bool IsEnglish => !IsArabic;
     public IReadOnlyList<string> VideoContainers { get; } = new[] { "MP4" };
     public string NewDownloadLabel => T("New download");
-    public string RecentLabel => T("Recent");
     public string SettingsLabel => T("Settings");
     public string VideoKindLabel => T("Video");
     public string AudioKindLabel => T("Audio");
@@ -59,6 +62,16 @@ public sealed partial class MainViewModel
     {
         SettingsCommand = new RelayCommand(() => SettingsVisible = !SettingsVisible);
         NewDownloadCommand = new RelayCommand(() => SettingsVisible = false);
+        SelectLanguageCommand = new RelayCommand<string>(SetLanguage, language => (language is "en" or "ar") && IsIdle);
+    }
+
+    private void SetLanguage(string language)
+    {
+        if (!IsIdle || language == state.Language || language is not ("en" or "ar")) return;
+        state.Language = language;
+        RefreshQualities();
+        NotifyPresentation();
+        Save();
     }
 
     private void RefreshMediaPresentation()

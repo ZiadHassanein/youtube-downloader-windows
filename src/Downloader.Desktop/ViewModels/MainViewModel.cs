@@ -60,10 +60,7 @@ public sealed partial class MainViewModel : ObservableObject
         });
         LanguageCommand = new RelayCommand(() =>
         {
-            state.Language = IsArabic ? "en" : "ar";
-            RefreshQualities();
-            NotifyPresentation();
-            Save();
+            SelectLanguageCommand.Execute(IsArabic ? "en" : "ar");
         }, () => IsIdle);
         BrowseCommand = new RelayCommand(() =>
         {
@@ -311,6 +308,7 @@ public sealed partial class MainViewModel : ObservableObject
         DownloadCommand?.NotifyCanExecuteChanged();
         CancelCommand?.NotifyCanExecuteChanged();
         LanguageCommand?.NotifyCanExecuteChanged();
+        SelectLanguageCommand?.NotifyCanExecuteChanged();
         BrowseCommand?.NotifyCanExecuteChanged();
         OpenFolderCommand?.NotifyCanExecuteChanged();
         OpenFileCommand?.NotifyCanExecuteChanged();

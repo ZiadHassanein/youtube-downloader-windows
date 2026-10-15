@@ -7,7 +7,15 @@ $namespaces = [Xml.XmlNamespaceManager]::new($symbols.NameTable)
 $namespaces.AddNamespace('x', 'http://schemas.microsoft.com/winfx/2006/xaml')
 $mark = $symbols.SelectSingleNode("//*[@x:Key='PlayMark']", $namespaces).InnerText
 $geometry = [Windows.Media.Geometry]::Parse($mark)
-$brush = [Windows.Media.SolidColorBrush]::new([Windows.Media.ColorConverter]::ConvertFromString('#2458E8'))
+$fill = $symbols.SelectSingleNode("//*[@x:Key='BrandFill']", $namespaces)
+$brush = [Windows.Media.LinearGradientBrush]::new()
+$brush.StartPoint = [Windows.Point]::Parse($fill.StartPoint)
+$brush.EndPoint = [Windows.Point]::Parse($fill.EndPoint)
+foreach ($stop in $fill.ChildNodes) {
+    $brush.GradientStops.Add([Windows.Media.GradientStop]::new(
+        [Windows.Media.ColorConverter]::ConvertFromString($stop.Color),
+        [double]::Parse($stop.Offset, [Globalization.CultureInfo]::InvariantCulture)))
+}
 function Render-Mark([int]$size) {
     $visual = [Windows.Media.DrawingVisual]::new()
     $drawing = $visual.RenderOpen()

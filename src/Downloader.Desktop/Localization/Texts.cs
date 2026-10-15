@@ -8,6 +8,7 @@ namespace YouTubeDownloader
         {
             { "New download", "تنزيل جديد" },
             { "More options", "خيارات إضافية" },
+            { "Language", "اللغة" },
             { "Done", "تم" },
             { "Subtitle file format", "صيغة ملف الترجمة" },
             { "Ready to download", "جاهز للتنزيل" },
