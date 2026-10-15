@@ -7,7 +7,7 @@
  <Grid x:Name="OptionsContent" Margin="28,24" KeyboardNavigation.TabNavigation="Cycle">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="{Binding OptionsLabel}" FontSize="23" FontWeight="SemiBold" Margin="0,0,0,24"/>
-  <ScrollViewer x:Name="OptionsViewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+  <ScrollViewer x:Name="OptionsViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
     <StackPanel IsEnabled="{Binding IsIdle}">
      <TextBlock Text="{Binding CaptionsLabel}" Style="{StaticResource SectionLabel}"/>

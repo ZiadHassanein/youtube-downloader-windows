@@ -41,6 +41,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--overlay-scroll"))
+                {
+                    await CheckOverlayScrolling(window, model, captures);
+                    Console.WriteLine(count + " WPF overlay-scroll checks passed.");
+                    return;
+                }
                 if (args.Contains("--queue-window"))
                 {
                     await CheckQueueWindow(window, model, provider, captures);
@@ -161,6 +167,7 @@ internal static partial class Program
                 await CheckPalette(window, model, captures);
                 await CheckRecentDownloads(window, model, captures);
                 await CheckHorizontalScrolling(window, captures);
+                await CheckOverlayScrolling(window, model, captures);
                 await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
                 await CheckFooter(window, model, captures);
                 await CheckHeader(window, model, captures);
@@ -237,8 +244,8 @@ internal static partial class Program
                         var bodyBounds = body.TransformToAncestor(page).TransformBounds(new Rect(0, 0, body.ActualWidth, body.ActualHeight));
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
                         Check(bar.Visibility == Visibility.Visible && Math.Abs(bar.ActualWidth - 16) < 1 && track.Thumb.ActualHeight < track.ActualHeight &&
-                            (language == "ar" ? bodyBounds.Left - barBounds.Right >= 9 : barBounds.Left - bodyBounds.Right >= 9),
-                            "Scrollbar reserves a separate hit target with a proportional thumb in " + language + (dark ? " dark" : " light") +
+                            Math.Abs(body.ActualWidth - viewport.ActualWidth) < 1,
+                            "Scrollbar overlays a full-width body with a proportional thumb in " + language + (dark ? " dark" : " light") +
                             $" (visibility={bar.Visibility}, width={bar.ActualWidth}, thumb={track.Thumb.ActualHeight}, track={track.ActualHeight}, bar={barBounds}, content={bodyBounds})");
                         viewport.ScrollToTop();
                         window.UpdateLayout();

@@ -66,7 +66,7 @@ public sealed partial class DesktopActions
         }
         all.Click += (_, _) => { foreach (var check in checks.Where(c => c.IsEnabled)) check.IsChecked = true; };
         none.Click += (_, _) => { foreach (var check in checks) check.IsChecked = false; };
-        var scroll = new ScrollViewer { Content = rows, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Style = (Style)Application.Current.Resources["VerticalScrollFrame"] };
+        var scroll = new ScrollViewer { Content = rows, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Style = (Style)Application.Current.Resources["InsetScrollFrame"] };
         Grid.SetRow(scroll, 1); grid.Children.Add(scroll);
         var error = new TextBlock { Foreground = (Brush)Application.Current.Resources["Error"], TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
         Grid.SetRow(error, 2); grid.Children.Add(error);

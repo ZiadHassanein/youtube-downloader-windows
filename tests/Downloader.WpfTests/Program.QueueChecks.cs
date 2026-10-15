@@ -52,11 +52,14 @@ internal static partial class Program
                         Check(!((FrameworkElement)WpfTree.Find(dialog, "QueueNotice")).IsVisible,
                             "Reopening the queue clears stale feedback from its previous session");
                         Check(viewport.ScrollableWidth <= 1, "Queue content has no horizontal overflow");
+                        double initialFieldWidth = input.ActualWidth;
                         Capture(dialog, System.IO.Path.Combine(captures, "queue-empty-" + variant + ".png"));
                         InvokeQueueButton((Button)WpfTree.Find(dialog, "AddLinkFieldButton"));
                         await Task.Delay(100);
                         Check(QueueFields(dialog).Length == 2 && QueueFields(dialog).Last().IsKeyboardFocusWithin,
                             "Add another link creates and focuses a separate single-line editor");
+                        Check(Math.Abs(QueueFields(dialog).First().ActualWidth - initialFieldWidth) < 1,
+                            "Adding a link field does not narrow the existing queue input in " + variant);
                         var removeField = Descendants<Button>(dialog).Last(button => AutomationProperties.GetName(button) == model.RemoveLinkLabel);
                         InvokeQueueButton(removeField);
                         await Task.Delay(100);

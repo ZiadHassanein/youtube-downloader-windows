@@ -127,7 +127,7 @@ public sealed partial class DesktopActions
         };
         ScrollViewer.SetHorizontalScrollBarVisibility(list, ScrollBarVisibility.Disabled);
         ScrollViewer.SetVerticalScrollBarVisibility(list, ScrollBarVisibility.Auto);
-        list.Resources.Add(typeof(ScrollViewer), Application.Current.Resources["VerticalScrollFrame"]);
+        list.Resources.Add(typeof(ScrollViewer), Application.Current.Resources["InsetScrollFrame"]);
         foreach (string file in history.Take(5))
             list.Items.Add(new ListBoxItem
             {

@@ -8,7 +8,7 @@
        TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight" KeyboardNavigation.TabNavigation="Cycle">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="{Binding QueueHeading}" FontSize="23" LineHeight="32" FontWeight="SemiBold" Margin="0,0,0,20"/>
-  <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}"
+  <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource InsetScrollFrame}"
                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
     <TextBlock Text="{Binding QueueInputLabel}" FontWeight="SemiBold" Margin="0,0,0,12"/>
