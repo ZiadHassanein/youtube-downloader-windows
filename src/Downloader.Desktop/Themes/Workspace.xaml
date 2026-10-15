@@ -36,18 +36,29 @@
   </Style.Triggers>
  </Style>
  <Style x:Key="SelectionMenuItem" TargetType="MenuItem">
-  <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="MinHeight" Value="42"/>
+  <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="MinHeight" Value="44"/>
+  <Setter Property="Margin" Value="0,3"/><Setter Property="Cursor" Value="Hand"/>
+  <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
-   <Border x:Name="Face" Background="Transparent" CornerRadius="6" Padding="10,8">
-    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="12,8">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/></Grid.ColumnDefinitions>
      <Path x:Name="Check" Data="{DynamicResource CheckIcon}" Style="{DynamicResource LineIcon}" Stroke="{DynamicResource Accent}" Width="14" Height="14" Visibility="Hidden"/>
-     <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+     <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="8,0" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
     </Grid>
    </Border>
    <ControlTemplate.Triggers>
-    <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}"/></Trigger>
-    <Trigger Property="IsChecked" Value="True"><Setter TargetName="Check" Property="Visibility" Value="Visible"/></Trigger>
-    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
+    <Trigger Property="IsHighlighted" Value="True">
+     <Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}"/>
+     <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+    </Trigger>
+    <Trigger Property="IsChecked" Value="True">
+     <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/>
+     <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+     <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+     <Setter Property="FontWeight" Value="SemiBold"/>
+    </Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/><Setter Property="Cursor" Value="Arrow"/></Trigger>
    </ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
  </Style>

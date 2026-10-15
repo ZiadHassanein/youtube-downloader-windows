@@ -155,21 +155,31 @@
     </Setter>
   </Style>
   <Style TargetType="ComboBoxItem">
-    <Setter Property="Padding" Value="20,9" />
+    <Setter Property="Padding" Value="20,8" />
+    <Setter Property="Margin" Value="0,2" />
+    <Setter Property="MinHeight" Value="44" />
+    <Setter Property="Cursor" Value="Hand" />
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="ComboBoxItem">
-          <Border x:Name="Face" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}">
-            <ContentPresenter />
+          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+            <ContentPresenter VerticalAlignment="Center" />
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsHighlighted" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}" />
+              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}" />
+              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
+              <Setter Property="FontWeight" Value="SemiBold" />
             </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55" /><Setter Property="Cursor" Value="Arrow" /></Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
