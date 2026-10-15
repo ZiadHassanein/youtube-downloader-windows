@@ -61,9 +61,15 @@ internal static partial class Program
                     Check(Math.Abs((screen.Left + screen.Right - start.X - end.X) / 2) <= 3 &&
                         Math.Abs(screen.Top - end.Y - gap) <= 2 && screen.Left >= pageStart.X && screen.Right <= pageEnd.X && screen.Bottom <= pageEnd.Y,
                         "The language menu is centered under its control with a consistent gap inside the app in " + variant);
-                    Check(Math.Abs(menu.ActualWidth - 160) < 1 && menu.ActualHeight <= 100 &&
+                    Rect FaceBounds(MenuItem choice) => ((FrameworkElement)choice.Template.FindName("Face", choice))
+                        .TransformToAncestor(menu).TransformBounds(new Rect(choice.RenderSize));
+                    var firstFace = FaceBounds(choices[0]);
+                    var lastFace = FaceBounds(choices[^1]);
+                    Check(Math.Abs(menu.ActualWidth - 160) < 1 && Math.Abs(menu.ActualHeight - 94) < 1 &&
+                        Math.Abs(firstFace.Top - 5) < 1 && Math.Abs(menu.ActualHeight - lastFace.Bottom - 5) < 1 &&
+                        Math.Abs(lastFace.Top - firstFace.Bottom - 4) < 1 &&
                         choices.All(choice => Math.Abs(choice.ActualHeight - 40) < 1),
-                        "The language menu uses equal compact rows without font-dependent height in " + variant);
+                        "The language menu uses equal compact rows, four-DIP edge spacing and a four-DIP row gap in " + variant);
                     Check(menu.FlowDirection == model.ContentDirection && choices.All(choice => choice.FlowDirection == model.ContentDirection),
                         "The language menu uses the current direction after reuse in " + variant);
                     CapturePopup(page, popup, System.IO.Path.Combine(captures, "language-placement-" + variant + ".png"));

@@ -57,6 +57,6 @@
  </Style>
  <Style x:Key="LanguageMenuItem" TargetType="MenuItem" BasedOn="{StaticResource SelectionMenuItem}">
   <Setter Property="MinHeight" Value="40"/><Setter Property="Height" Value="40"/>
-  <Setter Property="Margin" Value="0,2"/><Setter Property="Padding" Value="10,6"/>
+  <Setter Property="Margin" Value="0,0,0,4"/><Setter Property="Padding" Value="10,6"/>
  </Style>
 </ResourceDictionary>

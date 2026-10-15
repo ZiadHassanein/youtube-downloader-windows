@@ -25,7 +25,7 @@
         <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="4"><ItemsPresenter/></Border>
        </ControlTemplate></ContextMenu.Template>
        <MenuItem x:Name="EnglishChoice" Header="English" FontFamily="{StaticResource LatinFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="en" IsChecked="{Binding IsEnglish,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
-       <MenuItem x:Name="ArabicChoice" Header="العربية" FontFamily="{StaticResource ArabicFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="ar" IsChecked="{Binding IsArabic,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
+       <MenuItem x:Name="ArabicChoice" Header="العربية" FontFamily="{StaticResource ArabicFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="ar" IsChecked="{Binding IsArabic,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}" Margin="0"/>
       </ContextMenu>
      </Button.ContextMenu>
      <StackPanel Orientation="Horizontal">
