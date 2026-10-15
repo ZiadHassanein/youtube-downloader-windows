@@ -15,6 +15,8 @@ namespace YouTubeDownloader
             { "Playlist", "قائمة تشغيل" },
             { "Recent", "التنزيلات الأخيرة" },
             { "Settings", "الإعدادات" },
+            { "Contact", "تواصل معي" },
+            { "Email", "البريد الإلكتروني" },
             { "Video", "فيديو" },
             { "Format", "الصيغة" },
             { "Subtitles and file options", "الترجمة وخيارات الملف" },

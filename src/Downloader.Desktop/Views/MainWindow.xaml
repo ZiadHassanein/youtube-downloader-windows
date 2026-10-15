@@ -20,18 +20,7 @@
    </Grid>
   </ScrollViewer>
   <Border x:Name="FooterContent" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="24,8">
-   <Grid FlowDirection="LeftToRight">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-     <TextBlock Text="By Ziad Hassanein" Foreground="{DynamicResource Muted}" FontSize="12" VerticalAlignment="Center"/>
-     <Button x:Name="SettingsButton" Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" FontFamily="{Binding ContentFont}" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28" Margin="14,0,0,0"/>
-    </StackPanel>
-    <StackPanel Grid.Column="1" Orientation="Horizontal">
-     <Button Content="GitHub" Command="{Binding SocialCommand}" CommandParameter="github" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28"/>
-     <Button Content="LinkedIn" Command="{Binding SocialCommand}" CommandParameter="linkedin" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28"/>
-     <Button Content="Email" Command="{Binding SocialCommand}" CommandParameter="email" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28"/>
-    </StackPanel>
-   </Grid>
+   <local:AppFooterView/>
   </Border>
   <Border x:Name="Notice" Visibility="{Binding MainNoticeVisible,Converter={StaticResource BoolVisibility}}" Background="{DynamicResource Surface}"
           BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,12,0,0"

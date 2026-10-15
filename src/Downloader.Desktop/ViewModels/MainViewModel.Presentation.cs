@@ -31,6 +31,8 @@ public sealed partial class MainViewModel
     public IReadOnlyList<string> VideoContainers { get; } = new[] { "MP4" };
     public string NewDownloadLabel => T("New download");
     public string SettingsLabel => T("Settings");
+    public string ContactLabel => T("Contact");
+    public string EmailLabel => T("Email");
     public string VideoKindLabel => T("Video");
     public string AudioKindLabel => T("Audio");
     public string ContainerLabel => T("Format");
