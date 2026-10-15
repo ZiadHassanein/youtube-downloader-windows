@@ -90,7 +90,7 @@ public partial class MainWindow : Window
         Grid.SetRow(DownloadForm, compact && showContext ? 1 : 0);
         ContextPane.Visibility = showContext ? Visibility.Visible : Visibility.Collapsed;
         DownloadForm.Visibility = compact && model.SettingsVisible ? Visibility.Collapsed : Visibility.Visible;
-        DownloadForm.MaxWidth = showContext ? double.PositiveInfinity : 820;
+        ContextPane.MaxWidth = compact ? DownloadForm.MaxWidth : double.PositiveInfinity;
         MediaPreview.SetCompact(compact);
         MediaPreview.Visibility = model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
     }

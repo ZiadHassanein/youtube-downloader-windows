@@ -1,7 +1,7 @@
 <Window x:Class="YouTubeDownloader.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader"
  Title="ViFree" Icon="pack://application:,,,/ViFree;component/Assets/app.ico"
- Width="960" Height="800" MinWidth="820" MinHeight="500" WindowStartupLocation="CenterScreen"
+ Width="740" Height="800" MinWidth="660" MinHeight="500" WindowStartupLocation="CenterScreen"
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{StaticResource LatinFont}" FontSize="14"
  UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight"
  TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight">
@@ -12,7 +12,7 @@
    <Grid x:Name="PageContent" FlowDirection="{Binding ContentDirection}" MinHeight="{Binding ViewportHeight,ElementName=Viewport}">
     <Grid.ColumnDefinitions><ColumnDefinition Width="55*"/><ColumnDefinition Width="45*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <local:DownloadFormView x:Name="DownloadForm" VerticalAlignment="Top"/>
+    <local:DownloadFormView x:Name="DownloadForm" MaxWidth="620" VerticalAlignment="Top"/>
     <Grid x:Name="ContextPane" Grid.Column="1">
      <local:MediaPreviewView x:Name="MediaPreview"/>
      <local:SettingsView x:Name="SettingsPane" Visibility="{Binding SettingsVisible,Converter={StaticResource BoolVisibility}}"/>

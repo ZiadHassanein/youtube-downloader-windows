@@ -67,7 +67,7 @@
    </Button>
    <Button Grid.Column="1" Content="{Binding QueueLabel}" Command="{Binding QueueCommand}" Style="{StaticResource QuietButton}" FontSize="12" Padding="8,6" MinHeight="36"/>
   </Grid>
-  <Button x:Name="DownloadButton" Command="{Binding DownloadCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Stretch" AutomationProperties.Name="{Binding DownloadLabel}">
+  <Button x:Name="DownloadButton" Command="{Binding DownloadCommand}" Style="{StaticResource PrimaryButton}" Width="280" HorizontalAlignment="Left" AutomationProperties.Name="{Binding DownloadLabel}">
    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource OnAccent}" Margin="0,0,10,0"/><TextBlock Text="{Binding DownloadLabel}" Foreground="{DynamicResource OnAccent}" FontSize="17" FontWeight="SemiBold"/></StackPanel>
   </Button>
   <local:DownloadActivityView x:Name="InlineActivity" Visibility="{Binding ShowInlineActivity,Converter={StaticResource BoolVisibility}}" Margin="0,20,0,0"/>

@@ -18,11 +18,12 @@ internal static partial class Program
         var actions = (FrameworkElement)WpfTree.Find(window, "HeaderActions");
         var language = (Button)WpfTree.Find(window, "LanguageButton");
         var settings = (Button)WpfTree.Find(window, "SettingsButton");
+        double startupWidth = window.Width;
         model.Audio = true;
         model.SelectedQuality = model.Qualities.First(q => q.Bitrate == 320);
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
-                foreach (double width in new[] { 820d, 960d, 1160d })
+                foreach (double width in new[] { window.MinWidth, startupWidth, 1160d })
                 {
                     model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -37,7 +38,7 @@ internal static partial class Program
                         "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
                     Check(Equals(((TextBlock)brand).Foreground, Application.Current.Resources["Ink"]) && ((TextBlock)brand).FontWeight == FontWeights.Bold,
                         "The wordmark keeps the reference's strong readable treatment across themes");
-                    string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == 960 ? "-default" : width < 1000 ? "-compact" : "-wide");
+                    string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
                     language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     await Task.Delay(300);
@@ -75,7 +76,7 @@ internal static partial class Program
                     CapturePopup(page, popup, System.IO.Path.Combine(captures, "language-placement-" + variant + ".png"));
                     if (width < 1000) CaptureVisual(popup.RootVisual, System.IO.Path.Combine(captures, "language-" + variant + ".png"), client.Right, client.Bottom);
                     var next = choices.Single(c => (string)c.CommandParameter == (arabic ? "en" : "ar"));
-                    if (width == 960)
+                    if (width == startupWidth)
                     {
                         next.Focus();
                         await Task.Delay(80);

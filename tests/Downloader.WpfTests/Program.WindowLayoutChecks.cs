@@ -11,6 +11,7 @@ internal static partial class Program
         model.Audio = false;
         model.Url = "";
         double startupWidth = window.Width;
+        Check(startupWidth == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
         double normalHeight = Math.Min(800, window.CurrentWorkArea().Height - 16);
         window.Height = normalHeight;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
@@ -50,8 +51,27 @@ internal static partial class Program
                 Math.Abs(((FrameworkElement)WpfTree.Find(window, "PageContent")).MinHeight - viewport.ViewportHeight) <= 1,
                 "The footer stays outside the scrolling content and the workspace fills its viewport");
         }
+        void CompactFormFits(string state)
+        {
+            var root = (FrameworkElement)WpfTree.Find(window, "Root");
+            Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
+            var formBounds = Bounds(form);
+            var fields = Bounds((FrameworkElement)WpfTree.Find(window, "FolderAnchor"));
+            var action = Bounds(download);
+            var brand = Bounds((FrameworkElement)WpfTree.Find(window, "BrandWordmark"));
+            var utilities = Bounds((FrameworkElement)WpfTree.Find(window, "HeaderActions"));
+            Check(form.ActualWidth <= 621 && Math.Abs(download.ActualWidth - 280) <= 1 &&
+                Math.Abs(model.IsArabic ? action.Right - fields.Right : action.Left - fields.Left) <= 1 &&
+                anchors.All(name => { var bounds = Bounds((FrameworkElement)WpfTree.Find(window, name));
+                    return bounds.Left >= fields.Left - 1 && bounds.Right <= fields.Right + 1; }) &&
+                ((FrameworkElement)WpfTree.Find(window, "LinkInput")).ActualWidth >= 200 &&
+                ((FrameworkElement)WpfTree.Find(window, "QualityInput")).ActualWidth >= 140 &&
+                brand.Right < utilities.Left && utilities.Right <= root.ActualWidth - 23,
+                "The bounded form, shorter Download action and full header fit in " + state +
+                $" (form={formBounds}, action={action}, arabic={model.IsArabic}, brand={brand}, utilities={utilities}, root={root.RenderSize}, anchors={string.Join(';', anchors.Select(name => name + '=' + Bounds((FrameworkElement)WpfTree.Find(window, name))))})");
+        }
 
-        foreach (double width in new[] { startupWidth, 1160d, 820d }.Distinct())
+        foreach (double width in new[] { startupWidth, 1160d, window.MinWidth }.Distinct())
             foreach (bool dark in new[] { false, true })
             {
                 window.Width = width;
@@ -67,6 +87,7 @@ internal static partial class Program
                     await Language(language, "empty" + variant);
                     Check(Rows().Zip(emptyRows).All(pair => Math.Abs(pair.First - pair.Second) <= 1),
                         "Form rows keep their vertical positions after repeated language changes: " + language + variant);
+                    CompactFormFits("empty " + language + variant);
                     Capture(window, System.IO.Path.Combine(captures, "layout-empty-" + language + variant + ".png"));
                     Check(viewport.ScrollableHeight <= 1 && download.TranslatePoint(new Point(0, download.ActualHeight), viewport).Y <= viewport.ActualHeight + 1,
                         "The complete idle form and Download action fit at the default height: " + language + variant +
@@ -86,6 +107,7 @@ internal static partial class Program
                     window.UpdateLayout();
                     Check(Rows().Zip(loadedRows).All(pair => Math.Abs(pair.First - pair.Second) <= 1),
                         "Loaded form rows stay aligned in both languages: " + language + variant);
+                    CompactFormFits("video " + language + variant);
                     Capture(window, System.IO.Path.Combine(captures, "layout-video-" + language + variant + ".png"));
                 }
 
@@ -98,6 +120,7 @@ internal static partial class Program
                     var bounds = download.TransformToAncestor(viewport).TransformBounds(new Rect(download.RenderSize));
                     Check(model.HasPlaylist && bounds.Top >= 0 && bounds.Bottom <= viewport.ActualHeight + 1,
                         "Playlist overflow scrolls internally and keeps Download reachable: " + language + variant);
+                    CompactFormFits("playlist " + language + variant);
                     viewport.ScrollToTop();
                     window.UpdateLayout();
                     Capture(window, System.IO.Path.Combine(captures, "layout-playlist-" + language + variant + ".png"));
@@ -108,7 +131,7 @@ internal static partial class Program
                 await Stable(() => { model.SettingsVisible = false; return Task.CompletedTask; }, "closing Settings" + variant);
             }
 
-        window.Width = 820;
+        window.Width = window.MinWidth;
         window.Height = 540;
         await Settle();
         foreach (string language in new[] { "en", "ar" })
@@ -145,7 +168,7 @@ internal static partial class Program
         }
         try
         {
-            foreach (double width in new[] { 1160d, 820d })
+            foreach (double width in new[] { 1160d, window.MinWidth })
                 foreach (string language in new[] { "en", "ar" })
                 {
                     window.Width = width;
