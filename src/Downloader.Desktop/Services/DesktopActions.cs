@@ -122,10 +122,28 @@ public sealed partial class DesktopActions
         {
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
-            Foreground = (Brush)Application.Current.Resources["Ink"]
+            Foreground = (Brush)Application.Current.Resources["Ink"],
+            HorizontalContentAlignment = HorizontalAlignment.Stretch
         };
+        ScrollViewer.SetHorizontalScrollBarVisibility(list, ScrollBarVisibility.Disabled);
+        ScrollViewer.SetVerticalScrollBarVisibility(list, ScrollBarVisibility.Auto);
+        list.Resources.Add(typeof(ScrollViewer), Application.Current.Resources["VerticalScrollFrame"]);
         foreach (string file in history.Take(5))
-            list.Items.Add(new ListBoxItem { Content = new StackPanel { Children = { new TextBlock { Text = Path.GetFileName(file), FontWeight = FontWeights.SemiBold }, new TextBlock { Text = file, Foreground = (Brush)Application.Current.Resources["Muted"], TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 5, 0, 0) } } }, Tag = file, Padding = new Thickness(10), ToolTip = file });
+            list.Items.Add(new ListBoxItem
+            {
+                Content = new StackPanel
+                {
+                    Children =
+                    {
+                        new TextBlock { Text = Path.GetFileName(file), FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap },
+                        new TextBlock { Text = file, Foreground = (Brush)Application.Current.Resources["Muted"], TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap, Margin = new Thickness(0, 5, 0, 0), FlowDirection = FlowDirection.LeftToRight }
+                    }
+                },
+                Tag = file,
+                Padding = new Thickness(10),
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                ToolTip = file
+            });
         if (list.Items.Count == 0)
             grid.Children.Add(new TextBlock { Text = t("Your completed downloads will appear here."), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
         else

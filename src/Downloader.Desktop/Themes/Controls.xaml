@@ -224,12 +224,12 @@
         <ControlTemplate TargetType="ScrollBar">
           <Grid Background="Transparent">
           <Border x:Name="Rail" Width="8" Background="{DynamicResource Hover}" CornerRadius="4" Opacity="0"/>
-          <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}">
+          <Track x:Name="PART_Track" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}">
             <Track.DecreaseRepeatButton>
-              <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" />
+              <RepeatButton x:Name="DecreasePage" Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" />
             </Track.DecreaseRepeatButton>
             <Track.Thumb>
-              <Thumb MinHeight="28">
+              <Thumb x:Name="ScrollThumb" MinHeight="28">
                 <Thumb.Template>
                   <ControlTemplate TargetType="Thumb">
                     <Grid Background="Transparent">
@@ -238,22 +238,60 @@
                     <ControlTemplate.Triggers>
                       <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Handle" Property="Width" Value="8"/><Setter TargetName="Handle" Property="Background" Value="{DynamicResource Accent}"/></Trigger>
                       <Trigger Property="IsDragging" Value="True"><Setter TargetName="Handle" Property="Width" Value="8"/><Setter TargetName="Handle" Property="Background" Value="{DynamicResource Accent}"/></Trigger>
+                      <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="Horizontal">
+                        <Setter TargetName="Handle" Property="Width" Value="Auto"/>
+                        <Setter TargetName="Handle" Property="Height" Value="4"/>
+                        <Setter TargetName="Handle" Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter TargetName="Handle" Property="VerticalAlignment" Value="Center"/>
+                        <Setter TargetName="Handle" Property="Margin" Value="2,0"/>
+                      </DataTrigger>
+                      <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                          <Condition Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="Horizontal"/>
+                          <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
+                        </MultiDataTrigger.Conditions>
+                        <Setter TargetName="Handle" Property="Height" Value="8"/>
+                      </MultiDataTrigger>
+                      <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                          <Condition Binding="{Binding Orientation, RelativeSource={RelativeSource AncestorType=ScrollBar}}" Value="Horizontal"/>
+                          <Condition Binding="{Binding IsDragging, RelativeSource={RelativeSource TemplatedParent}}" Value="True"/>
+                        </MultiDataTrigger.Conditions>
+                        <Setter TargetName="Handle" Property="Height" Value="8"/>
+                      </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                   </ControlTemplate>
                 </Thumb.Template>
               </Thumb>
             </Track.Thumb>
             <Track.IncreaseRepeatButton>
-              <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" />
+              <RepeatButton x:Name="IncreasePage" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" />
             </Track.IncreaseRepeatButton>
           </Track>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Rail" Property="Opacity" Value="1"/></Trigger>
+            <Trigger Property="Orientation" Value="Horizontal">
+              <Setter TargetName="Rail" Property="Width" Value="Auto"/>
+              <Setter TargetName="Rail" Property="Height" Value="8"/>
+              <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+              <Setter TargetName="ScrollThumb" Property="MinHeight" Value="0"/>
+              <Setter TargetName="ScrollThumb" Property="MinWidth" Value="28"/>
+              <Setter TargetName="DecreasePage" Property="Command" Value="ScrollBar.PageLeftCommand"/>
+              <Setter TargetName="IncreasePage" Property="Command" Value="ScrollBar.PageRightCommand"/>
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Style.Triggers>
+      <Trigger Property="Orientation" Value="Horizontal">
+        <Setter Property="Width" Value="Auto"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="MinHeight" Value="16"/>
+      </Trigger>
+    </Style.Triggers>
   </Style>
   <Style TargetType="ScrollBar" BasedOn="{StaticResource WorkspaceScrollBar}"/>
   <Style x:Key="VerticalScrollFrame" TargetType="ScrollViewer">
