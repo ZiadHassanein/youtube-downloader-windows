@@ -145,6 +145,10 @@ namespace YouTubeDownloader
                 "فتح الملف"
             },
             {
+                "Show in folder",
+                "عرض الملف في المجلد"
+            },
+            {
                 "No newer app release is available.",
                 "لا يتوفر إصدار أحدث من التطبيق."
             },
