@@ -1,14 +1,14 @@
-# ViFree 4.1.0 Preview 24
+# ViFree 4.1.0 Preview 25
 
-Unreleased preview with automatic maintenance and clearer Recent downloads. Stable remains 4.0.0; owner testing is pending.
+Unreleased preview with silent native animations. Stable remains 4.0.0; owner testing is pending.
 
 Extract the ZIP and open **ViFree.exe**. Its runtime is bundled. Missing media tools download automatically on the first link; internet is required. No account, API key, paid service or manual setup is needed. Preview data stays separate; pending queue links are not saved. App-version updates are disabled.
 
 Try:
 
-- Paste a public video or playlist. Check preparation, output choices, download/cancel and queue recovery.
-- Check both languages/themes, the centered Download button and «تنزيل فيديو جديد».
-- Open Recent downloads: check folder actions, long names, missing-file feedback and scrolling.
-- Open Settings. Downloader/Deno checks run daily when a link is used. Compatible failures receive one changed-tool retry with rollback; explicit checking remains available.
+- Click the logo to replay its light pass. Hover buttons and switch themes.
+- Download a public video: the arrow moves once, real progress fills the button, and success becomes Show in folder. Cancel remains beneath the active button.
+- Add a link to the queue. Check its brief confirmation, both languages and Windows' animation-off setting.
+- Check Recent downloads, output options, playlist/queue recovery and automatic tool maintenance.
 
-Validation passed: the full suite, including 1,451 WPF and 45 maintenance checks; 106 final history checks; 58 actual audio profiles; automatic first-use acquisition; live YouTube; single-ZIP, browser-host and EXE-only startup checks. Vimeo's test link required sign-in. Clean Windows 10/11 and actual extension loading remain unverified. Nothing is merged or published.
+Validation passed: 1,526 WPF checks, 78 final motion checks, core/media/update/browser checks, single-ZIP validation and EXE-only bundled startup. Previous live-media evidence is retained; it was not rerun for this UI change. Clean Windows 10/11 and actual extension loading remain unverified. Nothing is merged or published.
