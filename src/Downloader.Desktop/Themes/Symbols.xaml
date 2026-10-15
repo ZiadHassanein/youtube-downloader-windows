@@ -15,9 +15,9 @@
   <Geometry x:Key="ChevronIcon">M2,5 L9,12 16,5</Geometry>
   <Geometry x:Key="PlayMark">F0 M17,4 C12,1 7,4 7,10 L7,54 C7,60 12,63 17,60 L57,37 C64,33 64,29 57,25 Z M7,46 L24,36 C27,34 30,38 27,40 L7,53 Z</Geometry>
   <LinearGradientBrush x:Key="BrandFill" StartPoint="0,0" EndPoint="1,0.7">
-    <GradientStop Color="#4D89FF" Offset="0"/>
-    <GradientStop Color="#2860FF" Offset="0.55"/>
-    <GradientStop Color="#2458E8" Offset="1"/>
+    <GradientStop Color="#38BEA5" Offset="0"/>
+    <GradientStop Color="#129E86" Offset="0.55"/>
+    <GradientStop Color="#087564" Offset="1"/>
   </LinearGradientBrush>
   <Style x:Key="LineIcon" TargetType="Path">
     <Setter Property="Width" Value="18"/>

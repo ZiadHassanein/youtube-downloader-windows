@@ -9,7 +9,7 @@
     <Grid>
      <Path Data="{StaticResource PlayMark}" Fill="{DynamicResource Muted}" Width="48" Height="48" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
      <Image x:Name="ThumbnailImage" Source="{Binding PreviewImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding PreviewTitle}"/>
-     <Border Background="#D9122340" CornerRadius="5" Padding="7,4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Visibility="{Binding HasPreviewDuration,Converter={StaticResource BoolVisibility}}">
+     <Border x:Name="DurationBadge" Background="#E6171C20" CornerRadius="5" Padding="7,4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Visibility="{Binding HasPreviewDuration,Converter={StaticResource BoolVisibility}}">
       <TextBlock Text="{Binding PreviewDuration}" FontFamily="{StaticResource LatinFont}" Foreground="White" FontSize="12" FlowDirection="LeftToRight"/>
      </Border>
     </Grid>

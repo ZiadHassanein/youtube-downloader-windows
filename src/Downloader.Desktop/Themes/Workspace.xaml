@@ -4,23 +4,35 @@
  </Style>
  <Style x:Key="FormatSegment" TargetType="RadioButton">
   <Setter Property="MinHeight" Value="46"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+  <Setter Property="Background" Value="{DynamicResource Field}"/><Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
   <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
   <Setter Property="Template"><Setter.Value>
    <ControlTemplate TargetType="RadioButton">
-    <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="12,8">
+    <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,8">
      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Border>
     <ControlTemplate.Triggers>
-     <Trigger Property="IsChecked" Value="True">
-      <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/>
+     <MultiTrigger><MultiTrigger.Conditions><Condition Property="IsMouseOver" Value="True"/><Condition Property="IsChecked" Value="False"/></MultiTrigger.Conditions>
       <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
-      <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="FontWeight" Value="SemiBold"/>
-     </Trigger>
-     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+     </MultiTrigger>
      <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderThickness" Value="2"/><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
      <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
     </ControlTemplate.Triggers>
    </ControlTemplate>
   </Setter.Value></Setter>
+  <Style.Triggers>
+   <Trigger Property="IsChecked" Value="True">
+    <Setter Property="Background" Value="{DynamicResource Selected}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+    <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="FontWeight" Value="SemiBold"/>
+   </Trigger>
+  </Style.Triggers>
+ </Style>
+ <Style x:Key="AudioFormatSegment" TargetType="RadioButton" BasedOn="{StaticResource FormatSegment}">
+  <Style.Triggers>
+   <Trigger Property="IsChecked" Value="True">
+    <Setter Property="Background" Value="{DynamicResource AudioSelected}"/><Setter Property="BorderBrush" Value="{DynamicResource AudioAccent}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AudioAccent}"/>
+   </Trigger>
+  </Style.Triggers>
  </Style>
 </ResourceDictionary>

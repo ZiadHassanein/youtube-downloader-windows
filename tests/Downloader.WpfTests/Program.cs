@@ -41,6 +41,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--palette"))
+                {
+                    await CheckPalette(window, model, captures);
+                    Console.WriteLine(count + " WPF palette checks passed.");
+                    return;
+                }
                 if (args.Contains("--footer"))
                 {
                     await CheckFooter(window, model, captures);
@@ -139,6 +145,7 @@ internal static partial class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
+                await CheckPalette(window, model, captures);
                 await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
                 await CheckFooter(window, model, captures);
                 await CheckHeader(window, model, captures);

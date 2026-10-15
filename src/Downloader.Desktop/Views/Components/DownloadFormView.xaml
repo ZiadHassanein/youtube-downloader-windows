@@ -27,11 +27,11 @@
   </StackPanel>
   <TextBlock Text="{Binding FormatLabel}" Style="{StaticResource SectionLabel}"/>
   <UniformGrid Columns="2" Margin="0,0,0,16">
-   <RadioButton IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoKindLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoKindLabel}"/></StackPanel>
+   <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoKindLabel}">
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoKindLabel}"/></StackPanel>
    </RadioButton>
-   <RadioButton IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioKindLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioKindLabel}"/></StackPanel>
+   <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource AudioFormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioKindLabel}">
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource AudioAccent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioKindLabel}"/></StackPanel>
    </RadioButton>
   </UniformGrid>
   <Grid Margin="0,0,0,10">
