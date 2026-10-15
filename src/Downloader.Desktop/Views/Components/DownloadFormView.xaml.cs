@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace YouTubeDownloader;
 
@@ -37,6 +38,9 @@ public partial class DownloadFormView : UserControl
     {
         if (DataContext is not MainViewModel { IsIdle: true } model) return false;
         model.Audio = true;
+        // A reused native popup can retain its previous language while it is detached.
+        AudioFormatMenu.SetCurrentValue(FlowDirectionProperty, model.ContentDirection);
+        AudioFormatMenu.SetCurrentValue(FontFamilyProperty, model.ContentFont);
         AudioFormatMenu.Items.Clear();
         foreach (var choice in model.Encodings)
         {
@@ -61,9 +65,16 @@ public partial class DownloadFormView : UserControl
     private CustomPopupPlacement[] PlaceAudioMenu(Size popup, Size target, Point offset)
     {
         var client = (FrameworkElement)Window.GetWindow(this).Content;
-        double top = AudioChoice.TranslatePoint(new Point(), client).Y;
-        double y = top + target.Height + 6 + popup.Height <= client.ActualHeight - 8 ? target.Height + 6 : -popup.Height - 6;
-        y = Math.Clamp(y, 8 - top, Math.Max(8 - top, client.ActualHeight - top - popup.Height - 8));
-        return new[] { new CustomPopupPlacement(new Point((target.Width - popup.Width) / 2, y), PopupPrimaryAxis.None) };
+        var origin = AudioChoice.PointToScreen(new Point());
+        var anchor = new Rect(origin, AudioChoice.PointToScreen(new Point(AudioChoice.ActualWidth, AudioChoice.ActualHeight)));
+        var frame = new Rect(client.PointToScreen(new Point()), client.PointToScreen(new Point(client.ActualWidth, client.ActualHeight)));
+        var dpi = VisualTreeHelper.GetDpi(client);
+        double insetX = 8 * dpi.DpiScaleX, insetY = 8 * dpi.DpiScaleY, gap = 6 * dpi.DpiScaleY;
+        double x = Math.Clamp(anchor.Left + (anchor.Width - popup.Width) / 2, frame.Left + insetX,
+            Math.Max(frame.Left + insetX, frame.Right - popup.Width - insetX));
+        double y = anchor.Bottom + gap + popup.Height <= frame.Bottom - insetY ? anchor.Bottom + gap : anchor.Top - popup.Height - gap;
+        y = Math.Clamp(y, frame.Top + insetY, Math.Max(frame.Top + insetY, frame.Bottom - popup.Height - insetY));
+        // WPF custom placement uses screen pixels, and the target origin is its right edge in RTL.
+        return new[] { new CustomPopupPlacement(new Point(x - origin.X, y - origin.Y), PopupPrimaryAxis.None) };
     }
 }

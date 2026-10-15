@@ -97,6 +97,7 @@ public partial class MainWindow : Window
 
     private static void ResetDropDowns(DependencyObject parent)
     {
+        if (parent is FrameworkElement { ContextMenu: { } menu }) menu.IsOpen = false;
         if (parent is ComboBox combo)
         {
             // WPF can retain the old popup HWND's height after inherited font/direction changes.

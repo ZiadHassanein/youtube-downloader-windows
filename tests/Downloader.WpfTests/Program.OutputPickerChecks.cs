@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using YouTubeDownloader;
 
 internal static partial class Program
@@ -12,6 +14,7 @@ internal static partial class Program
     private static async Task CheckOutputPicker(Window window, MainViewModel model, string captures)
     {
         double originalWidth = window.Width;
+        double originalHeight = window.Height;
         bool originalAudio = model.Audio, originalArabic = model.IsArabic, originalDark = model.IsDark;
         var originalEncoding = model.SelectedEncoding;
         string originalUrl = model.Url;
@@ -45,7 +48,7 @@ internal static partial class Program
                             "Quality and More options share a usable row without a format dropdown in " + variant);
                         var sizeBefore = window.RenderSize;
                         audio.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-                        await Task.Delay(100);
+                        await Task.Delay(300);
                         var choices = menu.Items.OfType<MenuItem>().ToArray();
                         Check(model.Audio && menu.IsOpen && !menu.StaysOpen && choices.Length == 5 && choices.Count(item => item.IsChecked) == 1,
                             "Activating Audio opens its five-format light-dismiss picker in " + variant);
@@ -57,6 +60,15 @@ internal static partial class Program
                         Check(popupBounds.Left >= Math.Min(clientStart.X, clientEnd.X) - 1 && popupBounds.Right <= Math.Max(clientStart.X, clientEnd.X) + 1 &&
                             popupBounds.Top >= clientStart.Y - 1 && popupBounds.Bottom <= clientEnd.Y + 1 && choices.All(item => item.ActualHeight >= 40),
                             "The audio picker and all format targets stay inside the app client in " + variant);
+                        CaptureAudioPopup(client, source, System.IO.Path.Combine(captures, "audio-placement-" + variant + ".png"));
+                        var audioStart = audio.PointToScreen(new Point());
+                        var audioEnd = audio.PointToScreen(new Point(audio.ActualWidth, audio.ActualHeight));
+                        double audioCenter = (audioStart.X + audioEnd.X) / 2;
+                        double popupCenter = (popupBounds.Left + popupBounds.Right) / 2d;
+                        Check(Math.Abs(popupCenter - audioCenter) <= 3,
+                            $"The format popup stays centered on Audio in {variant} (audio={audioCenter}, popup={popupCenter})");
+                        Check(menu.FlowDirection == model.ContentDirection && choices.All(item => item.FlowDirection == model.ContentDirection),
+                            "The menu and its choices use the current language direction in " + variant);
                         Capture(window, System.IO.Path.Combine(captures, "output-row-" + variant + ".png"));
                         GetClientRect(source.Handle, out var native);
                         CaptureVisual(source.RootVisual, System.IO.Path.Combine(captures, "audio-formats-" + variant + ".png"), native.Right, native.Bottom);
@@ -107,6 +119,62 @@ internal static partial class Program
                         CaptureVisual(popupSource.RootVisual, System.IO.Path.Combine(captures, "audio-qualities-" + variant + ".png"), native.Right, native.Bottom);
                         quality.IsDropDownOpen = false;
                     }
+            model.Url = "";
+            window.Width = 960;
+            model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
+            model.Audio = true;
+            model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
+            foreach (bool dark in new[] { false, true })
+            {
+                menu.IsOpen = false;
+                if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                int step = 0;
+                foreach (string language in new[] { "en", "ar", "en", "ar" })
+                {
+                    bool wasOpen = menu.IsOpen;
+                    model.SelectLanguageCommand.Execute(language);
+                    await Task.Delay(80);
+                    Check(!wasOpen || !menu.IsOpen, "Switching language dismisses the old format popup");
+                    audio.BringIntoView();
+                    audio.Focus();
+                    audio.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(audio), Environment.TickCount, Key.Down)
+                    { RoutedEvent = Keyboard.PreviewKeyDownEvent });
+                    await Task.Delay(300);
+                    var source = (HwndSource)PresentationSource.FromVisual(menu);
+                    GetWindowRect(source.Handle, out var bounds);
+                    var first = audio.PointToScreen(new Point());
+                    var last = audio.PointToScreen(new Point(audio.ActualWidth, audio.ActualHeight));
+                    Check(menu.IsOpen && Math.Abs((bounds.Left + bounds.Right - first.X - last.X) / 2) <= 3 &&
+                        menu.FlowDirection == model.ContentDirection && menu.Items.OfType<MenuItem>().All(item => item.FlowDirection == model.ContentDirection) &&
+                        model.SelectedQuality.Bitrate == 128,
+                        $"The keyboard-opened popup follows Audio and retains quality after language switch {language} (open={menu.IsOpen}, centerDelta={(bounds.Left + bounds.Right - first.X - last.X) / 2}, direction={menu.FlowDirection}/{model.ContentDirection}, rows={string.Join(',', menu.Items.OfType<MenuItem>().Select(item => item.FlowDirection))}, bitrate={model.SelectedQuality.Bitrate})");
+                    CaptureAudioPopup((FrameworkElement)window.Content, source, System.IO.Path.Combine(captures,
+                        "audio-switch-" + language + (dark ? "-dark-" : "-light-") + step++ + ".png"));
+                }
+            }
+            menu.IsOpen = false;
+            window.Height = 500;
+            foreach (string language in new[] { "en", "ar" })
+            {
+                model.SelectLanguageCommand.Execute(language);
+                await Task.Delay(80);
+                audio.BringIntoView();
+                await Task.Delay(80);
+                audio.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+                await Task.Delay(300);
+                var source = (HwndSource)PresentationSource.FromVisual(menu);
+                GetWindowRect(source.Handle, out var bounds);
+                var client = (FrameworkElement)window.Content;
+                var top = client.PointToScreen(new Point());
+                var bottom = client.PointToScreen(new Point(client.ActualWidth, client.ActualHeight));
+                var first = audio.PointToScreen(new Point());
+                var last = audio.PointToScreen(new Point(audio.ActualWidth, audio.ActualHeight));
+                Check(Math.Abs((bounds.Left + bounds.Right - first.X - last.X) / 2) <= 3 &&
+                    bounds.Left >= top.X && bounds.Right <= bottom.X && bounds.Top >= top.Y && bounds.Bottom <= bottom.Y,
+                    "The audio popup stays attached and contained when space below is limited in " + language);
+                CaptureAudioPopup(client, source, System.IO.Path.Combine(captures, "audio-short-" + language + ".png"));
+                menu.IsOpen = false;
+            }
         }
         finally
         {
@@ -118,7 +186,36 @@ internal static partial class Program
             model.SelectLanguageCommand.Execute(originalArabic ? "ar" : "en");
             if (model.IsDark != originalDark) model.ThemeCommand.Execute(null);
             window.Width = originalWidth;
+            window.Height = originalHeight;
             window.Activate();
         }
+    }
+
+    private static void CaptureAudioPopup(FrameworkElement client, HwndSource popup, string path)
+    {
+        GetWindowRect(popup.Handle, out var bounds);
+        var origin = client.PointToScreen(new Point());
+        var dpi = VisualTreeHelper.GetDpi(client);
+        var background = new RenderTargetBitmap((int)Math.Ceiling(client.ActualWidth * dpi.DpiScaleX),
+            (int)Math.Ceiling(client.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        background.Render(Window.GetWindow(client));
+        var overlay = new RenderTargetBitmap(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top,
+            dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        overlay.Render(popup.RootVisual);
+        var visual = new DrawingVisual();
+        using (var drawing = visual.RenderOpen())
+        {
+            drawing.DrawImage(background, new Rect(client.RenderSize));
+            drawing.DrawImage(overlay,
+                new Rect((bounds.Left - origin.X) / dpi.DpiScaleX, (bounds.Top - origin.Y) / dpi.DpiScaleY,
+                    (bounds.Right - bounds.Left) / dpi.DpiScaleX, (bounds.Bottom - bounds.Top) / dpi.DpiScaleY));
+        }
+        var bitmap = new RenderTargetBitmap((int)Math.Ceiling(client.ActualWidth * dpi.DpiScaleX),
+            (int)Math.Ceiling(client.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using var stream = System.IO.File.Create(path);
+        encoder.Save(stream);
     }
 }

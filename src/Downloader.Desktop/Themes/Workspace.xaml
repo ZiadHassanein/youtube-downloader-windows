@@ -34,7 +34,7 @@
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
    <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="12,8">
     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/></Grid.ColumnDefinitions>
-     <Path x:Name="Check" Data="{DynamicResource CheckIcon}" Style="{DynamicResource LineIcon}" Stroke="{DynamicResource Accent}" Width="14" Height="14" Visibility="Hidden"/>
+     <Path x:Name="Check" Data="{DynamicResource CheckIcon}" Style="{DynamicResource LineIcon}" Stroke="{DynamicResource Accent}" Width="14" Height="14" FlowDirection="LeftToRight" Visibility="Hidden"/>
      <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="8,0" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
     </Grid>
    </Border>
