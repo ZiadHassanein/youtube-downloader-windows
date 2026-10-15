@@ -53,6 +53,12 @@ internal static partial class Program
                     Console.WriteLine(count + " WPF overlay-scroll checks passed.");
                     return;
                 }
+                if (args.Contains("--dropdown-scroll"))
+                {
+                    await CheckDropdownScrolling(window, model, captures);
+                    Console.WriteLine(count + " WPF dropdown-scroll checks passed.");
+                    return;
+                }
                 if (args.Contains("--queue-window"))
                 {
                     await CheckQueueWindow(window, model, provider, captures);

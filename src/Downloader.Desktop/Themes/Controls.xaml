@@ -198,7 +198,7 @@
             <Border x:Name="FocusBorder" CornerRadius="8" BorderBrush="Transparent" BorderThickness="2" IsHitTestVisible="False" />
             <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="None">
               <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260">
-                <ScrollViewer CanContentScroll="False" Style="{DynamicResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer CanContentScroll="False" Style="{DynamicResource DropdownScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                   <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                 </ScrollViewer>
               </Border>
@@ -317,5 +317,11 @@
   </Style>
   <Style x:Key="InsetScrollFrame" TargetType="ScrollViewer" BasedOn="{StaticResource VerticalScrollFrame}">
     <Style.Resources><Thickness x:Key="OverlayScrollBarMargin">-20,4,-20,4</Thickness></Style.Resources>
+  </Style>
+  <Style x:Key="DropdownScrollFrame" TargetType="ScrollViewer" BasedOn="{StaticResource VerticalScrollFrame}">
+    <Setter Property="Padding" Value="0,0,20,0"/>
+    <Style.Triggers>
+      <Trigger Property="FlowDirection" Value="RightToLeft"><Setter Property="Padding" Value="20,0,0,0"/></Trigger>
+    </Style.Triggers>
   </Style>
 </ResourceDictionary>
