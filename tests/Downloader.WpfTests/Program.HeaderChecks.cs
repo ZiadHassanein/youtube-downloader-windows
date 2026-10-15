@@ -2,6 +2,8 @@ using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -20,7 +22,7 @@ internal static partial class Program
         model.SelectedQuality = model.Qualities.First(q => q.Bitrate == 320);
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
-                foreach (double width in new[] { 820d, 1160d })
+                foreach (double width in new[] { 820d, 960d, 1160d })
                 {
                     model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
@@ -35,28 +37,92 @@ internal static partial class Program
                         "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
                     Check(Equals(((TextBlock)brand).Foreground, Application.Current.Resources["Ink"]) && ((TextBlock)brand).FontWeight == FontWeights.Bold,
                         "The wordmark keeps the reference's strong readable treatment across themes");
-                    string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width < 1000 ? "-compact" : "-wide");
+                    string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == 960 ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
                     language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                    await Task.Delay(120);
+                    await Task.Delay(300);
                     var menu = language.ContextMenu;
                     var choices = menu.Items.OfType<MenuItem>().ToArray();
                     Check(menu.IsOpen && ReferenceEquals(menu.DataContext, model) && choices.Count(c => c.IsChecked) == 1 &&
                         (string)choices.Single(c => c.IsChecked).CommandParameter == (arabic ? "ar" : "en"),
-                        "The language menu opens and identifies the current language");
+                        $"The language menu opens and identifies the current language in {variant} (open={menu.IsOpen}, context={ReferenceEquals(menu.DataContext, model)}, checked={string.Join(',', choices.Where(choice => choice.IsChecked).Select(choice => choice.CommandParameter))})");
                     var popup = (HwndSource)PresentationSource.FromVisual(menu);
                     GetClientRect(popup.Handle, out var client);
                     var nativeSize = popup.CompositionTarget.TransformFromDevice.Transform(new Vector(client.Right, client.Bottom));
                     Check(choices.All(c => c.IsVisible && c.ActualHeight >= 40) && menu.ActualWidth <= nativeSize.X + 1 && menu.ActualHeight <= nativeSize.Y + 1,
                         "Both language choices fit their actual native popup");
+                    GetWindowRect(popup.Handle, out var screen);
+                    var start = language.PointToScreen(new Point());
+                    var end = language.PointToScreen(new Point(language.ActualWidth, language.ActualHeight));
+                    var page = (FrameworkElement)window.Content;
+                    var pageStart = page.PointToScreen(new Point());
+                    var pageEnd = page.PointToScreen(new Point(page.ActualWidth, page.ActualHeight));
+                    double gap = 6 * VisualTreeHelper.GetDpi(language).DpiScaleY;
+                    Check(Math.Abs((screen.Left + screen.Right - start.X - end.X) / 2) <= 3 &&
+                        Math.Abs(screen.Top - end.Y - gap) <= 2 && screen.Left >= pageStart.X && screen.Right <= pageEnd.X && screen.Bottom <= pageEnd.Y,
+                        "The language menu is centered under its control with a consistent gap inside the app in " + variant);
+                    Check(Math.Abs(menu.ActualWidth - 160) < 1 && menu.ActualHeight <= 100 &&
+                        choices.All(choice => Math.Abs(choice.ActualHeight - 40) < 1),
+                        "The language menu uses equal compact rows without font-dependent height in " + variant);
+                    Check(menu.FlowDirection == model.ContentDirection && choices.All(choice => choice.FlowDirection == model.ContentDirection),
+                        "The language menu uses the current direction after reuse in " + variant);
+                    CapturePopup(page, popup, System.IO.Path.Combine(captures, "language-placement-" + variant + ".png"));
                     if (width < 1000) CaptureVisual(popup.RootVisual, System.IO.Path.Combine(captures, "language-" + variant + ".png"), client.Right, client.Bottom);
                     var next = choices.Single(c => (string)c.CommandParameter == (arabic ? "en" : "ar"));
+                    if (width == 960)
+                    {
+                        next.Focus();
+                        await Task.Delay(80);
+                        CapturePopup(page, popup, System.IO.Path.Combine(captures, "language-focus-" + variant + ".png"));
+                    }
                     ((IInvokeProvider)new MenuItemAutomationPeer(next).GetPattern(PatternInterface.Invoke)).Invoke();
                     await Task.Delay(150);
                     Check(!menu.IsOpen && model.IsArabic != arabic && model.SelectedQuality.Bitrate == 320 &&
                         model.CurrentLanguageLabel == (model.IsArabic ? "العربية" : "English"),
                         "Selecting a language closes the menu, updates its label and preserves audio quality");
                 }
+        foreach (bool dark in new[] { false, true })
+            foreach (string locale in new[] { "en", "ar" })
+            {
+                model.SelectLanguageCommand.Execute(locale);
+                if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                await Task.Delay(80);
+                language.Focus();
+                language.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(language), Environment.TickCount, Key.Down)
+                { RoutedEvent = Keyboard.PreviewKeyDownEvent });
+                await Task.Delay(80);
+                var menu = language.ContextMenu;
+                Check(menu.IsOpen && menu.FlowDirection == model.ContentDirection && model.SelectedQuality.Bitrate == 320,
+                    "Keyboard opening retains the current language and quality in " + locale);
+                InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(menu), Environment.TickCount, Key.Escape)
+                { RoutedEvent = Keyboard.KeyDownEvent, Source = menu });
+                await Task.Delay(80);
+                Check(!menu.IsOpen && model.IsArabic == (locale == "ar"), "Escape dismisses the language picker without selecting another language");
+                language.Focus();
+                InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(language), Environment.TickCount, Key.Apps)
+                { RoutedEvent = Keyboard.KeyUpEvent, Source = language });
+                await Task.Delay(80);
+                var nativeMenu = (HwndSource)PresentationSource.FromVisual(menu);
+                GetWindowRect(nativeMenu.Handle, out var nativeBounds);
+                var first = language.PointToScreen(new Point());
+                var last = language.PointToScreen(new Point(language.ActualWidth, language.ActualHeight));
+                Check(menu.IsOpen && Math.Abs((nativeBounds.Left + nativeBounds.Right - first.X - last.X) / 2) <= 3 &&
+                    menu.FlowDirection == model.ContentDirection && menu.Items.OfType<MenuItem>().Single(choice => choice.IsChecked).CommandParameter.Equals(locale),
+                    "The native context-menu key opens the same anchored language picker in " + locale);
+                menu.IsOpen = false;
+                language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                await Task.Delay(80);
+                foreach (var pointerEvent in new[] { Mouse.PreviewMouseDownOutsideCapturedElementEvent, Mouse.PreviewMouseUpOutsideCapturedElementEvent })
+                    InputManager.Current.ProcessInput(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Left)
+                    { RoutedEvent = pointerEvent, Source = menu });
+                await Task.Delay(80);
+                Check(!menu.IsOpen && model.IsArabic == (locale == "ar"), "Outside interaction dismisses the language picker without changing selection");
+                language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                await Task.Delay(80);
+                model.LanguageCommand.Execute(null);
+                await Task.Delay(80);
+                Check(!menu.IsOpen, "External language changes close the old header popup before reuse");
+            }
         bool previousLanguage = model.IsArabic;
         model.SelectLanguageCommand.Execute("unsupported");
         Check(model.IsArabic == previousLanguage && !model.SelectLanguageCommand.CanExecute("unsupported"),

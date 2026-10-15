@@ -36,7 +36,7 @@ public partial class MainWindow : Window
             {
                 if (presentationDirection != model.ContentDirection)
                 {
-                    ResetDropDowns(PageContent);
+                    ResetDropDowns(Root);
                     SettingsPane.ResetHelp();
                     presentationDirection = model.ContentDirection;
                 }

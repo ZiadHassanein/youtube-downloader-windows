@@ -18,14 +18,14 @@
      </StackPanel>
     </Button>
     <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>
-    <Button x:Name="LanguageButton" Click="LanguageClicked" PreviewKeyDown="LanguageKeyDown" IsEnabled="{Binding IsIdle}" Style="{StaticResource ToolbarButton}" Padding="4,6" AutomationProperties.Name="{Binding LanguageLabel}" AutomationProperties.HelpText="{Binding CurrentLanguageLabel}" ToolTip="{Binding LanguageLabel}">
+    <Button x:Name="LanguageButton" Click="LanguageClicked" PreviewKeyDown="LanguageKeyDown" ContextMenuOpening="LanguageMenuOpening" ContextMenuService.Placement="Custom" IsEnabled="{Binding IsIdle}" Style="{StaticResource ToolbarButton}" Padding="4,6" AutomationProperties.Name="{Binding LanguageLabel}" AutomationProperties.HelpText="{Binding CurrentLanguageLabel}" ToolTip="{Binding LanguageLabel}">
      <Button.ContextMenu>
-      <ContextMenu DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="176" Placement="Bottom" VerticalOffset="6">
+      <ContextMenu DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" Width="160" StaysOpen="False" Placement="Custom">
        <ContextMenu.Template><ControlTemplate TargetType="ContextMenu">
-        <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border>
+        <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="4"><ItemsPresenter/></Border>
        </ControlTemplate></ContextMenu.Template>
-       <MenuItem x:Name="EnglishChoice" Header="English" FontFamily="{StaticResource LatinFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="en" IsChecked="{Binding IsEnglish,Mode=OneWay}" Style="{StaticResource SelectionMenuItem}"/>
-       <MenuItem x:Name="ArabicChoice" Header="العربية" FontFamily="{StaticResource ArabicFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="ar" IsChecked="{Binding IsArabic,Mode=OneWay}" Style="{StaticResource SelectionMenuItem}"/>
+       <MenuItem x:Name="EnglishChoice" Header="English" FontFamily="{StaticResource LatinFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="en" IsChecked="{Binding IsEnglish,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
+       <MenuItem x:Name="ArabicChoice" Header="العربية" FontFamily="{StaticResource ArabicFont}" Command="{Binding SelectLanguageCommand}" CommandParameter="ar" IsChecked="{Binding IsArabic,Mode=OneWay}" Style="{StaticResource LanguageMenuItem}"/>
       </ContextMenu>
      </Button.ContextMenu>
      <StackPanel Orientation="Horizontal">

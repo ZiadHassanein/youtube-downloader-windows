@@ -5,8 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using YouTubeDownloader;
 
 internal static partial class Program
@@ -60,7 +58,7 @@ internal static partial class Program
                         Check(popupBounds.Left >= Math.Min(clientStart.X, clientEnd.X) - 1 && popupBounds.Right <= Math.Max(clientStart.X, clientEnd.X) + 1 &&
                             popupBounds.Top >= clientStart.Y - 1 && popupBounds.Bottom <= clientEnd.Y + 1 && choices.All(item => item.ActualHeight >= 40),
                             "The audio picker and all format targets stay inside the app client in " + variant);
-                        CaptureAudioPopup(client, source, System.IO.Path.Combine(captures, "audio-placement-" + variant + ".png"));
+                        CapturePopup(client, source, System.IO.Path.Combine(captures, "audio-placement-" + variant + ".png"));
                         var audioStart = audio.PointToScreen(new Point());
                         var audioEnd = audio.PointToScreen(new Point(audio.ActualWidth, audio.ActualHeight));
                         double audioCenter = (audioStart.X + audioEnd.X) / 2;
@@ -148,7 +146,7 @@ internal static partial class Program
                         menu.FlowDirection == model.ContentDirection && menu.Items.OfType<MenuItem>().All(item => item.FlowDirection == model.ContentDirection) &&
                         model.SelectedQuality.Bitrate == 128,
                         $"The keyboard-opened popup follows Audio and retains quality after language switch {language} (open={menu.IsOpen}, centerDelta={(bounds.Left + bounds.Right - first.X - last.X) / 2}, direction={menu.FlowDirection}/{model.ContentDirection}, rows={string.Join(',', menu.Items.OfType<MenuItem>().Select(item => item.FlowDirection))}, bitrate={model.SelectedQuality.Bitrate})");
-                    CaptureAudioPopup((FrameworkElement)window.Content, source, System.IO.Path.Combine(captures,
+                    CapturePopup((FrameworkElement)window.Content, source, System.IO.Path.Combine(captures,
                         "audio-switch-" + language + (dark ? "-dark-" : "-light-") + step++ + ".png"));
                 }
             }
@@ -172,7 +170,7 @@ internal static partial class Program
                 Check(Math.Abs((bounds.Left + bounds.Right - first.X - last.X) / 2) <= 3 &&
                     bounds.Left >= top.X && bounds.Right <= bottom.X && bounds.Top >= top.Y && bounds.Bottom <= bottom.Y,
                     "The audio popup stays attached and contained when space below is limited in " + language);
-                CaptureAudioPopup(client, source, System.IO.Path.Combine(captures, "audio-short-" + language + ".png"));
+                CapturePopup(client, source, System.IO.Path.Combine(captures, "audio-short-" + language + ".png"));
                 menu.IsOpen = false;
             }
         }
@@ -189,33 +187,5 @@ internal static partial class Program
             window.Height = originalHeight;
             window.Activate();
         }
-    }
-
-    private static void CaptureAudioPopup(FrameworkElement client, HwndSource popup, string path)
-    {
-        GetWindowRect(popup.Handle, out var bounds);
-        var origin = client.PointToScreen(new Point());
-        var dpi = VisualTreeHelper.GetDpi(client);
-        var background = new RenderTargetBitmap((int)Math.Ceiling(client.ActualWidth * dpi.DpiScaleX),
-            (int)Math.Ceiling(client.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
-        background.Render(Window.GetWindow(client));
-        var overlay = new RenderTargetBitmap(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top,
-            dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
-        overlay.Render(popup.RootVisual);
-        var visual = new DrawingVisual();
-        using (var drawing = visual.RenderOpen())
-        {
-            drawing.DrawImage(background, new Rect(client.RenderSize));
-            drawing.DrawImage(overlay,
-                new Rect((bounds.Left - origin.X) / dpi.DpiScaleX, (bounds.Top - origin.Y) / dpi.DpiScaleY,
-                    (bounds.Right - bounds.Left) / dpi.DpiScaleX, (bounds.Bottom - bounds.Top) / dpi.DpiScaleY));
-        }
-        var bitmap = new RenderTargetBitmap((int)Math.Ceiling(client.ActualWidth * dpi.DpiScaleX),
-            (int)Math.Ceiling(client.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
-        bitmap.Render(visual);
-        var encoder = new PngBitmapEncoder();
-        encoder.Frames.Add(BitmapFrame.Create(bitmap));
-        using var stream = System.IO.File.Create(path);
-        encoder.Save(stream);
     }
 }
