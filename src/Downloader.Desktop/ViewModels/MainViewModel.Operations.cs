@@ -287,10 +287,11 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(StatusBrush));
     }
 
-    private void ShowNotice(string heading, string detail, bool error, string anchor)
+    private void ShowNotice(string heading, string detail, bool error, string anchor, bool autoDismiss = true)
     {
         noticeLifetime?.Cancel();
-        noticeLifetime = new CancellationTokenSource();
+        noticeLifetime = autoDismiss ? new CancellationTokenSource() : null;
+        noticeAnchor = anchor;
         noticeHeading = heading;
         noticeDetail = detail;
         noticeError = error;
@@ -299,7 +300,8 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(NoticeDetail));
         OnPropertyChanged(nameof(NoticeBrush));
         NoticeRequested?.Invoke(anchor);
-        _ = ExpireNotice(noticeLifetime);
+        if (noticeLifetime != null)
+            _ = ExpireNotice(noticeLifetime);
     }
 
     private async Task ExpireNotice(CancellationTokenSource lifetime)

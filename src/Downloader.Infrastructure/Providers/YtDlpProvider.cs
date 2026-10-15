@@ -56,12 +56,12 @@ namespace YouTubeDownloader
                 tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
         }
 
-        public async Task<string> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
+        public async Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
         {
             await EnsureReadyAsync(progress, token).ConfigureAwait(false);
             var result = await ToolRefresh.RefreshAsync(tools, dependencies.CacheDirectory, progress, token).ConfigureAwait(false);
             tools = result.Tools;
-            return result.Message;
+            return result.Result;
         }
 
         public event Action<string> Title;

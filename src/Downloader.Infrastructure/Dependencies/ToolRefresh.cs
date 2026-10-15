@@ -29,7 +29,7 @@ public static class ToolRefresh
         return matches.Count == 1 ? matches[0].Groups[1].Value : throw new InvalidDataException("The media-tool checksum is missing or invalid.");
     }
 
-    public static async Task<(ToolSet Tools, string Message)> RefreshAsync(ToolSet current, string cache, IProgress<DownloadProgress> progress, CancellationToken token)
+    public static async Task<(ToolSet Tools, MediaToolUpdateResult Result)> RefreshAsync(ToolSet current, string cache, IProgress<DownloadProgress> progress, CancellationToken token)
     {
         void Report(string text, double percent = 0) => progress?.Report(new DownloadProgress { Stage = "Preparing media tools", Detail = text, Percent = percent, Indeterminate = percent == 0 });
         Directory.CreateDirectory(cache);
@@ -40,7 +40,7 @@ public static class ToolRefresh
         var release = ReadRelease(json);
         var probe = new ToolProbe();
         string installed = await Task.Run(() => probe.Capture(current.YtDlp, token, "--version").Trim(), token).ConfigureAwait(false);
-        if (string.CompareOrdinal(installed, release.Version) >= 0) return (current, "Media tools are up to date.");
+        if (string.CompareOrdinal(installed, release.Version) >= 0) return (current, new(false, installed));
         string prefix = $"https://github.com/yt-dlp/yt-dlp/releases/download/{release.Version}/";
         string hash = ReadChecksum(await downloads.TextAsync(prefix + "SHA2-256SUMS", prefix, 16384, token).ConfigureAwait(false));
         if (release.Digest != null && release.Digest != "sha256:" + hash.ToLowerInvariant()) throw new InvalidDataException("The media-tool checksums do not agree.");
@@ -51,7 +51,7 @@ public static class ToolRefresh
         string file = Path.Combine(stage, "yt-dlp.exe");
         try
         {
-            await downloads.DownloadAsync(release.Url, prefix, file, release.Bytes, hash, release.Bytes, n => Report("Downloading yt-dlp…", 100.0 * n / release.Bytes), token).ConfigureAwait(false);
+            await downloads.DownloadAsync(release.Url, prefix, file, release.Bytes, hash, release.Bytes, n => Report("Downloading the downloader update…", 100.0 * n / release.Bytes), token).ConfigureAwait(false);
             if (!await Task.Run(() => probe.Accept(file, "yt-dlp", token), token).ConfigureAwait(false)) throw new InvalidDataException("The new media tool failed its compatibility check.");
             token.ThrowIfCancellationRequested();
             string target = Path.Combine(root, release.Version + "-" + Guid.NewGuid().ToString("N"));
@@ -64,7 +64,7 @@ public static class ToolRefresh
                 File.Move(temporary, marker, true);
             }
             finally { if (File.Exists(temporary)) File.Delete(temporary); }
-            return (ToolSet.Validated(Path.Combine(target, "yt-dlp.exe"), current.FFmpeg, current.FFprobe, current.Deno), "Media tools updated successfully.");
+            return (ToolSet.Validated(Path.Combine(target, "yt-dlp.exe"), current.FFmpeg, current.FFprobe, current.Deno), new(true, release.Version));
         }
         finally
         {

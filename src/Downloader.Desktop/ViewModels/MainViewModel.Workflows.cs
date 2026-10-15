@@ -72,7 +72,8 @@ public sealed partial class MainViewModel
     public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
-    public string ToolRefreshLabel => T("Refresh media tools");
+    public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
+    public string ToolRefreshHint => T("Use this if a video link stops working after a website changes. It updates the tool ViFree uses to read video links and download files.");
     public string OutputHint => T("Audio conversion cannot improve the source quality. Subtitles are saved beside the media when available.");
     public string QueueInput { get; set; } = "";
     public string QueueMessage { get; private set; } = "";
@@ -109,19 +110,7 @@ public sealed partial class MainViewModel
             if (selected != null) { selectedPlaylistIds = selected; OnPropertyChanged(nameof(PlaylistSelectionLabel)); }
         }, () => CanSelectPlaylist);
         BrowserCommand = new RelayCommand(() => actions.ShowBrowserIntegration(T), () => IsIdle);
-        ToolRefreshCommand = new AsyncRelayCommand(async token =>
-        {
-            try
-            {
-                string message = await downloads.RefreshToolsAsync(PreparationProgress(inputGeneration), token);
-                ShowProgress = false;
-                SetStatus("", "", false);
-                ShowNotice("Media tools", message, false, "update");
-            }
-            catch (OperationCanceledException) { SetStatus("Check cancelled", "Your current app is ready to use.", false); }
-            catch (Exception ex) { SetStatus("", "", false); ShowNotice("Media tools", FriendlyError(ex), true, "update"); }
-            finally { RefreshAvailability(); }
-        }, () => IsIdle);
+        ToolRefreshCommand = new AsyncRelayCommand(RefreshDownloaderAsync, () => IsIdle);
         CaptionLanguagesCommand = new AsyncRelayCommand(async token =>
         {
             try

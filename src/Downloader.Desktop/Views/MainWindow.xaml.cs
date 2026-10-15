@@ -45,6 +45,8 @@ public partial class MainWindow : Window
                 if (presentationDirection != model.ContentDirection)
                 {
                     ResetDropDowns(PageContent);
+                    if (ToolRefreshAnchor.ToolTip is ToolTip help) help.IsOpen = false;
+                    ToolRefreshAnchor.SetCurrentValue(FrameworkElement.ToolTipProperty, FindResource("DownloaderHelp"));
                     presentationDirection = model.ContentDirection;
                 }
                 ApplyTitleBar();
@@ -169,14 +171,14 @@ public partial class MainWindow : Window
     {
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
-            var host = kind == "folder" ? FolderNoticeHost : UpdateNoticeHost;
+            var host = kind switch { "folder" => FolderNoticeHost, "tools" => ToolNoticeHost, _ => UpdateNoticeHost };
             if (Notice.Parent is Panel parent && parent != host)
             {
                 parent.Children.Remove(Notice);
                 host.Children.Add(Notice);
             }
 
-            Notice.Margin = kind == "folder" ? new Thickness(0, 12, 0, 0) : new Thickness(0, 0, 0, 10);
+            Notice.Margin = kind is "folder" or "tools" ? new Thickness(0, 12, 0, 0) : new Thickness(0, 0, 0, 10);
             Notice.HorizontalAlignment = HorizontalAlignment.Stretch;
             QueueFit();
             Notice.BringIntoView();

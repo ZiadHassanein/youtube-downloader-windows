@@ -27,6 +27,7 @@ public sealed partial class MainViewModel : ObservableObject
     private bool statusError, noticeError, noticeVisible, showProgress, indeterminate;
     private double progress;
     private CancellationTokenSource noticeLifetime;
+    private string noticeAnchor;
     public MainViewModel(DownloadService downloads, SettingsRepository settings, DesktopActions actions)
     {
         this.downloads = downloads;

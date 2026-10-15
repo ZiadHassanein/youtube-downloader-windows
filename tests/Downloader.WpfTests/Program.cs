@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using YouTubeDownloader;
 
-internal static class Program
+internal static partial class Program
 {
     private static int count;
     private static void Check(bool value, string name)
@@ -26,7 +26,8 @@ internal static class Program
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
         Exception failure = null;
-        var service = new DownloadService(new FakeProvider(), new EmptyStorage());
+        var provider = new FakeProvider();
+        var service = new DownloadService(provider, new EmptyStorage());
         var window = new MainWindow(service, new SettingsRepository(root));
         window.ContentRendered += async (_, _) =>
         {
@@ -39,6 +40,12 @@ internal static class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--maintenance"))
+                {
+                    await CheckDownloaderMaintenance(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF maintenance checks passed.");
+                    return;
+                }
                 if (args.Contains("--audio-popup"))
                 {
                     window.Width = 820;
@@ -132,6 +139,7 @@ internal static class Program
                 model.Audio = true;
                 Check(model.Qualities.Any(q => q.Bitrate == 192) && model.Qualities.Any(q => q.Bitrate == 320), "MP3 encoding choices survive the WPF port");
                 await QualityPopupChecks.Run(window, model, captures, Check);
+                await CheckDownloaderMaintenance(window, model, provider, captures);
                 await Task.Delay(180);
                 window.UpdateLayout();
                 Capture(window, System.IO.Path.Combine(captures, "minimum-audio.png"));
@@ -320,10 +328,12 @@ internal static class Program
         public bool IsCompleted(string folder, string file, DownloadOptions options, bool requireCaptions = false) => true;
     }
 
-    private sealed class FakeProvider : IMediaProvider
+    private sealed class FakeProvider : IMediaProvider, IMediaMaintenance
     {
         public string Id => "youtube";
         public bool IsReady => true;
+        public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
+        public Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token) => MaintenanceHandler(progress, token);
 
         public Task EnsureReadyAsync(IProgress<DownloadProgress> progress, CancellationToken token) => Task.CompletedTask;
         public string Normalize(string url, bool playlist) => VideoLink.Normalize(url, playlist);

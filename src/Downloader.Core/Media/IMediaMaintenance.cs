@@ -1,5 +1,7 @@
 namespace YouTubeDownloader;
+public sealed record MediaToolUpdateResult(bool Updated, string Version);
+
 public interface IMediaMaintenance
 {
-    Task<string> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token);
+    Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token);
 }

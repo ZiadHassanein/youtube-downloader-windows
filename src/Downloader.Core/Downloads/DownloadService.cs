@@ -32,7 +32,7 @@ public sealed partial class DownloadService : IDisposable
 
     public string Normalize(string url, bool playlist) => provider.Normalize(url, playlist);
     public MediaTargets ResolveTargets(string input) => provider.ResolveTargets(input);
-    public async Task<string> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
+    public async Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
     {
         using var operation = Operations.Begin(OperationState.Updating, token);
         if (provider is not IMediaMaintenance maintenance) throw new NotSupportedException("This provider does not support tool maintenance.");
