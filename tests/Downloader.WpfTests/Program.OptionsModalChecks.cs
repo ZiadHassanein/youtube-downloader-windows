@@ -34,7 +34,26 @@ internal static partial class Program
                     var vtt = (RadioButton)WpfTree.Find(dialog, "VttOption");
                     Check(caption.IsKeyboardFocusWithin, "Initial modal focus starts on the subtitle selector");
                     caption.SelectedItem = model.CaptionChoices.First(c => c.Language == "en");
-                    vtt.IsChecked = true;
+                    var srt = (RadioButton)WpfTree.Find(dialog, "SrtOption");
+                    var viewport = (ScrollViewer)WpfTree.Find(dialog, "OptionsViewport");
+                    var presenter = (FrameworkElement)viewport.Template.FindName("PART_ScrollContentPresenter", viewport);
+                    foreach (var selected in new[] { srt, vtt })
+                    {
+                        selected.IsChecked = true;
+                        selected.Focus();
+                        await Task.Delay(75);
+                        dialog.UpdateLayout();
+                        foreach (var option in new[] { srt, vtt })
+                        {
+                            var face = (Border)option.Template.FindName("Face", option);
+                            var outline = face.TransformToAncestor(presenter).TransformBounds(new Rect(face.RenderSize));
+                            Check(outline.Left >= 1 && outline.Right <= presenter.ActualWidth - 1 &&
+                                outline.Top >= 0 && outline.Bottom <= presenter.ActualHeight,
+                                $"Both subtitle outlines stay inside the viewport with {selected.Content} focused ({model.IsArabic}/{model.IsDark}, {option.Content}: {outline}, viewport={presenter.RenderSize})");
+                        }
+                        Capture(dialog, System.IO.Path.Combine(captures, "subtitle-formats-" + (arabic ? "ar" : "en") +
+                            (dark ? "-dark" : "-light") + (ReferenceEquals(selected, srt) ? "-srt" : "-vtt") + ".png"));
+                    }
                     Check(model.SelectedCaption.Language == "en" && model.VttCaptions,
                         "Modal controls change the actual subtitle language and file format");
                     var done = (Button)WpfTree.Find(dialog, "DoneButton");
