@@ -285,6 +285,7 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(StatusHeading));
         OnPropertyChanged(nameof(StatusDetail));
         OnPropertyChanged(nameof(StatusBrush));
+        RefreshMediaPresentation();
     }
 
     private void ShowNotice(string heading, string detail, bool error, string anchor, bool autoDismiss = true)
@@ -356,6 +357,8 @@ public sealed partial class MainViewModel
 
     public async Task CloseAsync()
     {
+        thumbnailCancellation?.Cancel();
+        thumbnailCancellation?.Dispose();
         debounce?.Cancel();
         noticeLifetime?.Cancel();
         Queue.Stop();

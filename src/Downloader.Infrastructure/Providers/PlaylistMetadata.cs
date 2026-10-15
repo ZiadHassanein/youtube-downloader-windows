@@ -17,6 +17,7 @@ namespace YouTubeDownloader
             {
                 Id = youtube ? link.PlaylistId : Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(url))).Substring(0, 24),
                 Url = url,
+                ThumbnailUrl = data.TryGetValue("thumbnail", out var thumbnail) ? Convert.ToString(thumbnail) : null,
                 Title = data.TryGetValue("title", out title) && title != null ? Convert.ToString(title) : "Playlist"
             };
             foreach (object value in (IEnumerable)entries)

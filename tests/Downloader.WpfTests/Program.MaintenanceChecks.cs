@@ -11,6 +11,8 @@ internal static partial class Program
 {
     private static async Task CheckDownloaderMaintenance(Window window, MainViewModel model, FakeProvider provider, string captures)
     {
+        model.SettingsVisible = true;
+        await SettleMaintenance(window);
         string url = model.Url, originalStatus = model.StatusHeading;
         var quality = model.SelectedQuality;
         bool checkedLifetime = false;
@@ -22,7 +24,7 @@ internal static partial class Program
                     if (model.IsDark != dark) model.ThemeCommand.Execute(null);
                     if (!updated)
                     {
-                        var anchor = (Button)window.FindName("ToolRefreshAnchor");
+                        var anchor = (Button)WpfTree.Find(window, "ToolRefreshAnchor");
                         var tip = (ToolTip)anchor.ToolTip;
                         tip.PlacementTarget = anchor;
                         tip.IsOpen = true;
@@ -52,8 +54,8 @@ internal static partial class Program
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light");
                     Check(model.IsRefreshingTools && model.IsBusy && model.NoticeVisible && !model.ToolRefreshCommand.CanExecute(null),
                         "Maintenance immediately explains its busy state and blocks duplicate requests in " + variant);
-                    var notice = (FrameworkElement)window.FindName("Notice");
-                    Check(ReferenceEquals(notice.Parent, window.FindName("ToolNoticeHost")), "Maintenance feedback stays beside its own action in " + variant);
+                    var notice = (FrameworkElement)WpfTree.Find(window, "Notice");
+                    Check(ReferenceEquals(notice.Parent, WpfTree.Find(window, "ToolNoticeHost")), "Maintenance feedback stays beside its own action in " + variant);
                     if (!checkedLifetime)
                     {
                         await Task.Delay(5200);
@@ -62,7 +64,7 @@ internal static partial class Program
                     }
                     progress.Report(new DownloadProgress { Detail = "Downloading the downloader update…", Percent = 50, Indeterminate = false });
                     await SettleMaintenance(window);
-                    var bar = (ProgressBar)window.FindName("ToolRefreshProgressBar");
+                    var bar = (ProgressBar)WpfTree.Find(window, "ToolRefreshProgressBar");
                     Check(bar.Visibility == Visibility.Visible && bar.Value == 50 && !bar.IsIndeterminate,
                         "Maintenance shows actual download progress in " + variant);
                     Capture(window, System.IO.Path.Combine(captures, "maintenance-" + variant + "-progress.png"));
@@ -77,7 +79,7 @@ internal static partial class Program
                     await SettleMaintenance(window);
                     Check(model.NoticeDetail == result && model.Url == url && ReferenceEquals(model.SelectedQuality, quality) && model.StatusHeading == originalStatus,
                         "Maintenance ignores late progress and preserves the link, quality and main status in " + variant);
-                    var page = (FrameworkElement)window.FindName("Root");
+                    var page = (FrameworkElement)WpfTree.Find(window, "Root");
                     var bounds = notice.TransformToAncestor(page).TransformBounds(new Rect(notice.RenderSize));
                     Check(bounds.Left >= -1 && bounds.Top >= -1 && bounds.Right <= page.ActualWidth + 1 && bounds.Bottom <= page.ActualHeight + 1,
                         "Maintenance result stays inside app borders in " + variant);

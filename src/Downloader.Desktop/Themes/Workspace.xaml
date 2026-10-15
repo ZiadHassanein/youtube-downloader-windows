@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Style x:Key="SectionLabel" TargetType="TextBlock">
+  <Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,9"/>
+ </Style>
+ <Style x:Key="FormatSegment" TargetType="RadioButton">
+  <Setter Property="MinHeight" Value="46"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+  <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+  <Setter Property="Template"><Setter.Value>
+   <ControlTemplate TargetType="RadioButton">
+    <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="12,8">
+     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsChecked" Value="True">
+      <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/>
+      <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="FontWeight" Value="SemiBold"/>
+     </Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Face" Property="BorderThickness" Value="2"/><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.55"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate>
+  </Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>

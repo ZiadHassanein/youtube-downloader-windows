@@ -28,7 +28,8 @@ internal static partial class Program
         Exception failure = null;
         var provider = new FakeProvider();
         var service = new DownloadService(provider, new EmptyStorage());
-        var window = new MainWindow(service, new SettingsRepository(root));
+        var thumbnailLoader = new FixtureThumbnailLoader();
+        var window = new MainWindow(service, new SettingsRepository(root), thumbnailLoader);
         window.ContentRendered += async (_, _) =>
         {
             try
@@ -44,6 +45,12 @@ internal static partial class Program
                 {
                     await CheckDownloaderMaintenance(window, model, provider, captures);
                     Console.WriteLine(count + " WPF maintenance checks passed.");
+                    return;
+                }
+                if (args.Contains("--redesign"))
+                {
+                    await CheckRedesign(window, model, provider, thumbnailLoader, captures);
+                    Console.WriteLine(count + " WPF redesign checks passed.");
                     return;
                 }
                 if (args.Contains("--audio-popup"))
@@ -76,10 +83,10 @@ internal static partial class Program
                         await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.Loaded);
                         await Task.Delay(30);
                         window.UpdateLayout();
-                        var field = (TextBox)window.FindName("LinkInput");
+                        var field = (TextBox)WpfTree.Find(window, "LinkInput");
                         Check(field.FlowDirection == FlowDirection.LeftToRight && window.FlowDirection == FlowDirection.LeftToRight, "URL editor and branding shell retain physical LTR in " + language);
                         Check(model.ContentDirection == (language == "ar" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight), "Task content direction follows " + language);
-                        var placeholder = (TextBlock)window.FindName("LinkPlaceholder");
+                        var placeholder = (TextBlock)WpfTree.Find(window, "LinkPlaceholder");
                         field.Focus();
                         field.CaretIndex = 0;
                         window.UpdateLayout();
@@ -113,7 +120,7 @@ internal static partial class Program
                     await Task.Delay(80);
                     window.UpdateLayout();
                     double compactHeight = window.ActualHeight;
-                    var content = (FrameworkElement)window.FindName("PageContent");
+                    var content = (FrameworkElement)WpfTree.Find(window, "PageContent");
                     double compactContentHeight = content.DesiredSize.Height;
                     model.OptionsVisible = true;
                     await Task.Delay(80);
@@ -127,15 +134,18 @@ internal static partial class Program
                     window.UpdateLayout();
                     Check(Math.Abs(window.ActualHeight - compactHeight) <= 2, "Closing output options removes reserved space in " + (arabic ? "Arabic" : "English"));
                 }
+                await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
                 await Task.Delay(50);
                 window.UpdateLayout();
-                var quality = (ComboBox)window.FindName("QualityInput");
+                var quality = (ComboBox)WpfTree.Find(window, "QualityInput");
                 Check(quality.ActualWidth > 140 && quality.ActualHeight >= 44, "Quality control remains usable at minimum width");
                 model.Url = "https://youtu.be/jNQXAC9IVRw";
                 await Task.Delay(800);
-                Check(model.CanDownload && model.Qualities.Count == 2 && model.SelectedQuality.Height == 720, "Automatic inspection offers only actual fake-provider qualities and recommends available720p");
+                for (int wait = 0; wait < 20 && !model.CanDownload; wait++) await Task.Delay(100);
+                Check(model.CanDownload && model.Qualities.Count == 2 && model.SelectedQuality.Height == 720,
+                    $"Automatic inspection offers actual qualities and recommends 720p (ready={model.CanDownload}, audio={model.Audio}, count={model.Qualities.Count}, height={model.SelectedQuality?.Height}, status={model.StatusHeading})");
                 model.Audio = true;
                 Check(model.Qualities.Any(q => q.Bitrate == 192) && model.Qualities.Any(q => q.Bitrate == 320), "MP3 encoding choices survive the WPF port");
                 await QualityPopupChecks.Run(window, model, captures, Check);
@@ -172,12 +182,12 @@ internal static partial class Program
                 await Task.Delay(60);
                 window.UpdateLayout();
                 Capture(window, System.IO.Path.Combine(captures, "playlist-notice.png"));
-                var notice = (FrameworkElement)window.FindName("Notice");
-                var page = (FrameworkElement)window.FindName("Root");
+                var notice = (FrameworkElement)WpfTree.Find(window, "Notice");
+                var page = (FrameworkElement)WpfTree.Find(window, "Root");
                 var position = notice.TranslatePoint(new Point(), page);
                 var bounds = notice.TransformToAncestor(page).TransformBounds(new Rect(0, 0, notice.ActualWidth, notice.ActualHeight));
                 Check(bounds.Left >= 0 && bounds.Top >= 0 && bounds.Right <= page.ActualWidth + 1 && bounds.Bottom <= page.ActualHeight + 1, "Transient notice remains inside client borders");
-                var viewport = (ScrollViewer)window.FindName("Viewport");
+                var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
                 foreach (string language in new[] { "en", "ar" })
                 {
                     if (model.IsArabic != (language == "ar")) model.LanguageCommand.Execute(null);
@@ -191,7 +201,7 @@ internal static partial class Program
                         window.UpdateLayout();
                         var bar = (ScrollBar)viewport.Template.FindName("PART_VerticalScrollBar", viewport);
                         var track = (Track)bar.Template.FindName("PART_Track", bar);
-                        var body = (FrameworkElement)window.FindName("PageContent");
+                        var body = (FrameworkElement)WpfTree.Find(window, "PageContent");
                         var barBounds = bar.TransformToAncestor(page).TransformBounds(new Rect(0, 0, bar.ActualWidth, bar.ActualHeight));
                         var bodyBounds = body.TransformToAncestor(page).TransformBounds(new Rect(0, 0, body.ActualWidth, body.ActualHeight));
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
@@ -202,7 +212,7 @@ internal static partial class Program
                         viewport.ScrollToTop();
                         window.UpdateLayout();
                         var presenter = (FrameworkElement)viewport.Template.FindName("PART_ScrollContentPresenter", viewport);
-                        var input = (FrameworkElement)window.FindName("LinkInput");
+                        var input = (FrameworkElement)WpfTree.Find(window, "LinkInput");
                         var inputBounds = input.TransformToAncestor(presenter).TransformBounds(new Rect(input.RenderSize));
                         Check(inputBounds.Left >= -0.5 && inputBounds.Right <= presenter.ActualWidth + .5,
                             "The full input border remains inside the scroll viewport in " + language + (dark ? " dark" : " light"));
@@ -272,17 +282,17 @@ internal static partial class Program
                 Check(window.WindowState == WindowState.Maximized && double.IsPositiveInfinity(window.MaxHeight) &&
                     bounds.Left <= info.Work.Left + 1 && bounds.Top <= info.Work.Top + 1 && bounds.Right >= info.Work.Right - 1 && bounds.Bottom >= info.Work.Bottom - 1,
                     "Maximization fills the native work area in " + language + (dark ? " dark" : " light"));
-                var root = (FrameworkElement)window.FindName("Root");
-                var viewport = (ScrollViewer)window.FindName("Viewport");
-                var footer = (FrameworkElement)window.FindName("FooterContent");
+                var root = (FrameworkElement)WpfTree.Find(window, "Root");
+                var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
+                var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
                 // Small desktops can require scrolling even when the window is maximized.
                 viewport.ScrollToEnd();
                 window.UpdateLayout();
-                var footerBounds = footer.TransformToAncestor(viewport).TransformBounds(new Rect(0, 0, footer.ActualWidth, footer.ActualHeight));
+                var footerBounds = footer.TransformToAncestor(root).TransformBounds(new Rect(0, 0, footer.ActualWidth, footer.ActualHeight));
                 double center = root.PointToScreen(new Point(root.ActualWidth / 2, 0)).X;
-                Check(root.ActualWidth <= 1041 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
-                    Math.Abs(footerBounds.Bottom - viewport.ActualHeight) <= 2,
-                    "The maximized form stays centered at a readable width with its footer reachable at the bottom" +
+                Check(root.ActualWidth >= window.MinWidth - 1 && Math.Abs(center - (info.Work.Left + info.Work.Right) / 2.0) <= 2 &&
+                    Math.Abs(footerBounds.Bottom - root.ActualHeight) <= 2,
+                    "The split workspace fills the window and keeps its footer anchored outside the scrolling task" +
                     $" (footerBottom={footerBounds.Bottom}, viewportHeight={viewport.ActualHeight}, scrollableHeight={viewport.ScrollableHeight})");
                 viewport.ScrollToTop();
                 window.UpdateLayout();
@@ -291,8 +301,10 @@ internal static partial class Program
         window.WindowState = WindowState.Normal;
         await Task.Delay(100);
         window.UpdateLayout();
-        var page = (FrameworkElement)window.FindName("PageContent");
-        Check(Math.Abs(window.Width - normalWidth) <= 1 && page.MinHeight == 0 && window.ActualHeight < SystemParameters.WorkArea.Height,
+        var page = (FrameworkElement)WpfTree.Find(window, "PageContent");
+        GetWindowRect(handle, out var restoredBounds);
+        Check(Math.Abs(window.Width - normalWidth) <= 1 && page.MinHeight == 0 &&
+            restoredBounds.Top >= info.Work.Top - 8 && restoredBounds.Bottom <= info.Work.Bottom + 8,
             $"Restoring returns to content-fit sizing without inheriting the maximized height (state={window.WindowState}, width={window.Width}, height={window.ActualHeight}, pageMin={page.MinHeight})");
         Capture(window, System.IO.Path.Combine(captures, "restored.png"));
         window.WindowState = WindowState.Minimized;
@@ -332,6 +344,7 @@ internal static partial class Program
     {
         public string Id => "youtube";
         public bool IsReady => true;
+        public string ThumbnailAddress = "https://example.test/thumbnail.png";
         public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
         public Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token) => MaintenanceHandler(progress, token);
 
@@ -346,6 +359,9 @@ internal static partial class Program
         public VideoInfo Inspect(string url, CancellationToken token, IProgress<DownloadProgress> progress = null) => new()
         {
             Title = "Local UI fixture",
+            Uploader = "Local test fixture",
+            Duration = 504,
+            ThumbnailUrl = ThumbnailAddress,
             HasAudio = true,
             Qualities = new()
             {

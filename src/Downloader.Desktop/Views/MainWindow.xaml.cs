@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Automation.Peers;
 using System.Windows.Threading;
 
@@ -18,25 +17,22 @@ public partial class MainWindow : Window
     {
     }
 
-    internal MainWindow(DownloadService service, SettingsRepository repository)
+    internal MainWindow(DownloadService service, SettingsRepository repository, IMediaThumbnailLoader thumbnailLoader = null)
     {
         InitializeComponent();
         Root.Children.Remove(Notice);
-        FolderNoticeHost.Children.Add(Notice);
-        AddHandler(RadioButton.CheckedEvent, new RoutedEventHandler((_, args) =>
-        {
-            if (args.OriginalSource is RadioButton choice && choice.IsLoaded && SystemParameters.ClientAreaAnimation && !SystemParameters.HighContrast && choice.Template.FindName("Dot", choice)is UIElement marker)
-                marker.BeginAnimation(OpacityProperty, new DoubleAnimation(.55, 1, TimeSpan.FromMilliseconds(120)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }, FillBehavior = FillBehavior.Stop });
-        }));
+        DownloadForm.FolderNoticeHost.Children.Add(Notice);
         var actions = new DesktopActions(this);
-        model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions);
+        model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions, thumbnailLoader);
         presentationDirection = model.ContentDirection;
         DataContext = model;
         model.NoticeRequested += PlaceNotice;
         PageContent.SizeChanged += (_, _) => QueueFit();
-        foreach (FrameworkElement section in PageContent.Children)
-            section.SizeChanged += (_, _) => QueueFit();
-        SizeChanged += (_, _) => QueueFit();
+        SizeChanged += (_, args) =>
+        {
+            ApplyResponsiveLayout();
+            if (args.WidthChanged) QueueFit();
+        };
         StateChanged += (_, _) => QueueFit();
         model.PropertyChanged += (_, args) =>
         {
@@ -45,28 +41,52 @@ public partial class MainWindow : Window
                 if (presentationDirection != model.ContentDirection)
                 {
                     ResetDropDowns(PageContent);
-                    if (ToolRefreshAnchor.ToolTip is ToolTip help) help.IsOpen = false;
-                    ToolRefreshAnchor.SetCurrentValue(FrameworkElement.ToolTipProperty, FindResource("DownloaderHelp"));
+                    SettingsPane.ResetHelp();
                     presentationDirection = model.ContentDirection;
                 }
                 ApplyTitleBar();
             }
-            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.OptionsVisible) or nameof(MainViewModel.HasPlaylist) or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.NoticeVisible))
+            if (args.PropertyName == nameof(MainViewModel.SettingsVisible))
+            {
+                ApplyResponsiveLayout();
+                Viewport.ScrollToTop();
+                if (model.SettingsVisible) ViewMotion.Reveal(SettingsPane);
+            }
+            if (args.PropertyName == nameof(MainViewModel.PreviewImage) && model.PreviewImage != null)
+                ViewMotion.Reveal(MediaPreview.PreviewContent);
+            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.OptionsVisible)
+                or nameof(MainViewModel.HasPlaylist) or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.NoticeVisible)
+                or nameof(MainViewModel.SettingsVisible))
                 QueueFit();
             if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading))
             {
-                var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading : StatusHeading;
+                var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
+                    model.SettingsVisible ? SettingsPane.ActiveDownload.StatusHeading : MediaPreview.Activity.StatusHeading;
                 (UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element))?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }
         };
         SourceInitialized += (_, _) => ApplyTitleBar();
         ContentRendered += (_, _) =>
         {
+            ApplyResponsiveLayout();
             QueueFit();
-            LinkInput.Focus();
+            DownloadForm.LinkInput.Focus();
             AppUpdates.AcknowledgeStartup();
         };
         Closing += ClosingAsync;
+    }
+
+    private void ApplyResponsiveLayout()
+    {
+        bool compact = Root.ActualWidth < 1000;
+        PageContent.ColumnDefinitions[0].Width = new GridLength(compact ? 1 : 55, GridUnitType.Star);
+        PageContent.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(45, GridUnitType.Star);
+        Grid.SetColumn(ContextPane, compact ? 0 : 1);
+        Grid.SetRow(ContextPane, 0);
+        Grid.SetRow(DownloadForm, compact ? 1 : 0);
+        DownloadForm.Visibility = compact && model.SettingsVisible ? Visibility.Collapsed : Visibility.Visible;
+        MediaPreview.SetCompact(compact);
+        MediaPreview.Visibility = model.SettingsVisible ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private static void ResetDropDowns(DependencyObject parent)
@@ -120,34 +140,21 @@ public partial class MainWindow : Window
         SizeToContent = SizeToContent.Manual;
         if (WindowState == WindowState.Maximized)
         {
-            PageContent.RowDefinitions[2].Height = new GridLength(1, GridUnitType.Star);
-            Viewport.MaxHeight = double.PositiveInfinity;
             PageContent.MinHeight = Viewport.ActualHeight;
             return;
         }
         PageContent.MinHeight = 0;
-        PageContent.RowDefinitions[2].Height = new GridLength(0);
         var area = CurrentWorkArea();
-        double boundedHeight = Math.Max(MinHeight, area.Height - 16);
-        double maximum = Math.Max(240, boundedHeight - Root.Margin.Top - Root.Margin.Bottom - SystemParameters.CaptionHeight - 20);
-        if (Math.Abs(Viewport.MaxHeight - maximum) > 1)
-            Viewport.MaxHeight = maximum;
-        double contentWidth = Viewport.ActualWidth - (Viewport.ComputedVerticalScrollBarVisibility == Visibility.Visible ? 26 : 0);
-        // Measure content rows independently: a live star row may retain space from an expanded view.
-        double contentHeight = 0;
-        foreach (FrameworkElement section in PageContent.Children)
-        {
-            section.Measure(new Size(Math.Max(1, contentWidth), double.PositiveInfinity));
-            contentHeight += section.DesiredSize.Height;
-        }
-        double chrome = Math.Max(SystemParameters.CaptionHeight + 8, ActualHeight - Root.ActualHeight - Root.Margin.Top - Root.Margin.Bottom);
-        double desired = Math.Clamp(contentHeight + Root.Margin.Top + Root.Margin.Bottom + chrome + 8, MinHeight, boundedHeight);
-        if (Math.Abs(Height - desired) > 1)
-            Height = desired;
-        if (Top + ActualHeight > area.Bottom)
-            Top = area.Bottom - ActualHeight;
-        if (Top < area.Top)
-            Top = area.Top;
+        if (Width > area.Width - 16) Width = Math.Max(MinWidth, area.Width - 16);
+        double contentWidth = Math.Max(1, Viewport.ActualWidth -
+            (Viewport.ComputedVerticalScrollBarVisibility == Visibility.Visible ? 26 : 0));
+        PageContent.Measure(new Size(contentWidth, double.PositiveInfinity));
+        double chrome = Math.Max(SystemParameters.CaptionHeight + 8, ActualHeight - Root.ActualHeight);
+        double desired = Math.Clamp(PageContent.DesiredSize.Height + HeaderContent.ActualHeight + FooterContent.ActualHeight + chrome,
+            MinHeight, Math.Max(MinHeight, area.Height - 16));
+        if (Math.Abs(Height - desired) > 1) Height = desired;
+        if (Top + ActualHeight > area.Bottom) Top = area.Bottom - ActualHeight;
+        if (Top < area.Top) Top = area.Top;
     }
 
     private Rect CurrentWorkArea()
@@ -171,7 +178,13 @@ public partial class MainWindow : Window
     {
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
         {
-            var host = kind switch { "folder" => FolderNoticeHost, "tools" => ToolNoticeHost, _ => UpdateNoticeHost };
+            model.SettingsVisible = kind != "folder";
+            var host = kind switch
+            {
+                "folder" => DownloadForm.FolderNoticeHost,
+                "tools" => SettingsPane.ToolNoticeHost,
+                _ => SettingsPane.UpdateNoticeHost
+            };
             if (Notice.Parent is Panel parent && parent != host)
             {
                 parent.Children.Remove(Notice);

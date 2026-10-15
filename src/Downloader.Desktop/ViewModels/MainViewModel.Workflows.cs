@@ -57,7 +57,7 @@ public sealed partial class MainViewModel
     public bool QueueRunning => Queue.IsRunning;
     public string QueueLabel => F("Queue ({0})", QueueItems.Count);
     public string PlaylistSelectionLabel => playlistInfo == null ? T("Choose videos") : F("Choose videos ({0}/{1})", selectedPlaylistIds?.Count ?? playlistInfo.Entries.Count, playlistInfo.Entries.Count);
-    public string OptionsLabel => T("Output options");
+    public string OptionsLabel => T("More options");
     public string AudioFormatLabel => T("Audio format");
     public string CaptionsLabel => T("Subtitles");
     public string CaptionLanguagesLabel => T("Get subtitle languages");

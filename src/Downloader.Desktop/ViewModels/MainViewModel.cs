@@ -28,11 +28,13 @@ public sealed partial class MainViewModel : ObservableObject
     private double progress;
     private CancellationTokenSource noticeLifetime;
     private string noticeAnchor;
-    public MainViewModel(DownloadService downloads, SettingsRepository settings, DesktopActions actions)
+    public MainViewModel(DownloadService downloads, SettingsRepository settings, DesktopActions actions, IMediaThumbnailLoader thumbnailLoader = null)
     {
         this.downloads = downloads;
         this.settings = settings;
         this.actions = actions;
+        this.thumbnailLoader = thumbnailLoader ?? new MediaThumbnailLoader();
+        InitializePresentation();
         state = settings.Load();
         encoding = Encodings.FirstOrDefault(e => e.Encoding == state.AudioEncoding) ?? Encodings[0];
         folder = AppPaths.InitialFolder(state.Folder, state.FolderVersion == 0);
@@ -151,7 +153,11 @@ public sealed partial class MainViewModel : ObservableObject
         set
         {
             if (SetProperty(ref folder, value))
+            {
+                OnPropertyChanged(nameof(FolderDisplay));
+                OnPropertyChanged(nameof(FolderAccessibleName));
                 Save();
+            }
         }
     }
 
@@ -301,6 +307,7 @@ public sealed partial class MainViewModel : ObservableObject
         HistoryCommand?.NotifyCanExecuteChanged();
         UpdateCommand?.NotifyCanExecuteChanged();
         RefreshWorkflowAvailability();
+        RefreshMediaPresentation();
     }
 
     private void NotifyPresentation()

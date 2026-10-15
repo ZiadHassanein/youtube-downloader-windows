@@ -131,6 +131,7 @@ namespace YouTubeDownloader
             {
                 Title = Value(data, "title"),
                 Uploader = Value(data, "uploader"),
+                ThumbnailUrl = Value(data, "thumbnail"),
                 Duration = Number(data, "duration"),
                 Live = Value(data, "is_live") == "True",
                 Qualities = AvailableFormats.Read(data),

@@ -4,7 +4,7 @@ namespace YouTubeDownloader
     {
         public List<CaptionChoice> Captions = new();
         public PlaylistInfo Collection;
-        public string Title, Uploader;
+        public string Title, Uploader, ThumbnailUrl;
         public double Duration;
         public bool Live;
         public List<VideoQuality> Qualities = new List<VideoQuality>();

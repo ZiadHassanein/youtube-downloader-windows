@@ -14,7 +14,7 @@ internal static class QualityPopupChecks
 {
     internal static async Task Run(Window window, MainViewModel model, string captures, Action<bool, string> check)
     {
-        var quality = (ComboBox)window.FindName("QualityInput");
+        var quality = (ComboBox)WpfTree.Find(window, "QualityInput");
         foreach (bool dark in new[] { true, false })
         {
             if (model.IsDark != dark) model.ThemeCommand.Execute(null);

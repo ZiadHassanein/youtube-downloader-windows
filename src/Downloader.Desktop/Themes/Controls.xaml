@@ -1,4 +1,6 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader">
+  <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="Symbols.xaml"/><ResourceDictionary Source="Workspace.xaml"/></ResourceDictionary.MergedDictionaries>
+  <local:PreviewAspectRatioConverter x:Key="PreviewAspectRatio"/>
   <FontFamily x:Key="LatinFont">pack://application:,,,/ViFree;component/Assets/Fonts/#Inter</FontFamily>
   <FontFamily x:Key="ArabicFont">pack://application:,,,/ViFree;component/Assets/Fonts/#Noto Sans Arabic</FontFamily>
   <BooleanToVisibilityConverter x:Key="BoolVisibility" />
@@ -10,6 +12,7 @@
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Border}" />
     <Setter Property="Padding" Value="16,8" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="MinHeight" Value="44" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -17,7 +20,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="Button">
           <Border x:Name="Face" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True" />
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -40,9 +43,9 @@
     </Setter>
   </Style>
   <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-    <Setter Property="Background" Value="{DynamicResource Accent}" />
+    <Setter Property="Background" Value="{DynamicResource Action}" />
     <Setter Property="Foreground" Value="{DynamicResource OnAccent}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Action}" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="MinHeight" Value="52" />
     <Setter Property="Template">

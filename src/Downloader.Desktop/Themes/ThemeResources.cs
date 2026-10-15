@@ -2,77 +2,51 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace YouTubeDownloader;
+
 internal static class ThemeResources
 {
-    private static readonly string[] Keys =
+    private static readonly Dictionary<string, (string Light, string Dark)> Palette = new()
     {
-        "Page",
-        "Surface",
-        "Field",
-        "Ink",
-        "Muted",
-        "Accent",
-        "OnAccent",
-        "Border",
-        "Hover",
-        "Selected",
-        "Error",
-        "AudioAccent",
-        "AudioSelected",
-        "InfoAccent",
-        "Divider"
+        ["Page"] = ("#FFFFFF", "#111B2D"),
+        ["Surface"] = ("#F1F5FC", "#192740"),
+        ["Field"] = ("#FFFFFF", "#1C2B44"),
+        ["Ink"] = ("#172B50", "#F1F5FF"),
+        ["Muted"] = ("#526789", "#B2C3E1"),
+        ["Accent"] = ("#2458E8", "#95B1FF"),
+        ["Action"] = ("#2458E8", "#2458E8"),
+        ["OnAccent"] = ("#FFFFFF", "#FFFFFF"),
+        ["Border"] = ("#A5B3CA", "#6C7F9F"),
+        ["Hover"] = ("#EDF2FC", "#263B5D"),
+        ["Selected"] = ("#E7EEFF", "#29436D"),
+        ["Error"] = ("#AE2639", "#FFADBA"),
+        ["AudioAccent"] = ("#2458E8", "#95B1FF"),
+        ["AudioSelected"] = ("#E7EEFF", "#29436D"),
+        ["InfoAccent"] = ("#2458E8", "#95B1FF"),
+        ["Divider"] = ("#DFE6F2", "#334766"),
+        ["PreviewGround"] = ("#193258", "#162D4E"),
+        ["PreviewInk"] = ("#FFFFFF", "#FFFFFF"),
+        ["PreviewMuted"] = ("#BDCFEC", "#BDCFEC"),
+        ["PreviewRule"] = ("#526B90", "#526B90"),
+        ["Success"] = ("#14763D", "#88E4AA"),
+        ["PreviewSuccess"] = ("#91E5AD", "#91E5AD"),
+        ["PreviewError"] = ("#FFBDCA", "#FFBDCA")
     };
+
     public static void Apply(bool dark)
     {
-        string[] values = dark ? new[]
+        foreach (var (key, colors) in Palette)
         {
-            "#17191E",
-            "#20242A",
-            "#22262F",
-            "#F3F1ED",
-            "#B8B7B3",
-            "#7499FF",
-            "#0E1F46",
-            "#67717E",
-            "#2C313B",
-            "#263653",
-            "#FFABA7",
-            "#F6B585",
-            "#362C27",
-            "#AFC4FF",
-            "#373E4B"
-        }
-
-        : new[]
-        {
-            "#F6F5F1",
-            "#FFFFFF",
-            "#FFFFFF",
-            "#1D2329",
-            "#56616C",
-            "#275BD8",
-            "#FFFFFF",
-            "#89909B",
-            "#EBEBE7",
-            "#EAF0FF",
-            "#AF2527",
-            "#7B3F12",
-            "#FFF0E4",
-            "#275BD8",
-            "#CED1D7"
-        };
-        for (int i = 0; i < Keys.Length; i++)
-        {
-            Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(values[i]));
+            Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? colors.Dark : colors.Light));
             if (SystemParameters.HighContrast)
-                brush = Keys[i] switch
+                brush = key switch
                 {
-                    "Ink" or "Muted" or "Error" => SystemColors.ControlTextBrush,
-                    "Accent" or "Border" or "AudioAccent" => SystemColors.HighlightBrush,
+                    "Ink" or "Muted" or "Error" or "PreviewInk" or "PreviewMuted" or "Success" or "PreviewSuccess" or "PreviewError" => SystemColors.WindowTextBrush,
+                    "Accent" or "Action" or "Border" or "AudioAccent" or "PreviewRule" => SystemColors.HighlightBrush,
                     "OnAccent" => SystemColors.HighlightTextBrush,
                     _ => SystemColors.WindowBrush
                 };
-            Application.Current.Resources[Keys[i]] = brush;
+            if (brush.CanFreeze) brush.Freeze();
+            Application.Current.Resources[key] = brush;
         }
     }
 }

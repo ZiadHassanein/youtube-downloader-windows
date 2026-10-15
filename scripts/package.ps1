@@ -16,9 +16,9 @@ ViFree by Ziad Hassanein
 Windows 10/11 x64. Extract this ZIP into a writable folder and open ViFree.exe.
 No separate .NET runtime, installer, WinGet or tool setup script is needed.
 On the first pasted link, the app checks compatible installed media tools and privately prepares only missing tools. Internet access and approximately 400 MB of free space may be required. Progress appears in the app. Global installations are never modified.
-Updates are manual: choose Check for updates and then Install when a newer verified desktop package is available. Copies of YouTube Downloader require one manual ZIP download to switch to ViFree. Existing preferences and downloaded files are retained.
+Updates are manual: open Settings, choose Check for updates and then Install when a newer verified desktop package is available. Copies of YouTube Downloader require one manual ZIP download to switch to ViFree. Existing preferences and downloaded files are retained.
 Preferences are saved automatically in LocalAppData/YouTubeDownloader. Existing settings and media are retained. Links are not saved.
-If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Check for updates.
+If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Settings > Check for updates.
 The optional Browser folder contains Chrome/Edge and Firefox companions. Ordinary app use needs no extension. Read Browser/README.md to enable it; browser installation is an optional user action.
 Only download content you have permission to save. Protected and sign-in-only content is not supported. YouTube limits can still occur.
 Downloads and support: https://github.com/ZiadHassanein/ViFree-Downloads
