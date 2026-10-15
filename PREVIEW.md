@@ -1,16 +1,14 @@
-# ViFree 4.1.0 Preview 23
+# ViFree 4.1.0 Preview 24
 
-Unreleased preview narrows the window, inputs and Download action. Stable remains 4.0.0; owner testing is pending.
+Unreleased preview with automatic maintenance and clearer Recent downloads. Stable remains 4.0.0; owner testing is pending.
 
-Extract the ZIP and open **ViFree.exe**. The runtime is bundled; missing media tools prepare automatically. Internet is required. Data uses `LocalAppData/ViFreePreview`; pending queue links are not saved. App updates are disabled.
+Extract the ZIP and open **ViFree.exe**. Its runtime is bundled. Missing media tools download automatically on the first link; internet is required. No account, API key, paid service or manual setup is needed. Preview data stays separate; pending queue links are not saved. App-version updates are disabled.
 
 Try:
 
-- Check the 740-wide startup window and 660-wide minimum in both languages/themes. Check complete header actions and input borders.
-- Paste a video or playlist, then open Settings. Check matching content widths and the smaller Download action at the left in English or right in Arabic.
-- Resize wider, shorter and maximize/restore. Check scrolling, long titles and unchanged window bounds during language/media changes.
-- Check quality dropdowns, More options, the queue, Contact and Recent downloads.
+- Paste a public video or playlist. Check preparation, output choices, download/cancel and queue recovery.
+- Check both languages/themes, the centered Download button and «تنزيل فيديو جديد».
+- Open Recent downloads: check folder actions, long names, missing-file feedback and scrolling.
+- Open Settings. Downloader/Deno checks run daily when a link is used. Compatible failures receive one changed-tool retry with rollback; explicit checking remains available.
 
-398 focused native checks passed with zero build warnings/errors. Scoped visual review, package verification and EXE-only startup passed; the delivered app opens normally. Earlier checks remain baseline evidence. Clean Windows 10/11 and actual browser loading remain owner tests. Protected/sign-in media is unsupported.
-
-Develop with .NET 10 SDK and Node.js 20+. Run `pwsh -File scripts/check.ps1`. Package using `pwsh -File scripts/package.ps1 -Version 4.1.0-preview.23 -Preview`, then run `pwsh -File scripts/smoke-exe.ps1 -Version 4.1.0-preview.23`.
+Validation passed: the full suite, including 1,451 WPF and 45 maintenance checks; 106 final history checks; 58 actual audio profiles; automatic first-use acquisition; live YouTube; single-ZIP, browser-host and EXE-only startup checks. Vimeo's test link required sign-in. Clean Windows 10/11 and actual extension loading remain unverified. Nothing is merged or published.
