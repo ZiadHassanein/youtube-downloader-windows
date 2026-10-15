@@ -14,6 +14,26 @@ internal static partial class Program
         var author = (TextBlock)WpfTree.Find(window, "AuthorCredit");
         var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
         var root = (FrameworkElement)WpfTree.Find(window, "Root");
+        contact.Focus();
+        InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(contact), Environment.TickCount, Key.Apps)
+        { RoutedEvent = Keyboard.KeyUpEvent, Source = contact });
+        await Task.Delay(150);
+        var firstMenu = contact.ContextMenu;
+        Check(firstMenu.IsOpen && ReferenceEquals(firstMenu.PlacementTarget, contact),
+            "The first native ContextMenuService activation opens Contact without needing a prior button click");
+        var firstTop = firstMenu.PointToScreen(new Point());
+        var firstBottom = firstMenu.PointToScreen(new Point(firstMenu.ActualWidth, firstMenu.ActualHeight));
+        var clientTop = root.PointToScreen(new Point());
+        var clientBottom = root.PointToScreen(new Point(root.ActualWidth, root.ActualHeight));
+        Check(firstTop.X >= clientTop.X - 1 && firstTop.Y >= clientTop.Y - 1 && firstBottom.X <= clientBottom.X + 1 &&
+            firstBottom.Y <= contact.PointToScreen(new Point()).Y,
+            "First-open native keyboard placement is above Contact and inside the app borders" +
+            $" (top={firstTop}, bottom={firstBottom}, clientTop={clientTop}, clientBottom={clientBottom}, placement={firstMenu.Placement})");
+        var firstPopup = (HwndSource)PresentationSource.FromVisual(firstMenu);
+        GetClientRect(firstPopup.Handle, out var firstClient);
+        CaptureVisual(firstPopup.RootVisual, System.IO.Path.Combine(captures, "contact-native-first-open.png"), firstClient.Right, firstClient.Bottom);
+        firstMenu.IsOpen = false;
+        await Task.Delay(100);
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
                 foreach (double width in new[] { 1160d, 820d })

@@ -25,7 +25,7 @@
    <Button x:Name="SettingsButton" Content="{Binding SettingsLabel}" Command="{Binding SettingsCommand}" FontFamily="{Binding ContentFont}" Style="{StaticResource QuietButton}" FontSize="12" Padding="7,4" MinHeight="28" Margin="14,0,0,0"/>
   </StackPanel>
   <Button x:Name="ContactButton" Grid.Column="1" Click="ContactClicked" PreviewKeyDown="ContactKeyDown"
-          Style="{StaticResource QuietButton}" FontFamily="{Binding ContentFont}" FontSize="12" Height="32" MinHeight="32" Padding="7,4" AutomationProperties.Name="{Binding ContactLabel}">
+          Style="{StaticResource QuietButton}" FontFamily="{Binding ContentFont}" FontSize="12" Height="32" MinHeight="32" Padding="7,4" AutomationProperties.Name="{Binding ContactLabel}" ContextMenuService.Placement="Custom">
    <Button.ContextMenu>
     <ContextMenu DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}"
                  FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="200" TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight" Placement="Custom">

@@ -7,7 +7,14 @@ namespace YouTubeDownloader;
 
 public partial class AppFooterView : UserControl
 {
-    public AppFooterView() => InitializeComponent();
+    public AppFooterView()
+    {
+        InitializeComponent();
+        var menu = ContactButton.ContextMenu;
+        menu.PlacementTarget = ContactButton;
+        menu.CustomPopupPlacementCallback = (popup, target, _) =>
+            new[] { new CustomPopupPlacement(new Point(target.Width - popup.Width, -popup.Height - 6), PopupPrimaryAxis.Vertical) };
+    }
 
     private void ContactClicked(object sender, RoutedEventArgs args) => OpenContactMenu();
 
@@ -20,10 +27,8 @@ public partial class AppFooterView : UserControl
 
     private void OpenContactMenu()
     {
-        var menu = ContactButton.ContextMenu;
-        menu.PlacementTarget = ContactButton;
-        menu.CustomPopupPlacementCallback = (popup, target, _) =>
-            new[] { new CustomPopupPlacement(new Point(target.Width - popup.Width, -popup.Height - 6), PopupPrimaryAxis.Vertical) };
-        menu.IsOpen = true;
+        // ContextMenuService changes the menu's base placement after native activation.
+        ContactButton.ContextMenu.Placement = PlacementMode.Custom;
+        ContactButton.ContextMenu.IsOpen = true;
     }
 }
