@@ -66,7 +66,10 @@ public sealed partial class MainViewModel
     public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
-    public string QueueHint => T("One link per line. New links use the selected format and maximum quality.");
+    public string QueueHint => T("Paste one link per line, then choose Add to queue. Choose Start queue to download the list in order.");
+    public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
+    public string QueueEmptyHint => T("Your download list is empty.");
+    public string QueueInputLabel => T("Video links");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T("Refresh media tools");
