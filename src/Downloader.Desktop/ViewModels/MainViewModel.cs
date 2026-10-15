@@ -321,6 +321,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void NotifyPresentation()
     {
+        RefreshQueueLinkLabels();
         RefreshCaptions();
         SyncQueue();
         OnPropertyChanged(string.Empty);

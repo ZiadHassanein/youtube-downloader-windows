@@ -70,17 +70,14 @@ public sealed partial class MainViewModel
     public string RetryLabel => T("Retry");
     public string RemoveLabel => T("Remove");
     public string QueueHeading => T("Download queue");
-    public string QueueHint => T("Paste one link per line, then choose Add to queue. Choose Start queue to download the list in order.");
+    public string QueueHint => T("Enter a link, add more fields if needed, then choose Start queue.");
     public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
-    public string QueueEmptyHint => T("Your download list is empty.");
     public string QueueInputLabel => T("Video links");
-    public string QueueInputHint => T("Paste one video link per line.");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
     public string ToolRefreshHint => T("Use this if a video link stops working after a website changes. It updates the tool ViFree uses to read video links and download files.");
     public string OutputHint => T("Audio conversion cannot improve the source quality. Subtitles are saved beside the media when available.");
-    public string QueueInput { get; set; } = "";
     public string QueueMessage { get; private set; } = "";
     public IRelayCommand QueueCommand { get; private set; }
     public IRelayCommand OptionsCommand { get; private set; }
@@ -105,8 +102,8 @@ public sealed partial class MainViewModel
             try { Queue.Add(CurrentRequest(), videoInfo?.Title ?? playlistInfo?.Title); ShowNotice("Added to queue", T("Open the queue to start or manage downloads."), false, "folder"); }
             catch (Exception ex) { ShowNotice("Could not add download", ex.Message, true, "folder"); }
         }, () => CanDownload);
-        AddLinksCommand = new RelayCommand(AddLinks);
         QueueStartCommand = new AsyncRelayCommand(StartQueueAsync, () => IsIdle && Queue.Entries.Any(e => e.State == QueueState.Pending));
+        InitializeQueueInputs();
         RetryQueueCommand = new RelayCommand<Guid>(id => Queue.Retry(id), _ => !Queue.IsRunning);
         RemoveQueueCommand = new RelayCommand<Guid>(id => Queue.Remove(id));
         PlaylistSelectionCommand = new RelayCommand(() =>
@@ -173,32 +170,6 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(QueueMessage));
     }
 
-    private void AddLinks()
-    {
-        try
-        {
-            var links = QueueInput.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
-            if (links.Length == 0) throw new ArgumentException(T("Paste one or more video links first."));
-            if (links.Length + Queue.Entries.Count > DownloadQueue.Capacity) throw new ArgumentException(T("The queue can hold at most 100 downloads. Remove finished items first."));
-            var requests = links.Select(link =>
-            {
-                var targets = downloads.ResolveTargets(link);
-                var request = OutputRequest();
-                request.Url = targets.VideoUrl ?? targets.PlaylistUrl;
-                request.Selection = null;
-                request.QualityKey = null;
-                return request;
-            }).ToArray();
-            int added = 0;
-            foreach (var request in requests)
-                try { Queue.Add(request, new Uri(request.Url).Host); added++; } catch (InvalidOperationException) { }
-            QueueInput = "";
-            OnPropertyChanged(nameof(QueueInput));
-            QueueMessage = F("{0} links added to the queue.", added);
-        }
-        catch (Exception ex) { QueueMessage = T(ex.Message); }
-        OnPropertyChanged(nameof(QueueMessage));
-    }
     private void SyncQueue()
     {
         var entries = Queue.Entries;
@@ -244,6 +215,7 @@ public sealed partial class MainViewModel
         AddQueueCommand?.NotifyCanExecuteChanged();
         OptionsCommand?.NotifyCanExecuteChanged();
         QueueStartCommand?.NotifyCanExecuteChanged();
+        RefreshQueueInputAvailability();
         RetryQueueCommand?.NotifyCanExecuteChanged();
         PlaylistSelectionCommand?.NotifyCanExecuteChanged();
         BrowserCommand?.NotifyCanExecuteChanged();

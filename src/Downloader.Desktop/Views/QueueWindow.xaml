@@ -11,16 +11,43 @@
   <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}"
                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
-    <TextBlock Text="{Binding QueueInputLabel}" FontWeight="SemiBold"/>
-    <TextBlock Text="{Binding QueueInputHint}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="20" Margin="0,4,0,10"/>
-    <TextBox x:Name="QueueLinksInput" Text="{Binding QueueInput,UpdateSourceTrigger=PropertyChanged}"
-             FontFamily="{StaticResource LatinFont}" AcceptsReturn="True" Height="88" Padding="12,10"
-             VerticalContentAlignment="Top" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FlowDirection="LeftToRight"
-             AutomationProperties.Name="{Binding QueueInputLabel}" AutomationProperties.HelpText="{Binding QueueHint}"/>
-    <Grid Margin="0,12,0,20">
+    <TextBlock Text="{Binding QueueInputLabel}" FontWeight="SemiBold" Margin="0,0,0,12"/>
+    <ItemsControl x:Name="QueueInputFields" ItemsSource="{Binding QueueLinkInputs}">
+     <ItemsControl.ItemTemplate>
+      <DataTemplate>
+       <StackPanel Margin="0,0,0,12">
+        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,0,0,6"/>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <TextBox x:Name="QueueLinkField" Text="{Binding Url,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}"
+                  FlowDirection="LeftToRight" TextWrapping="NoWrap" AcceptsReturn="False" DataObject.Pasting="LinkPasting"
+                  AutomationProperties.Name="{Binding Label}" AutomationProperties.HelpText="{Binding Error}">
+          <TextBox.Style><Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}"><Style.Triggers>
+           <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="BorderBrush" Value="{DynamicResource Error}"/></DataTrigger>
+          </Style.Triggers></Style></TextBox.Style>
+         </TextBox>
+         <Button Grid.Column="2" Content="{Binding DataContext.PasteLabel,RelativeSource={RelativeSource AncestorType=Window}}"
+                 Command="{Binding DataContext.PasteQueueLinkCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Click="LinkActionClicked" MinWidth="72"/>
+         <Button Grid.Column="4" Command="{Binding DataContext.RemoveLinkFieldCommand,RelativeSource={RelativeSource AncestorType=Window}}"
+                 CommandParameter="{Binding}" Click="LinkActionClicked" Width="44" Padding="0"
+                 ToolTip="{Binding DataContext.RemoveLinkLabel,RelativeSource={RelativeSource AncestorType=Window}}"
+                 AutomationProperties.Name="{Binding DataContext.RemoveLinkLabel,RelativeSource={RelativeSource AncestorType=Window}}">
+          <Path Data="{StaticResource CloseIcon}" Style="{StaticResource LineIcon}" Width="16" Height="16"/>
+         </Button>
+        </Grid>
+        <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0"
+                   Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}" AutomationProperties.LiveSetting="Polite"/>
+       </StackPanel>
+      </DataTemplate>
+     </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <Button x:Name="AddLinkFieldButton" Command="{Binding AddLinkFieldCommand}" Click="LinkActionClicked" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="0,6" MinHeight="36" Margin="0,0,0,12">
+     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource PlusIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="16" Height="16" Margin="0,0,8,0"/><TextBlock Text="{Binding AddAnotherLinkLabel}"/></StackPanel>
+    </Button>
+    <Grid Margin="0,0,0,20">
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <TextBlock Text="{Binding QueueSettingsHint}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="20" VerticalAlignment="Center"/>
-     <Button x:Name="AddQueueLinksButton" Grid.Column="2" Command="{Binding AddLinksCommand}" MinWidth="140" AutomationProperties.Name="{Binding AddQueueLabel}">
+     <Button x:Name="AddQueueLinksButton" Grid.Column="2" Command="{Binding AddLinksCommand}" Click="SubmitLinksClicked" MinWidth="140" AutomationProperties.Name="{Binding AddQueueLabel}">
       <StackPanel Orientation="Horizontal">
        <Path Data="{StaticResource PlusIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="16" Height="16" Margin="0,0,8,0"/>
        <TextBlock Text="{Binding AddQueueLabel}" TextWrapping="NoWrap"/>
@@ -31,12 +58,9 @@
      <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding QueueMessage}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style>
      <TextBlock Text="{Binding QueueMessage}" Foreground="{DynamicResource Ink}" AutomationProperties.LiveSetting="Polite"/>
     </Border>
+    <StackPanel x:Name="QueuedDownloadsSection" Visibility="{Binding HasQueue,Converter={StaticResource BoolVisibility}}">
     <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
     <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
-     <Grid>
-      <TextBlock x:Name="QueueEmptyState" Text="{Binding QueueEmptyHint}" Foreground="{DynamicResource Muted}" TextAlignment="Center" Margin="16,24">
-       <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding HasQueue}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-      </TextBlock>
       <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueItems}">
        <ItemsControl.ItemTemplate>
         <DataTemplate>
@@ -70,8 +94,8 @@
         </DataTemplate>
        </ItemsControl.ItemTemplate>
       </ItemsControl>
-     </Grid>
     </Border>
+    </StackPanel>
    </StackPanel>
   </ScrollViewer>
   <Border x:Name="QueueFooter" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,20,0,0">
@@ -79,7 +103,7 @@
     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <Button x:Name="QueueCloseButton" Content="{Binding CloseLabel}" Click="CloseClicked" IsCancel="True" MinWidth="88"/>
     <Button x:Name="QueueCancelButton" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Margin="0,0,12,0" Visibility="{Binding QueueRunning,Converter={StaticResource BoolVisibility}}"/>
-    <Button x:Name="QueueStartButton" Grid.Column="3" Content="{Binding StartQueueLabel}" Command="{Binding QueueStartCommand}" Style="{StaticResource PrimaryButton}" MinWidth="156"/>
+    <Button x:Name="QueueStartButton" Grid.Column="3" Content="{Binding StartQueueLabel}" Command="{Binding QueueDownloadCommand}" Click="SubmitLinksClicked" Style="{StaticResource PrimaryButton}" MinWidth="156"/>
    </Grid>
   </Border>
  </Grid>
