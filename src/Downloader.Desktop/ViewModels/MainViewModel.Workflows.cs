@@ -99,7 +99,13 @@ public sealed partial class MainViewModel
         OptionsCommand = new RelayCommand(() => actions.ShowOutputOptions(this), () => IsIdle);
         AddQueueCommand = new RelayCommand(() =>
         {
-            try { Queue.Add(CurrentRequest(), videoInfo?.Title ?? playlistInfo?.Title); ShowNotice("Added to queue", T("Open the queue to start or manage downloads."), false, "folder"); }
+            try
+            {
+                Queue.Add(CurrentRequest(), videoInfo?.Title ?? playlistInfo?.Title);
+                QueueAdditionVersion++;
+                OnPropertyChanged(nameof(QueueAdditionVersion));
+                ShowNotice("Added to queue", T("Open the queue to start or manage downloads."), false, "folder");
+            }
             catch (Exception ex) { ShowNotice("Could not add download", ex.Message, true, "folder"); }
         }, () => CanDownload);
         QueueStartCommand = new AsyncRelayCommand(StartQueueAsync, () => IsIdle && Queue.Entries.Any(e => e.State == QueueState.Pending));
@@ -187,6 +193,7 @@ public sealed partial class MainViewModel
     }
     private async Task StartQueueAsync()
     {
+        SetDownloadAction(DownloadActionState.Ready);
         SetStatus("Download queue", "Preparing your download…", false, true);
         await Queue.RunAsync(async (request, progress, token) =>
         {

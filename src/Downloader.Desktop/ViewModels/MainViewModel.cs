@@ -54,7 +54,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             state.Theme = IsDark ? "Light" : "Dark";
             state.ThemeSelected = true;
-            ThemeResources.Apply(IsDark);
+            ThemeResources.Apply(IsDark, animate: true);
             NotifyPresentation();
             Save();
         });
@@ -71,6 +71,7 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFolderCommand = new RelayCommand(() => OpenFolder(), () => IsIdle);
         OpenFileCommand = new RelayCommand(() => OpenMedia(false), () => HasFile && IsIdle);
         RevealCommand = new RelayCommand(() => OpenMedia(true), () => HasFile && IsIdle);
+        InitializeDownloadAction();
         HistoryCommand = new RelayCommand(() => actions.ShowHistory(state.Recent, T), () => IsIdle);
         SocialCommand = new RelayCommand<string>(kind =>
         {
@@ -131,6 +132,8 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (!SetProperty(ref url, value ?? ""))
                 return;
+            if (downloadActionState != DownloadActionState.Downloading)
+                SetDownloadAction(DownloadActionState.Ready);
             videoInfo = null;
             playlistInfo = null;
             selectedPlaylistIds = null;
@@ -313,6 +316,7 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFolderCommand?.NotifyCanExecuteChanged();
         OpenFileCommand?.NotifyCanExecuteChanged();
         RevealCommand?.NotifyCanExecuteChanged();
+        DownloadActionCommand?.NotifyCanExecuteChanged();
         HistoryCommand?.NotifyCanExecuteChanged();
         UpdateCommand?.NotifyCanExecuteChanged();
         RefreshWorkflowAvailability();

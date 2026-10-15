@@ -5,7 +5,7 @@
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{StaticResource LatinFont}" FontSize="14"
  UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight"
  TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight">
- <Grid x:Name="Root">
+ <Grid x:Name="Root" Background="{DynamicResource Page}">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <local:AppHeaderView x:Name="HeaderContent"/>
   <ScrollViewer x:Name="Viewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
@@ -38,5 +38,6 @@
     </Button>
    </Grid>
   </Border>
+  <local:ThemeTransitionView x:Name="ThemeTransition" Grid.RowSpan="3" Panel.ZIndex="100"/>
  </Grid>
 </Window>

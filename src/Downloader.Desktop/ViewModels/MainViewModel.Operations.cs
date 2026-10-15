@@ -196,6 +196,8 @@ public sealed partial class MainViewModel
         DownloadOptions request = null;
         lastFile = null;
         OnPropertyChanged(nameof(HasFile));
+        SetDownloadAction(DownloadActionState.Downloading);
+        Progress = 0;
         try
         {
             request = CurrentRequest();
@@ -235,6 +237,8 @@ public sealed partial class MainViewModel
                 Indeterminate = false;
                 Progress = request.Playlist == null ? 100 : 100.0 * (result.Completed + result.Failed) / Math.Max(1, result.Total);
             }
+            if (!result.Cancelled && result.Failed == 0 && result.Remaining == 0 && result.StopReason == null && HasFile)
+                SetDownloadAction(DownloadActionState.Complete);
         }
         catch (OperationCanceledException)
         {
@@ -246,6 +250,8 @@ public sealed partial class MainViewModel
         }
         finally
         {
+            if (downloadActionState == DownloadActionState.Downloading)
+                SetDownloadAction(DownloadActionState.Ready);
             RefreshAvailability();
         }
     }

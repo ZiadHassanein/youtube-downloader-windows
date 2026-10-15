@@ -19,15 +19,16 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Face" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True" />
+          <Border x:Name="Face" CornerRadius="8" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
+            <Grid>
+              <Border x:Name="HoverLayer" CornerRadius="7" Background="{DynamicResource Hover}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True"/>
+              <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True" />
+            </Grid>
           </Border>
           <ControlTemplate.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-              <Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}" />
-            </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}" />
+              <Setter TargetName="HoverLayer" Property="Visibility" Value="Hidden" />
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
@@ -51,13 +52,14 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="{TemplateBinding Padding}">
-            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+          <Border x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+            <Grid>
+              <Border CornerRadius="7" Background="{DynamicResource OnAccent}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.08"/>
+              <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+            </Grid>
           </Border>
           <ControlTemplate.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-              <Setter TargetName="Face" Property="Opacity" Value="0.87" />
-            </Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="Opacity" Value="0.86"/></Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}" />
               <Setter TargetName="Face" Property="BorderThickness" Value="2" />
@@ -115,14 +117,17 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="RadioButton">
-          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="12,8">
-            <DockPanel VerticalAlignment="Center">
+          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8">
+           <Grid>
+            <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/>
+            <DockPanel VerticalAlignment="Center" Margin="12,8">
               <Grid Width="18" Height="18" Margin="0,0,10,0" DockPanel.Dock="Left">
                 <Ellipse Stroke="{DynamicResource Border}" StrokeThickness="1" />
                 <Ellipse x:Name="Dot" Fill="{DynamicResource Accent}" Margin="4" Visibility="Hidden" />
               </Grid>
               <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True" />
             </DockPanel>
+           </Grid>
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -154,12 +159,14 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="ComboBoxItem">
-          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
-            <ContentPresenter VerticalAlignment="Center" />
+          <Border x:Name="Face" Background="{DynamicResource Field}" BorderBrush="{DynamicResource Divider}" BorderThickness="1" CornerRadius="8">
+            <Grid>
+             <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True" local:HoverMotion.Strength="0.35"/>
+             <ContentPresenter VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+            </Grid>
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsHighlighted" Value="True">
-              <Setter TargetName="Face" Property="Background" Value="{DynamicResource Hover}" />
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
@@ -189,7 +196,10 @@
               <ToggleButton.Template>
                 <ControlTemplate TargetType="ToggleButton">
                   <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8">
+                   <Grid>
+                    <Border Background="{DynamicResource Hover}" CornerRadius="7" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True"/>
                     <Path Data="M 0 0 L 5 5 L 10 0" Stroke="{DynamicResource Muted}" StrokeThickness="1.8" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0" />
+                   </Grid>
                   </Border>
                 </ControlTemplate>
               </ToggleButton.Template>

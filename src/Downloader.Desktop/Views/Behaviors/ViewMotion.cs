@@ -8,7 +8,7 @@ internal static class ViewMotion
 {
     internal static void Reveal(FrameworkElement view)
     {
-        if (!SystemParameters.ClientAreaAnimation || SystemParameters.HighContrast) return;
+        if (!MotionPreferences.Enabled) return;
         var offset = new TranslateTransform();
         view.RenderTransform = offset;
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };

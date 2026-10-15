@@ -42,8 +42,13 @@ internal static class ThemeResources
         ["Success"] = ("#1C754E", "#7CD7A5")
     };
 
-    public static void Apply(bool dark)
+    public static void Apply(bool dark, bool animate = false)
     {
+        if (animate && Application.Current.MainWindow is MainWindow { IsVisible: true } window)
+        {
+            window.ThemeTransition.Run((FrameworkElement)window.Content, window.HeaderContent.ThemeButton, () => Apply(dark));
+            return;
+        }
         foreach (var (key, colors) in Palette)
         {
             Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? colors.Dark : colors.Light));

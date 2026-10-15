@@ -42,6 +42,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--motion"))
+                {
+                    await CheckMotion(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF motion checks passed.");
+                    return;
+                }
                 if (args.Contains("--output-picker"))
                 {
                     await CheckOutputPicker(window, model, captures);
@@ -194,6 +200,7 @@ internal static partial class Program
                 await CheckDropdownScrolling(window, model, captures);
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
+                await CheckMotion(window, model, provider, captures);
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
                 await Task.Delay(50);
@@ -409,6 +416,8 @@ internal static partial class Program
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
         public string VideoTitle = "Local UI fixture";
         public int DownloadDelayMilliseconds = 10000;
+        public Func<DownloadOptions, CancellationToken, IProgress<DownloadProgress>, DownloadResult> DownloadHandler;
+        public int DownloadCalls;
         public List<CaptionChoice> CaptionTracks = new();
         public Action<CancellationToken> InspectionHook;
         public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
@@ -465,6 +474,8 @@ internal static partial class Program
         };
         public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
+            DownloadCalls++;
+            if (DownloadHandler != null) return DownloadHandler(options, token, progress);
             progress?.Report(new DownloadProgress { Stage = "Downloading", Detail = "Local fixture only", Percent = 20 });
             token.WaitHandle.WaitOne(DownloadDelayMilliseconds);
             token.ThrowIfCancellationRequested();
