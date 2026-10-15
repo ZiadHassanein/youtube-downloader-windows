@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Automation.Peers;
 using System.Windows.Threading;
@@ -12,6 +13,7 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel model;
     private bool closing, closed, fitQueued;
+    private FlowDirection presentationDirection;
     public MainWindow() : this(null, null)
     {
     }
@@ -28,6 +30,7 @@ public partial class MainWindow : Window
         }));
         var actions = new DesktopActions(this);
         model = new MainViewModel(service ?? new DownloadService(new YtDlpProvider(new DependencyManager()), new LocalPlaylistStorage()), repository ?? new SettingsRepository(), actions);
+        presentationDirection = model.ContentDirection;
         DataContext = model;
         model.NoticeRequested += PlaceNotice;
         PageContent.SizeChanged += (_, _) => QueueFit();
@@ -38,7 +41,14 @@ public partial class MainWindow : Window
         model.PropertyChanged += (_, args) =>
         {
             if (string.IsNullOrEmpty(args.PropertyName))
+            {
+                if (presentationDirection != model.ContentDirection)
+                {
+                    ResetDropDowns(PageContent);
+                    presentationDirection = model.ContentDirection;
+                }
                 ApplyTitleBar();
+            }
             if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.OptionsVisible) or nameof(MainViewModel.HasPlaylist) or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.NoticeVisible))
                 QueueFit();
             if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading))
@@ -55,6 +65,23 @@ public partial class MainWindow : Window
             AppUpdates.AcknowledgeStartup();
         };
         Closing += ClosingAsync;
+    }
+
+    private static void ResetDropDowns(DependencyObject parent)
+    {
+        if (parent is ComboBox combo)
+        {
+            // WPF can retain the old popup HWND's height after inherited font/direction changes.
+            // Recreate the template's popup; keep the ComboBox, selection and bindings intact.
+            combo.SetCurrentValue(ComboBox.IsDropDownOpenProperty, false);
+            var template = combo.Template;
+            combo.SetCurrentValue(Control.TemplateProperty, null);
+            combo.SetCurrentValue(Control.TemplateProperty, template);
+            combo.ApplyTemplate();
+            return;
+        }
+        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
+            ResetDropDowns(VisualTreeHelper.GetChild(parent, index));
     }
 
     private void ApplyTitleBar()

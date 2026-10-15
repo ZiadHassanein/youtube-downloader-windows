@@ -37,8 +37,16 @@ internal static class Program
                 window.UpdateLayout();
                 Check(window.Title == "ViFree" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
-                var captures = args.Length > 0 ? args[0] : root;
+                var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--audio-popup"))
+                {
+                    window.Width = 820;
+                    model.Audio = true;
+                    await QualityPopupChecks.Run(window, model, captures, Check);
+                    Console.WriteLine(count + " WPF audio-popup checks passed.");
+                    return;
+                }
                 foreach (string language in new[]
                 {
                     "en",
@@ -123,6 +131,7 @@ internal static class Program
                 Check(model.CanDownload && model.Qualities.Count == 2 && model.SelectedQuality.Height == 720, "Automatic inspection offers only actual fake-provider qualities and recommends available720p");
                 model.Audio = true;
                 Check(model.Qualities.Any(q => q.Bitrate == 192) && model.Qualities.Any(q => q.Bitrate == 320), "MP3 encoding choices survive the WPF port");
+                await QualityPopupChecks.Run(window, model, captures, Check);
                 await Task.Delay(180);
                 window.UpdateLayout();
                 Capture(window, System.IO.Path.Combine(captures, "minimum-audio.png"));
