@@ -130,15 +130,6 @@
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
               <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
             </Trigger>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="Tag" Value="Audio" />
-                <Condition Property="IsChecked" Value="True" />
-              </MultiTrigger.Conditions>
-              <Setter TargetName="Face" Property="Background" Value="{DynamicResource AudioSelected}" />
-              <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource AudioAccent}" />
-              <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource AudioAccent}" />
-            </MultiTrigger>
             <Trigger Property="IsMouseOver" Value="True">
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Accent}" />
             </Trigger>

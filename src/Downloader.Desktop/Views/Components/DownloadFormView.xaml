@@ -30,14 +30,14 @@
    <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoLabel}">
     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/></StackPanel>
    </RadioButton>
-   <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource AudioFormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioLabel}" AutomationProperties.HelpText="{Binding AudioFormatLabel}"
+   <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioLabel}" AutomationProperties.HelpText="{Binding AudioFormatLabel}"
                 Click="AudioClicked" PreviewKeyDown="AudioKeyDown" ContextMenuOpening="AudioMenuOpening">
     <RadioButton.ContextMenu>
      <ContextMenu x:Name="AudioFormatMenu" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="216" StaysOpen="False" Placement="Custom">
       <ContextMenu.Template><ControlTemplate TargetType="ContextMenu"><Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border></ControlTemplate></ContextMenu.Template>
      </ContextMenu>
     </RadioButton.ContextMenu>
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource AudioAccent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
   </UniformGrid>
   <Grid x:Name="OutputControls" Margin="0,0,0,20">

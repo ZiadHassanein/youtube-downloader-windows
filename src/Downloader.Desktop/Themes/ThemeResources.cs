@@ -37,8 +37,6 @@ internal static class ThemeResources
         ["Hover"] = ("#EDF4F1", "#2D3C3D"),
         ["Selected"] = ("#DDF2EB", "#203F39"),
         ["Error"] = ("#B33146", "#FF9EAD"),
-        ["AudioAccent"] = ("#965A0E", "#F3BE6B"),
-        ["AudioSelected"] = ("#FFF0D6", "#403322"),
         ["InfoAccent"] = ("#3B6593", "#9FC4ED"),
         ["Divider"] = ("#D4DFDA", "#3B4A48"),
         ["Success"] = ("#1C754E", "#7CD7A5")
@@ -53,7 +51,7 @@ internal static class ThemeResources
                 brush = key switch
                 {
                     "Ink" or "Muted" or "Error" or "Success" => SystemColors.WindowTextBrush,
-                    "Accent" or "Action" or "Border" or "AudioAccent" => SystemColors.HighlightBrush,
+                    "Accent" or "Action" or "Border" => SystemColors.HighlightBrush,
                     "OnAccent" => SystemColors.HighlightTextBrush,
                     _ => SystemColors.WindowBrush
                 };

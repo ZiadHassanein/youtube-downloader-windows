@@ -27,14 +27,6 @@
    </Trigger>
   </Style.Triggers>
  </Style>
- <Style x:Key="AudioFormatSegment" TargetType="RadioButton" BasedOn="{StaticResource FormatSegment}">
-  <Style.Triggers>
-   <Trigger Property="IsChecked" Value="True">
-    <Setter Property="Background" Value="{DynamicResource AudioSelected}"/><Setter Property="BorderBrush" Value="{DynamicResource AudioAccent}"/>
-    <Setter Property="Foreground" Value="{DynamicResource AudioAccent}"/>
-   </Trigger>
-  </Style.Triggers>
- </Style>
  <Style x:Key="SelectionMenuItem" TargetType="MenuItem">
   <Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="MinHeight" Value="44"/>
   <Setter Property="Margin" Value="0,3"/><Setter Property="Cursor" Value="Hand"/>

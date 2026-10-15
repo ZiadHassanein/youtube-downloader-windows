@@ -42,8 +42,6 @@ internal static partial class Program
                         "Readable " + foreground + " on " + background + " in " + (dark ? "dark" : "light") + " theme");
             Check(Contrast(Role("OnAccent"), Role("Action")) >= 4.5 && Contrast(Role("Action"), Role("Page")) >= 3,
                 "The primary action and its label remain distinct and readable");
-            Check(Contrast(Role("AudioAccent"), Role("AudioSelected")) >= 4.5 && Contrast(Role("AudioAccent"), Role("Field")) >= 3,
-                "Audio has a readable warm selection and recognizable icon");
             foreach (string background in new[] { "Page", "Field", "Surface", "Hover" })
                 Check(Contrast(Role("Border"), Role(background)) >= 3, "Control boundaries remain visible on " + background);
             foreach (bool arabic in new[] { false, true })
@@ -59,9 +57,9 @@ internal static partial class Program
                         var selected = useAudio ? audio : video;
                         var face = (Border)selected.Template.FindName("Face", selected);
                         Check(selected.IsChecked == true && selected.FontWeight == FontWeights.SemiBold &&
-                            Equals(face.Background, Application.Current.Resources[useAudio ? "AudioSelected" : "Selected"]) &&
-                            Equals(selected.Foreground, Application.Current.Resources[useAudio ? "AudioAccent" : "Accent"]),
-                            "The actual labeled selection follows its video/audio color role without losing checked state");
+                            Equals(face.Background, Application.Current.Resources["Selected"]) &&
+                            Equals(selected.Foreground, Application.Current.Resources["Accent"]),
+                            "Video and audio share the readable selection treatment without losing checked state");
                         string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") +
                             (useAudio ? "-audio" : "-video") + (width < 1000 ? "-compact" : "-wide");
                         ((ScrollViewer)WpfTree.Find(window, "Viewport")).ScrollToTop();
