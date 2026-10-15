@@ -27,32 +27,29 @@
   </StackPanel>
   <TextBlock Text="{Binding FormatLabel}" Style="{StaticResource SectionLabel}"/>
   <UniformGrid Columns="2" Margin="0,0,0,16">
-   <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoKindLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoKindLabel}"/></StackPanel>
+   <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoLabel}">
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/></StackPanel>
    </RadioButton>
-   <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource AudioFormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioKindLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource AudioAccent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioKindLabel}"/></StackPanel>
+   <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource AudioFormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioLabel}" AutomationProperties.HelpText="{Binding AudioFormatLabel}"
+                Click="AudioClicked" PreviewKeyDown="AudioKeyDown" ContextMenuOpening="AudioMenuOpening">
+    <RadioButton.ContextMenu>
+     <ContextMenu x:Name="AudioFormatMenu" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="216" StaysOpen="False" Placement="Custom">
+      <ContextMenu.Template><ControlTemplate TargetType="ContextMenu"><Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border></ControlTemplate></ContextMenu.Template>
+     </ContextMenu>
+    </RadioButton.ContextMenu>
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource AudioAccent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
   </UniformGrid>
-  <Grid Margin="0,0,0,10">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+  <Grid x:Name="OutputControls" Margin="0,0,0,20">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <StackPanel>
-    <TextBlock Text="{Binding ContainerLabel}" Style="{StaticResource SectionLabel}"/>
-    <Grid>
-     <ComboBox ItemsSource="{Binding VideoContainers}" SelectedIndex="0" Visibility="{Binding Video,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{Binding ContainerLabel}"/>
-     <ComboBox ItemsSource="{Binding Encodings}" SelectedItem="{Binding SelectedEncoding}" DisplayMemberPath="Label" Visibility="{Binding Audio,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{Binding AudioFormatLabel}"/>
-    </Grid>
-   </StackPanel>
-   <StackPanel Grid.Column="2">
     <TextBlock Text="{Binding QualityLabel}" Style="{StaticResource SectionLabel}"/>
     <ComboBox x:Name="QualityInput" ItemsSource="{Binding Qualities}" SelectedItem="{Binding SelectedQuality}" DisplayMemberPath="Label" IsEnabled="{Binding CanChooseQuality}" AutomationProperties.Name="{Binding QualityLabel}"/>
    </StackPanel>
+   <Button x:Name="MoreOptionsButton" Grid.Column="2" Command="{Binding OptionsCommand}" Style="{StaticResource QuietButton}" VerticalAlignment="Bottom" Padding="12,8" ToolTip="{Binding OptionsHint}" AutomationProperties.Name="{Binding OptionsLabel}">
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource OptionsIcon}" Style="{StaticResource LineIcon}" Width="18" Margin="0,0,10,0"/><TextBlock Text="{Binding OptionsLabel}"/></StackPanel>
+   </Button>
   </Grid>
-  <Button x:Name="MoreOptionsButton" Command="{Binding OptionsCommand}" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Padding="0,6" Margin="0,0,0,14" AutomationProperties.Name="{Binding OptionsLabel}">
-   <StackPanel Orientation="Horizontal"><Path Data="{StaticResource OptionsIcon}" Style="{StaticResource LineIcon}" Width="18" Margin="0,0,10,0"/>
-    <StackPanel><TextBlock Text="{Binding OptionsLabel}" Foreground="{DynamicResource Ink}"/><TextBlock Text="{Binding OptionsHint}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="20" Margin="0,3,0,0"/></StackPanel>
-   </StackPanel>
-  </Button>
   <TextBlock Text="{Binding FolderLabel}" Style="{StaticResource SectionLabel}"/>
   <Grid x:Name="FolderAnchor">
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="10"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>

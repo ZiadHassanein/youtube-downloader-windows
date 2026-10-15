@@ -18,7 +18,7 @@ internal static class QualityPopupChecks
         foreach (bool dark in new[] { true, false })
         {
             if (model.IsDark != dark) model.ThemeCommand.Execute(null);
-            foreach (int bitrate in new[] { 192, 320 })
+            foreach (int bitrate in new[] { 192, 320, 128, 32, 0 })
             {
                 model.SelectedQuality = model.Qualities.First(q => q.Bitrate == bitrate);
                 for (int toggle = 0; toggle < 6; toggle++)
@@ -40,17 +40,13 @@ internal static class QualityPopupChecks
                     var nativeSize = source.CompositionTarget.TransformFromDevice.Transform(new Vector(native.Right, native.Bottom));
                     string variant = (model.IsArabic ? "ar" : "en") + (dark ? "-dark" : "-light");
                     check(quality.SelectedItem is QualityChoice selected && selected.Bitrate == bitrate &&
-                        ReferenceEquals(quality.SelectedItem, model.SelectedQuality) && quality.Items.Count == 2,
+                        ReferenceEquals(quality.SelectedItem, model.SelectedQuality) && quality.Items.Count == OutputProfiles.AudioBitrates(model.SelectedEncoding.Encoding).Count + 1,
                         $"Audio selection survives language switch {toggle + 1} in {variant} at {bitrate} kbps");
-                    bool fits = true;
-                    foreach (var item in quality.Items)
-                    {
-                        var row = quality.ItemContainerGenerator.ContainerFromItem(item) as ComboBoxItem;
-                        if (row == null) { fits = false; continue; }
-                        var bounds = row.TransformToAncestor(panel).TransformBounds(new Rect(row.RenderSize));
-                        fits &= row.ActualHeight > 20 && bounds.Top >= -1 && bounds.Left >= -1 &&
-                            bounds.Bottom <= panel.ActualHeight + 1 && bounds.Right <= panel.ActualWidth + 1;
-                    }
+                    var viewport = FindDescendant<ScrollContentPresenter>(panel);
+                    var row = (ComboBoxItem)quality.ItemContainerGenerator.ContainerFromItem(quality.SelectedItem);
+                    var bounds = row.TransformToAncestor(viewport).TransformBounds(new Rect(row.RenderSize));
+                    bool fits = row.ActualHeight > 20 && bounds.Top >= -1 && bounds.Left >= -1 &&
+                        bounds.Bottom <= viewport.ActualHeight + 1 && bounds.Right <= viewport.ActualWidth + 1;
                     if (toggle >= 4)
                     {
                         var dpi = VisualTreeHelper.GetDpi(panel);
@@ -63,7 +59,7 @@ internal static class QualityPopupChecks
                         encoder.Save(stream);
                     }
                     check(popup.IsOpen && fits && panel.ActualHeight <= nativeSize.Y + 1 && panel.ActualWidth <= nativeSize.X + 1,
-                        $"Both audio-quality rows remain fully visible after switch {toggle + 1} in {variant} (panel={panel.RenderSize}, native={nativeSize})");
+                        $"Selected audio quality stays fully visible in the scrolling list after switch {toggle + 1} in {variant} (row={bounds}, viewport={viewport.RenderSize}, panel={panel.RenderSize}, native={nativeSize})");
                     check(Math.Abs(panel.ActualHeight - panel.DesiredSize.Height) <= 1,
                         $"Audio popup discards the previous language's height in {variant} (actual={panel.ActualHeight}, desired={panel.DesiredSize.Height})");
                     quality.IsDropDownOpen = false;
@@ -91,5 +87,16 @@ internal static class QualityPopupChecks
         await window.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
         await Task.Delay(30);
         window.UpdateLayout();
+    }
+
+    private static T FindDescendant<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
+        {
+            var child = VisualTreeHelper.GetChild(root, index);
+            if (child is T match) return match;
+            if (FindDescendant<T>(child) is { } descendant) return descendant;
+        }
+        return null;
     }
 }

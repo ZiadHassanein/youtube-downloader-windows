@@ -217,7 +217,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (!SetProperty(ref selectedQuality, value))
                 return;
-            if (value?.Bitrate > 0)
+            if (Audio && value != null && !OutputProfiles.IsLossless(SelectedEncoding.Encoding))
             {
                 state.AudioBitrate = value.Bitrate;
                 Save();

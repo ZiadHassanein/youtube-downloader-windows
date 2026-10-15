@@ -176,6 +176,7 @@
     </Setter>
   </Style>
   <Style TargetType="ComboBox">
+    <Setter Property="local:ComboBoxSelectionVisibility.KeepVisible" Value="True" />
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />
     <Setter Property="MinHeight" Value="44" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -196,7 +197,7 @@
             <Border x:Name="FocusBorder" CornerRadius="8" BorderBrush="Transparent" BorderThickness="2" IsHitTestVisible="False" />
             <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="None">
               <Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="4" MinWidth="{Binding ActualWidth,RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260">
-                <ScrollViewer CanContentScroll="True" Style="{DynamicResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer CanContentScroll="False" Style="{DynamicResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                   <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                 </ScrollViewer>
               </Border>

@@ -28,14 +28,10 @@ public sealed partial class MainViewModel
     public string CurrentLanguageLabel => IsArabic ? "العربية" : "English";
     public string LanguageLabel => T("Language");
     public bool IsEnglish => !IsArabic;
-    public IReadOnlyList<string> VideoContainers { get; } = new[] { "MP4" };
     public string NewDownloadLabel => T("New download");
     public string SettingsLabel => T("Settings");
     public string ContactLabel => T("Contact");
     public string EmailLabel => T("Email");
-    public string VideoKindLabel => T("Video");
-    public string AudioKindLabel => T("Audio");
-    public string ContainerLabel => T("Format");
     public string OptionsHint => T("Subtitles and file options");
     public string ChangeFolderLabel => T("Change");
     public string BrowserSettingsHint => T("Send a video link from your browser to ViFree.");

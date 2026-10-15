@@ -75,8 +75,8 @@ namespace YouTubeDownloader
                 throw new ArgumentException("Choose a supported video quality.");
             if (!Enum.IsDefined(options.AudioEncoding) || !Enum.IsDefined(options.Captions?.Format ?? CaptionFormat.Srt))
                 throw new ArgumentException("Choose a supported output format.");
-            if (options.Audio && options.AudioBitrate != 192 && options.AudioBitrate != 320)
-                throw new ArgumentException("Choose a supported MP3 bitrate.");
+            if (options.Audio && !OutputProfiles.SupportsAudioBitrate(options.AudioEncoding, options.AudioBitrate))
+                throw new ArgumentException("Choose a supported audio quality.");
             var args = Common(tools);
             bool playlist = options.Playlist != null || options.PlaylistItem;
             if (options.Playlist != null)
@@ -87,12 +87,12 @@ namespace YouTubeDownloader
 
             if (playlist)
                 args.AddRange(new[] { "--sleep-requests", "0.75", "--sleep-interval", "2", "--max-sleep-interval", "4", "--match-filters", "!is_live" });
-            string filename = "%(title).100B [%(id)s]" + (options.Audio ? " - " + (OutputProfiles.IsLossless(options.AudioEncoding) ? OutputProfiles.AudioExtension(options.AudioEncoding) : options.AudioBitrate + "kbps") : " - " + (options.Height > 0 ? (playlist ? "max" : "") + options.Height + "p" : "best")) + ".%(ext)s";
+            string filename = "%(title).100B [%(id)s]" + (options.Audio ? " - " + (OutputProfiles.IsLossless(options.AudioEncoding) ? OutputProfiles.AudioExtension(options.AudioEncoding) : options.AudioBitrate == 0 ? "best" : options.AudioBitrate + "kbps") : " - " + (options.Height > 0 ? (playlist ? "max" : "") + options.Height + "p" : "best")) + ".%(ext)s";
             args.AddRange(new[] { "--no-simulate", "--continue", "--part", "--newline", "--progress", "--progress-delta", "0.3", "--windows-filenames", "--no-overwrites", "--trim-filenames", "180", "--paths", folder, "--output", filename, "--progress-template", "download:YTDL_PROGRESS:%(progress)j", "--progress-template", "postprocess:YTDL_POST:%(progress)j", "--print", "before_dl:YTDL_TITLE:%(title)j", "--print", "after_move:YTDL_FILE:%(filepath)j" });
             if (options.Audio)
             {
                 args.AddRange(new[] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", OutputProfiles.AudioExtension(options.AudioEncoding) });
-                if (!OutputProfiles.IsLossless(options.AudioEncoding)) args.AddRange(new[] { "--audio-quality", options.AudioBitrate + "K" });
+                if (!OutputProfiles.IsLossless(options.AudioEncoding)) args.AddRange(new[] { "--audio-quality", options.AudioBitrate == 0 ? "0" : options.AudioBitrate + "K" });
             }
             else
             {

@@ -8,6 +8,7 @@ namespace YouTubeDownloader
         {
             { "New download", "تنزيل جديد" },
             { "More options", "خيارات إضافية" },
+            { "Choose a supported audio quality.", "اختر جودة صوت متاحة للصيغة المحددة." },
             { "Language", "اللغة" },
             { "Done", "تم" },
             { "Subtitle file format", "صيغة ملف الترجمة" },

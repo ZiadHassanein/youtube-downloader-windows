@@ -31,14 +31,12 @@ public sealed partial class MainViewModel
         if (Audio && OutputProfiles.IsLossless(SelectedEncoding.Encoding))
             Qualities.Add(new QualityChoice(T("Source quality"), Bitrate: state.AudioBitrate));
         else if (Audio)
-            foreach (int bitrate in new[]
-            {
-                192,
-                320
-            }
-
-            )
+        {
+            state.AudioBitrate = OutputProfiles.NormalizeAudioBitrate(SelectedEncoding.Encoding, state.AudioBitrate);
+            Qualities.Add(new QualityChoice(T("Best available")));
+            foreach (int bitrate in OutputProfiles.AudioBitrates(SelectedEncoding.Encoding).Reverse())
                 Qualities.Add(new QualityChoice(bitrate + " kbps", Bitrate: bitrate));
+        }
         else if (WholePlaylist && playlistInfo != null)
             foreach (int cap in new[]
             {

@@ -53,6 +53,24 @@ internal static class WorkflowChecks
         Check(v.Captions.Single().Language == "en" && !v.Captions.Single().Automatic, "Subtitle choices come from inspected metadata");
         var unavailableAudioCaptions = new DownloadOptions { Url = vimeo, Folder = Path.Combine(root, "RequiredAudioCaptions"), Audio = true, Captions = new("ar", false, CaptionFormat.Srt, Required: true) };
         Check(Reject(() => provider.DownloadItem(unavailableAudioCaptions)), "Required subtitles are refreshed for audio downloads as well as video");
+        var audioProfiles = new HashSet<string>();
+        foreach (var encoding in new[] { AudioEncoding.Mp3, AudioEncoding.M4a, AudioEncoding.Opus })
+            foreach (int bitrate in OutputProfiles.AudioBitrates(encoding).Prepend(0))
+            {
+                var audioRequest = new DownloadOptions { Url = vimeo, Folder = root, Audio = true, AudioEncoding = encoding, AudioBitrate = bitrate };
+                var generated = Arguments.ForDownload(tools, audioRequest);
+                string target = generated[generated.IndexOf("--audio-quality") + 1];
+                var repository = new SettingsRepository(Path.Combine(root, "QualitySettings"));
+                repository.Save(new SavedState { AudioEncoding = encoding, AudioBitrate = bitrate });
+                Check(target == (bitrate == 0 ? "0" : bitrate + "K") && repository.Load().AudioBitrate == bitrate && audioProfiles.Add(OutputProfiles.Key(audioRequest)),
+                    $"Audio target, saved quality and resume profile stay distinct for {encoding}/{bitrate}");
+            }
+        Check(OutputProfiles.AudioBitrates(AudioEncoding.Mp3).Contains(128) && OutputProfiles.AudioBitrates(AudioEncoding.Mp3).Contains(256) &&
+            !OutputProfiles.SupportsAudioBitrate(AudioEncoding.Mp3, 512) && !OutputProfiles.SupportsAudioBitrate(AudioEncoding.Opus, 512) &&
+            !OutputProfiles.SupportsAudioBitrate(AudioEncoding.M4a, -1), "Audio formats expose useful expanded presets and reject invalid codec targets");
+        foreach (var invalid in new[] { (AudioEncoding.Mp3, 512), (AudioEncoding.Opus, 512), (AudioEncoding.M4a, -1) })
+            Check(Reject(() => Arguments.ForDownload(tools, new DownloadOptions { Url = vimeo, Folder = root, Audio = true, AudioEncoding = invalid.Item1, AudioBitrate = invalid.Item2 })),
+                "Unsupported audio targets cannot reach the downloader: " + invalid);
         foreach (AudioEncoding encoding in Enum.GetValues<AudioEncoding>())
         {
             var audio = new DownloadOptions { Url = vimeo, Folder = Path.Combine(root, encoding.ToString()), Audio = true, AudioEncoding = encoding, AudioBitrate = 320 };
