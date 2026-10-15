@@ -58,6 +58,7 @@ internal static partial class Program
             }
         }
         double previousMaxHeight = owner.MaxHeight;
+        double previousHeight = owner.Height;
         owner.MaxHeight = 500;
         owner.Width = 820;
         owner.Height = 500;
@@ -73,6 +74,7 @@ internal static partial class Program
             return Task.CompletedTask;
         });
         owner.MaxHeight = previousMaxHeight;
+        owner.Height = previousHeight;
         owner.Width = 1160;
         await Task.Delay(150);
         await InspectOptionsModal(owner, model, async dialog =>

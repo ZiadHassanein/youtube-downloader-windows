@@ -12,7 +12,7 @@
   <StackPanel>
    <Grid Margin="0,0,0,24">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <TextBlock Text="{Binding SettingsLabel}" FontSize="23" FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding SettingsLabel}" FontSize="23" LineHeight="32" FontWeight="SemiBold"/>
     <Button Grid.Column="1" Command="{Binding SettingsCommand}" Style="{StaticResource ToolbarButton}" Padding="8" MinHeight="32" AutomationProperties.Name="{Binding CloseLabel}">
      <Path Data="M1,1 L13,13 M13,1 L1,13" Style="{StaticResource LineIcon}" Width="14" Height="14"/>
     </Button>

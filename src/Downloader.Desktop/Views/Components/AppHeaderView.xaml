@@ -29,7 +29,7 @@
    <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Left" Padding="0" AutomationProperties.Name="{Binding NewDownloadLabel}">
     <StackPanel Orientation="Horizontal">
      <Path x:Name="BrandMark" Data="{StaticResource PlayMark}" Fill="{StaticResource BrandFill}" Width="38" Height="42" Stretch="Uniform" Margin="0,0,16,0" AutomationProperties.Name="ViFree logo"/>
-     <TextBlock x:Name="BrandWordmark" Text="ViFree" FontFamily="{StaticResource LatinFont}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" AutomationProperties.Name="ViFree"/>
+     <TextBlock x:Name="BrandWordmark" Text="ViFree" FontFamily="{StaticResource LatinFont}" FontSize="28" LineHeight="36" FontWeight="Bold" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" AutomationProperties.Name="ViFree"/>
     </StackPanel>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">

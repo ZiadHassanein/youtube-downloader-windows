@@ -41,6 +41,13 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--window-layout"))
+                {
+                    await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
+                    await MaximizeChecks(window, model, captures);
+                    Console.WriteLine(count + " WPF window-layout checks passed.");
+                    return;
+                }
                 if (args.Contains("--header"))
                 {
                     await CheckHeader(window, model, captures);
@@ -125,6 +132,7 @@ internal static partial class Program
                         Capture(window, System.IO.Path.Combine(captures, language + (dark ? "-dark" : "-light") + ".png"));
                     }
 
+                await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
                 await CheckHeader(window, model, captures);
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
@@ -259,6 +267,7 @@ internal static partial class Program
     private static async Task MaximizeChecks(Window window, MainViewModel model, string captures)
     {
         double normalWidth = window.Width;
+        double normalHeight = window.Height;
         window.WindowState = WindowState.Maximized;
         await Task.Delay(120);
         var handle = new WindowInteropHelper(window).Handle;
@@ -296,9 +305,10 @@ internal static partial class Program
         window.UpdateLayout();
         var page = (FrameworkElement)WpfTree.Find(window, "PageContent");
         GetWindowRect(handle, out var restoredBounds);
-        Check(Math.Abs(window.Width - normalWidth) <= 1 && page.MinHeight == 0 &&
+        Check(Math.Abs(window.Width - normalWidth) <= 1 && Math.Abs(window.Height - normalHeight) <= 1 &&
+            Math.Abs(page.MinHeight - ((ScrollViewer)WpfTree.Find(window, "Viewport")).ViewportHeight) <= 1 &&
             restoredBounds.Top >= info.Work.Top - 8 && restoredBounds.Bottom <= info.Work.Bottom + 8,
-            $"Restoring returns to content-fit sizing without inheriting the maximized height (state={window.WindowState}, width={window.Width}, height={window.ActualHeight}, pageMin={page.MinHeight})");
+            $"Restoring preserves the chosen window size without inheriting the maximized height (state={window.WindowState}, width={window.Width}, height={window.ActualHeight}, pageMin={page.MinHeight})");
         Capture(window, System.IO.Path.Combine(captures, "restored.png"));
         window.WindowState = WindowState.Minimized;
         await Task.Delay(60);
@@ -338,6 +348,7 @@ internal static partial class Program
         public string Id => "youtube";
         public bool IsReady => true;
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
+        public string VideoTitle = "Local UI fixture";
         public int DownloadDelayMilliseconds = 10000;
         public List<CaptionChoice> CaptionTracks = new();
         public Action<CancellationToken> InspectionHook;
@@ -357,7 +368,7 @@ internal static partial class Program
             InspectionHook?.Invoke(token);
             return new()
             {
-                Title = "Local UI fixture",
+                Title = VideoTitle,
                 Uploader = "Local test fixture",
                 Duration = 504,
                 ThumbnailUrl = ThumbnailAddress,

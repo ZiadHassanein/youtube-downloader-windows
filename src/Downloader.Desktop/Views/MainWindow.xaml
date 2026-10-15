@@ -3,12 +3,13 @@
  Title="ViFree" Icon="pack://application:,,,/ViFree;component/Assets/app.ico"
  Width="1160" Height="800" MinWidth="820" MinHeight="500" WindowStartupLocation="CenterScreen"
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{StaticResource LatinFont}" FontSize="14"
- UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight">
+ UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight"
+ TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight">
  <Grid x:Name="Root">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <local:AppHeaderView x:Name="HeaderContent"/>
   <ScrollViewer x:Name="Viewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
-   <Grid x:Name="PageContent" FlowDirection="{Binding ContentDirection}">
+   <Grid x:Name="PageContent" FlowDirection="{Binding ContentDirection}" MinHeight="{Binding ViewportHeight,ElementName=Viewport}">
     <Grid.ColumnDefinitions><ColumnDefinition Width="55*"/><ColumnDefinition Width="45*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <local:DownloadFormView x:Name="DownloadForm" VerticalAlignment="Top"/>

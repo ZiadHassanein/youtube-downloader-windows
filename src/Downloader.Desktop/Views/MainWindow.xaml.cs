@@ -11,7 +11,7 @@ namespace YouTubeDownloader;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel model;
-    private bool closing, closed, fitQueued;
+    private bool closing, closed;
     private FlowDirection presentationDirection;
     public MainWindow() : this(null, null)
     {
@@ -27,13 +27,9 @@ public partial class MainWindow : Window
         presentationDirection = model.ContentDirection;
         DataContext = model;
         model.NoticeRequested += PlaceNotice;
-        PageContent.SizeChanged += (_, _) => QueueFit();
-        SizeChanged += (_, args) =>
-        {
-            ApplyResponsiveLayout();
-            if (args.WidthChanged) QueueFit();
-        };
-        StateChanged += (_, _) => QueueFit();
+        SizeChanged += (_, _) => ApplyResponsiveLayout();
+        StateChanged += (_, _) => ConstrainToWorkArea();
+        DpiChanged += (_, _) => ConstrainToWorkArea();
         model.PropertyChanged += (_, args) =>
         {
             if (string.IsNullOrEmpty(args.PropertyName))
@@ -54,15 +50,11 @@ public partial class MainWindow : Window
                     Viewport.ScrollToTop();
                     if (model.SettingsVisible) ViewMotion.Reveal(SettingsPane);
                 }
+                else if (model.HasMediaPreview && !model.SettingsVisible)
+                    ViewMotion.Reveal(MediaPreview.PreviewContent);
             }
-            if (args.PropertyName == nameof(MainViewModel.PreviewImage) && model.PreviewImage != null)
-                ViewMotion.Reveal(MediaPreview.PreviewContent);
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
-            if (string.IsNullOrEmpty(args.PropertyName) || args.PropertyName is nameof(MainViewModel.HasPlaylist)
-                or nameof(MainViewModel.HasStatus) or nameof(MainViewModel.MainNoticeVisible)
-                or nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HasMediaPreview))
-                QueueFit();
             if (args.PropertyName is nameof(MainViewModel.StatusHeading) or nameof(MainViewModel.NoticeHeading)
                 && !(args.PropertyName == nameof(MainViewModel.NoticeHeading) && model.OptionsNoticeVisible))
             {
@@ -72,11 +64,14 @@ public partial class MainWindow : Window
                 (UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element))?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }
         };
-        SourceInitialized += (_, _) => ApplyTitleBar();
+        SourceInitialized += (_, _) =>
+        {
+            ApplyTitleBar();
+            ConstrainToWorkArea();
+        };
         ContentRendered += (_, _) =>
         {
             ApplyResponsiveLayout();
-            QueueFit();
             DownloadForm.LinkInput.Focus();
             AppUpdates.AcknowledgeStartup();
         };
@@ -122,39 +117,13 @@ public partial class MainWindow : Window
         ThemeResources.ApplyTitleBar(this, model.IsDark);
     }
 
-    private void QueueFit()
+    private void ConstrainToWorkArea()
     {
-        if (fitQueued || closed)
-            return;
-        fitQueued = true;
-        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
-        {
-            fitQueued = false;
-            FitContent();
-        });
-    }
-
-    private void FitContent()
-    {
-        if (WindowState == WindowState.Minimized)
-            return;
-        SizeToContent = SizeToContent.Manual;
-        if (WindowState == WindowState.Maximized)
-        {
-            PageContent.MinHeight = Viewport.ActualHeight;
-            return;
-        }
-        PageContent.MinHeight = 0;
+        if (WindowState != WindowState.Normal) return;
         var area = CurrentWorkArea();
         if (Width > area.Width - 16) Width = Math.Max(MinWidth, area.Width - 16);
-        double contentWidth = Math.Max(1, Viewport.ActualWidth -
-            (Viewport.ComputedVerticalScrollBarVisibility == Visibility.Visible ? 26 : 0));
-        PageContent.Measure(new Size(contentWidth, double.PositiveInfinity));
-        double chrome = Math.Max(SystemParameters.CaptionHeight + 8, ActualHeight - Root.ActualHeight);
-        double desired = Math.Clamp(PageContent.DesiredSize.Height + HeaderContent.ActualHeight + FooterContent.ActualHeight + chrome,
-            MinHeight, Math.Max(MinHeight, area.Height - 16));
-        if (Math.Abs(Height - desired) > 1) Height = desired;
-        if (Top + ActualHeight > area.Bottom) Top = area.Bottom - ActualHeight;
+        if (Height > area.Height - 16) Height = Math.Max(MinHeight, area.Height - 16);
+        if (Top + Height > area.Bottom) Top = area.Bottom - Height;
         if (Top < area.Top) Top = area.Top;
     }
 
@@ -195,7 +164,6 @@ public partial class MainWindow : Window
 
             Notice.Margin = kind is "folder" or "tools" ? new Thickness(0, 12, 0, 0) : new Thickness(0, 0, 0, 10);
             Notice.HorizontalAlignment = HorizontalAlignment.Stretch;
-            QueueFit();
             Notice.BringIntoView();
         });
     }

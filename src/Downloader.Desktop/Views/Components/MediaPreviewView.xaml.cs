@@ -16,13 +16,15 @@ public partial class MediaPreviewView : UserControl
 
     internal void SetCompact(bool compact)
     {
+        PreviewSurface.Padding = new Thickness(30, 24, 30, compact ? 0 : 24);
         ThumbnailFrame.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         PreviewLabel.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         PreviewSubtitle.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         OutputSummary.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         PreviewDivider.Margin = compact ? new Thickness(0, 12, 0, 12) : new Thickness(0, 22, 0, 20);
         PreviewTitle.FontSize = compact ? 17 : 23;
-        PreviewTitle.MaxHeight = compact ? 60 : 104;
+        PreviewTitle.LineHeight = compact ? 26 : 32;
+        PreviewTitle.MaxHeight = compact ? 52 : 96;
     }
 }
 
