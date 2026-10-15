@@ -1,5 +1,5 @@
 <UserControl x:Class="YouTubeDownloader.DownloadFormView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader"
  FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}">
  <StackPanel Margin="30,26,30,28" FlowDirection="{Binding ContentDirection}">
   <TextBlock x:Name="NewDownloadHeading" Text="{Binding NewDownloadLabel}" FontSize="25" FontWeight="SemiBold" Margin="0,0,0,22"/>
@@ -85,5 +85,6 @@
   <Button x:Name="DownloadButton" Command="{Binding DownloadCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Stretch" AutomationProperties.Name="{Binding DownloadLabel}">
    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource DownloadIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource OnAccent}" Margin="0,0,10,0"/><TextBlock Text="{Binding DownloadLabel}" Foreground="{DynamicResource OnAccent}" FontSize="17" FontWeight="SemiBold"/></StackPanel>
   </Button>
+  <local:DownloadActivityView x:Name="InlineActivity" Visibility="{Binding ShowInlineActivity,Converter={StaticResource BoolVisibility}}" Margin="0,20,0,0"/>
  </StackPanel>
 </UserControl>

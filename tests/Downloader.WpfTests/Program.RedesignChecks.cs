@@ -6,6 +6,7 @@ internal static partial class Program
 {
     private static async Task CheckRedesign(Window window, MainViewModel model, FakeProvider provider, FixtureThumbnailLoader thumbnailLoader, string captures)
     {
+        await CheckPreviewPanel(window, model, provider, captures);
         if (model.IsArabic) model.LanguageCommand.Execute(null);
         model.Audio = false;
         window.Width = 1160;

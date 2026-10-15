@@ -345,6 +345,7 @@ internal static partial class Program
         public string Id => "youtube";
         public bool IsReady => true;
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
+        public int DownloadDelayMilliseconds = 10000;
         public Func<IProgress<DownloadProgress>, CancellationToken, Task<MediaToolUpdateResult>> MaintenanceHandler;
         public Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token) => MaintenanceHandler(progress, token);
 
@@ -395,7 +396,7 @@ internal static partial class Program
         public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
             progress?.Report(new DownloadProgress { Stage = "Downloading", Detail = "Local fixture only", Percent = 20 });
-            token.WaitHandle.WaitOne(10000);
+            token.WaitHandle.WaitOne(DownloadDelayMilliseconds);
             token.ThrowIfCancellationRequested();
             return new()
             {

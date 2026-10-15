@@ -253,7 +253,7 @@ public sealed partial class MainViewModel : ObservableObject
     public string LanguageAction => IsArabic ? "English" : "العربية";
     public string ThemeAction => T(IsDark ? "Switch to light theme" : "Switch to dark theme");
     public string ThemeIcon => IsDark ? "M 12 0 L 12 3 M 12 21 L 12 24 M 0 12 L 3 12 M 21 12 L 24 12 M 3 3 L 5 5 M 19 19 L 21 21 M 3 21 L 5 19 M 19 5 L 21 3 M 16 12 A 4 4 0 1 1 8 12 A 4 4 0 1 1 16 12" : "M 12 3 C 7.03 3 3 7.03 3 12 C 3 16.97 7.03 21 12 21 C 16.3 21 19.9 18 20.8 14 C 17 15 13 13.6 11.2 10.3 C 9.9 7.9 10.25 4.8 12 3 Z";
-    public string VersionLabel => "v" + AppUpdates.Current.ToString(3) + (ReleaseChannel.IsPreview ? " · Preview 1" : "");
+    public string VersionLabel => "v" + AppUpdates.Current.ToString(3) + (ReleaseChannel.IsPreview ? " · Preview" : "");
     public bool HasFile => lastFile != null;
     public bool HasStatus => statusHeading.Length > 0;
     public string StatusHeading => T(statusHeading);

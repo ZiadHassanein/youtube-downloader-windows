@@ -11,11 +11,16 @@ public sealed partial class MainViewModel
     private string thumbnailAddress;
     private ImageSource previewImage;
     private bool settingsVisible;
+    private bool notifiedHasMediaPreview;
     public ImageSource PreviewImage => previewImage;
     public bool SettingsVisible
     {
         get => settingsVisible;
-        set => SetProperty(ref settingsVisible, value);
+        set
+        {
+            if (SetProperty(ref settingsVisible, value))
+                OnPropertyChanged(nameof(ShowInlineActivity));
+        }
     }
     public IRelayCommand SettingsCommand { get; private set; }
     public IRelayCommand NewDownloadCommand { get; private set; }
@@ -32,7 +37,9 @@ public sealed partial class MainViewModel
     public string UpdateSectionLabel => T("App updates");
     public string DownloaderSectionLabel => T("Download support");
     public string PreviewLabel => T("Video preview");
-    public bool ShowDownloadActivity => IsBusy && !IsRefreshingTools && HasStatus;
+    public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
+    public bool ShowInlineActivity => HasStatus && !HasMediaPreview && !SettingsVisible;
+    public bool ShowDownloadActivity => HasStatus && !IsRefreshingTools;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;
     public string FolderAccessibleName => T("Save to") + ": " + Folder;
@@ -47,7 +54,6 @@ public sealed partial class MainViewModel
     public string PreviewOutput => Audio ? SelectedEncoding.Label + " · " + SelectedQuality?.Label
         : "MP4 · " + (SelectedQuality?.Key != null || playlistInfo != null ? SelectedQuality?.Label : T("Quality"));
     public string PreviewStatus => HasStatus ? StatusHeading : CanDownload ? T("Ready to download") : T("Paste a video or playlist link");
-    public Brush PreviewStatusBrush => (Brush)Application.Current.Resources[statusError ? "PreviewError" : CanDownload ? "PreviewSuccess" : "PreviewInk"];
 
     private void InitializePresentation()
     {
@@ -57,11 +63,16 @@ public sealed partial class MainViewModel
 
     private void RefreshMediaPresentation()
     {
+        if (notifiedHasMediaPreview != HasMediaPreview)
+        {
+            notifiedHasMediaPreview = HasMediaPreview;
+            OnPropertyChanged(nameof(HasMediaPreview));
+        }
         foreach (string property in new[]
         {
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
-            nameof(PreviewStatus), nameof(PreviewStatusBrush), nameof(ShowDownloadActivity)
+            nameof(PreviewStatus), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)
         }) OnPropertyChanged(property);
         string address = videoInfo?.ThumbnailUrl ?? playlistInfo?.ThumbnailUrl;
         if (thumbnailAddress == address) return;

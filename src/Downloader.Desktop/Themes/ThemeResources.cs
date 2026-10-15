@@ -23,13 +23,7 @@ internal static class ThemeResources
         ["AudioSelected"] = ("#E7EEFF", "#29436D"),
         ["InfoAccent"] = ("#2458E8", "#95B1FF"),
         ["Divider"] = ("#DFE6F2", "#334766"),
-        ["PreviewGround"] = ("#193258", "#162D4E"),
-        ["PreviewInk"] = ("#FFFFFF", "#FFFFFF"),
-        ["PreviewMuted"] = ("#BDCFEC", "#BDCFEC"),
-        ["PreviewRule"] = ("#526B90", "#526B90"),
-        ["Success"] = ("#14763D", "#88E4AA"),
-        ["PreviewSuccess"] = ("#91E5AD", "#91E5AD"),
-        ["PreviewError"] = ("#FFBDCA", "#FFBDCA")
+        ["Success"] = ("#14763D", "#88E4AA")
     };
 
     public static void Apply(bool dark)
@@ -40,8 +34,8 @@ internal static class ThemeResources
             if (SystemParameters.HighContrast)
                 brush = key switch
                 {
-                    "Ink" or "Muted" or "Error" or "PreviewInk" or "PreviewMuted" or "Success" or "PreviewSuccess" or "PreviewError" => SystemColors.WindowTextBrush,
-                    "Accent" or "Action" or "Border" or "AudioAccent" or "PreviewRule" => SystemColors.HighlightBrush,
+                    "Ink" or "Muted" or "Error" or "Success" => SystemColors.WindowTextBrush,
+                    "Accent" or "Action" or "Border" or "AudioAccent" => SystemColors.HighlightBrush,
                     "OnAccent" => SystemColors.HighlightTextBrush,
                     _ => SystemColors.WindowBrush
                 };
