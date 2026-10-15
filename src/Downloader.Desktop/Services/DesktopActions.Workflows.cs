@@ -29,8 +29,8 @@ public sealed partial class DesktopActions
             MaxWidth = Math.Min(owner.ActualWidth - 48, workArea.Width - 48),
             MaxHeight = Math.Min(owner.ActualHeight - 48, workArea.Height - 48)
         };
-        dialog.Width = Math.Min(760, dialog.MaxWidth);
-        dialog.Height = Math.Min(560, dialog.MaxHeight);
+        dialog.Width = Math.Min(dialog.Width, dialog.MaxWidth);
+        dialog.Height = Math.Min(dialog.Height, dialog.MaxHeight);
         var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
         dialog.ShowDialog();
         if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
