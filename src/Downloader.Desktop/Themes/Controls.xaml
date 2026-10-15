@@ -59,7 +59,7 @@
             </Grid>
           </Border>
           <ControlTemplate.Triggers>
-            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="Opacity" Value="0.86"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}"/></Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
               <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Ink}" />
               <Setter TargetName="Face" Property="BorderThickness" Value="2" />
