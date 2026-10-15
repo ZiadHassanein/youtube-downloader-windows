@@ -51,6 +51,7 @@ namespace YouTubeDownloader
             { "Choose the format and quality in the main window before adding links.", "اختَر الصيغة والجودة من الشاشة الرئيسية قبل إضافة الروابط." },
             { "Your download list is empty.", "قائمة التنزيلات فارغة حاليًا." },
             { "Video links", "روابط الفيديوهات" },
+            { "Paste one video link per line.", "الصق كل رابط فيديو في سطر منفصل." },
             { "Browser integration", "الربط بالمتصفح" },
             { "Update downloader", "تحديث أداة التنزيل" },
             { "Updating downloader…", "جارٍ تحديث أداة التنزيل…" },

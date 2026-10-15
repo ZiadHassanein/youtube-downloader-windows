@@ -17,6 +17,8 @@ public sealed class QueueItemView : ObservableObject
     public string Status { get; private set; }
     public string Error { get; private set; }
     public double Percent => Entry.Percent;
+    public bool IsActive => Entry.State is QueueState.Preparing or QueueState.Downloading;
+    public bool IsPreparing => Entry.State == QueueState.Preparing;
     public bool CanRetry { get; private set; }
     public bool CanRemove => Entry.State is not (QueueState.Preparing or QueueState.Downloading);
     public bool HasError => Error.Length > 0;
@@ -72,6 +74,7 @@ public sealed partial class MainViewModel
     public string QueueSettingsHint => T("Choose the format and quality in the main window before adding links.");
     public string QueueEmptyHint => T("Your download list is empty.");
     public string QueueInputLabel => T("Video links");
+    public string QueueInputHint => T("Paste one video link per line.");
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
@@ -164,6 +167,12 @@ public sealed partial class MainViewModel
             Selection = SelectedQuality?.Selection,
             Captions = string.IsNullOrEmpty(SelectedCaption?.Language) ? null : new CaptionRequest(SelectedCaption.Language, SelectedCaption.Automatic, captionFormat)
         };
+    internal void ClearQueueMessage()
+    {
+        QueueMessage = "";
+        OnPropertyChanged(nameof(QueueMessage));
+    }
+
     private void AddLinks()
     {
         try

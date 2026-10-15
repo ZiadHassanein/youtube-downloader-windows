@@ -41,6 +41,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--queue-window"))
+                {
+                    await CheckQueueWindow(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF queue-window checks passed.");
+                    return;
+                }
                 if (args.Contains("--history"))
                 {
                     await CheckRecentDownloads(window, model, captures);
@@ -254,6 +260,7 @@ internal static partial class Program
                 Capture(window, System.IO.Path.Combine(captures, "scroll-footer.png"));
                 await Task.Delay(5200);
                 Check(!model.NoticeVisible, "Transient notices disappear after five seconds");
+                await CheckQueueWindow(window, model, provider, captures);
                 Console.WriteLine(count + " WPF checks passed.");
             }
             catch (Exception ex)

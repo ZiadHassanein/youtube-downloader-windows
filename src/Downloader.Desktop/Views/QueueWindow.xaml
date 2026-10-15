@@ -1,54 +1,86 @@
-<Window x:Class="YouTubeDownloader.QueueWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding QueueHeading}" Width="760" Height="620" MinWidth="580" MinHeight="500" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-        Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}" FontSize="14" FlowDirection="{Binding ContentDirection}" UseLayoutRounding="True">
-  <Grid Margin="24">
-    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <StackPanel>
-      <TextBlock Text="{Binding QueueHeading}" FontSize="22" FontWeight="SemiBold"/>
-      <TextBlock Text="{Binding QueueHint}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,4"/>
-      <TextBlock Text="{Binding QueueSettingsHint}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12"/>
-    </StackPanel>
-    <Grid Grid.Row="1" Margin="0,0,0,18">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <TextBox Text="{Binding QueueInput,UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource LatinFont}" AcceptsReturn="True" Height="94" VerticalContentAlignment="Top" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FlowDirection="LeftToRight" AutomationProperties.Name="{Binding QueueInputLabel}" AutomationProperties.HelpText="{Binding QueueHint}"/>
-      <Button Grid.Column="2" Content="{Binding AddQueueLabel}" Command="{Binding AddLinksCommand}" VerticalAlignment="Bottom"/>
+<Window x:Class="YouTubeDownloader.QueueWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="{Binding QueueHeading}" Width="760" Height="560" MinWidth="580" MinHeight="360"
+ WindowStartupLocation="CenterOwner" ShowInTaskbar="False" AutomationProperties.IsDialog="True"
+ Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{Binding ContentFont}" FontSize="14"
+ FlowDirection="LeftToRight" UseLayoutRounding="True" SnapsToDevicePixels="True">
+ <Grid x:Name="QueueContent" Margin="28,24" FlowDirection="{Binding ContentDirection}"
+       TextBlock.LineHeight="22" TextBlock.LineStackingStrategy="BlockLineHeight" KeyboardNavigation.TabNavigation="Cycle">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <TextBlock Text="{Binding QueueHeading}" FontSize="23" LineHeight="32" FontWeight="SemiBold" Margin="0,0,0,20"/>
+  <ScrollViewer x:Name="QueueViewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}"
+                VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+   <StackPanel>
+    <TextBlock Text="{Binding QueueInputLabel}" FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding QueueInputHint}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="20" Margin="0,4,0,10"/>
+    <TextBox x:Name="QueueLinksInput" Text="{Binding QueueInput,UpdateSourceTrigger=PropertyChanged}"
+             FontFamily="{StaticResource LatinFont}" AcceptsReturn="True" Height="88" Padding="12,10"
+             VerticalContentAlignment="Top" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FlowDirection="LeftToRight"
+             AutomationProperties.Name="{Binding QueueInputLabel}" AutomationProperties.HelpText="{Binding QueueHint}"/>
+    <Grid Margin="0,12,0,20">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <TextBlock Text="{Binding QueueSettingsHint}" Foreground="{DynamicResource Muted}" FontSize="12" LineHeight="20" VerticalAlignment="Center"/>
+     <Button x:Name="AddQueueLinksButton" Grid.Column="2" Command="{Binding AddLinksCommand}" MinWidth="140" AutomationProperties.Name="{Binding AddQueueLabel}">
+      <StackPanel Orientation="Horizontal">
+       <Path Data="{StaticResource PlusIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="16" Height="16" Margin="0,0,8,0"/>
+       <TextBlock Text="{Binding AddQueueLabel}" TextWrapping="NoWrap"/>
+      </StackPanel>
+     </Button>
     </Grid>
-    <Grid Grid.Row="2">
-      <TextBlock Text="{Binding QueueEmptyHint}" Foreground="{DynamicResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap">
-        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding HasQueue}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+    <Border x:Name="QueueNotice" Background="{DynamicResource Surface}" CornerRadius="8" Padding="12" Margin="0,0,0,16">
+     <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding QueueMessage}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style>
+     <TextBlock Text="{Binding QueueMessage}" Foreground="{DynamicResource Ink}" AutomationProperties.LiveSetting="Polite"/>
+    </Border>
+    <TextBlock Text="{Binding QueueLabel}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+    <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+     <Grid>
+      <TextBlock x:Name="QueueEmptyState" Text="{Binding QueueEmptyHint}" Foreground="{DynamicResource Muted}" TextAlignment="Center" Margin="16,24">
+       <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding HasQueue}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
       </TextBlock>
-      <ScrollViewer x:Name="QueueViewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <ItemsControl ItemsSource="{Binding QueueItems}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,10">
-                <Grid>
-                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                  <StackPanel>
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                      <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{StaticResource LatinFont}"/><Style.Triggers><DataTrigger Binding="{Binding HasArabicTitle}" Value="True"><Setter Property="FontFamily" Value="{StaticResource ArabicFont}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="{Binding Url}" FontFamily="{StaticResource LatinFont}" FlowDirection="LeftToRight" TextAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="11" Foreground="{DynamicResource Muted}" Margin="0,4,12,0"/>
-                    <TextBlock Text="{Binding Status}" Foreground="{DynamicResource Accent}" FontSize="12" Margin="0,5,0,0"/>
-                    <ProgressBar Value="{Binding Percent,Mode=OneWay}" Maximum="100" Height="3" Foreground="{DynamicResource Accent}" Background="{DynamicResource Field}" Margin="0,5,16,0"/>
-                    <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,5,12,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
-                  </StackPanel>
-                  <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                    <Button Content="{Binding DataContext.RetryLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QuietButton}"/>
-                    <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QuietButton}"/>
-                  </StackPanel>
-                </Grid>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
-    </Grid>
-    <TextBlock Grid.Row="3" Text="{Binding QueueMessage}" Foreground="{DynamicResource Muted}" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite"/>
-    <WrapPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,18,0,0">
-      <Button Content="{Binding StartQueueLabel}" Command="{Binding QueueStartCommand}" Style="{StaticResource PrimaryButton}" MinWidth="150"/>
-      <Button Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Margin="12,0,0,0"/>
-      <Button Content="{Binding CloseLabel}" Click="CloseClicked" IsCancel="True" Margin="12,0,0,0"/>
-    </WrapPanel>
-  </Grid>
+      <ItemsControl x:Name="QueueItemsHost" ItemsSource="{Binding QueueItems}">
+       <ItemsControl.ItemTemplate>
+        <DataTemplate>
+         <Border BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="0,14">
+          <Grid>
+           <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+           <StackPanel>
+            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding Title}">
+             <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{StaticResource LatinFont}"/><Style.Triggers><DataTrigger Binding="{Binding HasArabicTitle}" Value="True"><Setter Property="FontFamily" Value="{StaticResource ArabicFont}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+            </TextBlock>
+            <TextBlock Text="{Binding Url}" FontFamily="{StaticResource LatinFont}" FlowDirection="LeftToRight" TextAlignment="Left"
+                       TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,4,0,0" ToolTip="{Binding Url}"/>
+            <TextBlock Text="{Binding Status}" FontSize="12" Margin="0,6,0,0">
+             <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource Muted}"/><Style.Triggers>
+              <DataTrigger Binding="{Binding IsActive}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Accent}"/></DataTrigger>
+              <DataTrigger Binding="{Binding Entry.State}" Value="Completed"><Setter Property="Foreground" Value="{DynamicResource Success}"/></DataTrigger>
+              <DataTrigger Binding="{Binding Entry.State}" Value="Failed"><Setter Property="Foreground" Value="{DynamicResource Error}"/></DataTrigger>
+             </Style.Triggers></Style></TextBlock.Style>
+            </TextBlock>
+            <ProgressBar Value="{Binding Percent,Mode=OneWay}" IsIndeterminate="{Binding IsPreparing}" Maximum="100" Height="4"
+                         Foreground="{DynamicResource Accent}" Background="{DynamicResource Surface}" Margin="0,8,0,0"
+                         Visibility="{Binding IsActive,Converter={StaticResource BoolVisibility}}" AutomationProperties.Name="{Binding Status}"/>
+            <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
+           </StackPanel>
+           <StackPanel Grid.Column="2" VerticalAlignment="Top">
+            <Button Content="{Binding DataContext.RetryLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QuietButton}" Padding="8,6" MinHeight="36"/>
+            <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QuietButton}" Padding="8,6" MinHeight="36"/>
+           </StackPanel>
+          </Grid>
+         </Border>
+        </DataTemplate>
+       </ItemsControl.ItemTemplate>
+      </ItemsControl>
+     </Grid>
+    </Border>
+   </StackPanel>
+  </ScrollViewer>
+  <Border x:Name="QueueFooter" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,20,0,0">
+   <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <Button x:Name="QueueCloseButton" Content="{Binding CloseLabel}" Click="CloseClicked" IsCancel="True" MinWidth="88"/>
+    <Button x:Name="QueueCancelButton" Grid.Column="2" Content="{Binding CancelLabel}" Command="{Binding CancelCommand}" Margin="0,0,12,0" Visibility="{Binding QueueRunning,Converter={StaticResource BoolVisibility}}"/>
+    <Button x:Name="QueueStartButton" Grid.Column="3" Content="{Binding StartQueueLabel}" Command="{Binding QueueStartCommand}" Style="{StaticResource PrimaryButton}" MinWidth="156"/>
+   </Grid>
+  </Border>
+ </Grid>
 </Window>

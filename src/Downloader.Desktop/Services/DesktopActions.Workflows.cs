@@ -21,10 +21,19 @@ public sealed partial class DesktopActions
 
     public void ShowQueue(MainViewModel model)
     {
-        var dialog = new QueueWindow { Owner = owner, DataContext = model, Icon = owner.Icon };
-        dialog.Width = Math.Min(760, Math.Max(580, owner.ActualWidth - 48));
-        dialog.Height = Math.Min(620, SystemParameters.WorkArea.Height - 64);
+        model.ClearQueueMessage();
+        var workArea = owner is MainWindow main ? main.CurrentWorkArea() : SystemParameters.WorkArea;
+        var dialog = new QueueWindow
+        {
+            Owner = owner, DataContext = model, Icon = owner.Icon,
+            MaxWidth = Math.Min(owner.ActualWidth - 48, workArea.Width - 48),
+            MaxHeight = Math.Min(owner.ActualHeight - 48, workArea.Height - 48)
+        };
+        dialog.Width = Math.Min(760, dialog.MaxWidth);
+        dialog.Height = Math.Min(560, dialog.MaxHeight);
+        var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
         dialog.ShowDialog();
+        if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
     }
     public HashSet<string> SelectPlaylist(PlaylistInfo playlist, HashSet<string> selected, Func<string, string> t)
     {
