@@ -11,7 +11,7 @@ internal static partial class Program
         model.SettingsVisible = false;
         model.Url = "";
         var contact = (Button)WpfTree.Find(window, "ContactButton");
-        var author = (TextBlock)WpfTree.Find(window, "AuthorCredit");
+        var settings = (Button)WpfTree.Find(window, "SettingsButton");
         var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
         var root = (FrameworkElement)WpfTree.Find(window, "Root");
         contact.Focus();
@@ -43,11 +43,11 @@ internal static partial class Program
                     window.Width = width;
                     await Task.Delay(150);
                     window.UpdateLayout();
-                    var authorBounds = author.TransformToAncestor(root).TransformBounds(new Rect(author.RenderSize));
+                    var settingsBounds = settings.TransformToAncestor(root).TransformBounds(new Rect(settings.RenderSize));
                     var contactBounds = contact.TransformToAncestor(root).TransformBounds(new Rect(contact.RenderSize));
-                    Check(authorBounds.Left < 40 && contactBounds.Right > root.ActualWidth - 40 && authorBounds.Right < contactBounds.Left &&
+                    Check(WpfTree.Find(window, "AuthorCredit") == null && settingsBounds.Left < 40 && contactBounds.Right > root.ActualWidth - 40 && settingsBounds.Right < contactBounds.Left &&
                         model.ContactLabel == (arabic ? "تواصل معي" : "Contact"),
-                        "Contact replaces the social-link row while keeping the author left and contact action right");
+                        "The footer has no author credit and keeps Settings left and Contact right");
                     double height = window.ActualHeight, footerHeight = footer.ActualHeight;
                     contact.Focus();
                     contact.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(contact), Environment.TickCount, Key.Up)
