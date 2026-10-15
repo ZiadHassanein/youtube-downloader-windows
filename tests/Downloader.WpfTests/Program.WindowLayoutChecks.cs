@@ -10,6 +10,7 @@ internal static partial class Program
         model.SettingsVisible = false;
         model.Audio = false;
         model.Url = "";
+        double startupWidth = window.Width;
         double normalHeight = Math.Min(800, window.CurrentWorkArea().Height - 16);
         window.Height = normalHeight;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
@@ -50,7 +51,7 @@ internal static partial class Program
                 "The footer stays outside the scrolling content and the workspace fills its viewport");
         }
 
-        foreach (double width in new[] { 1160d, 820d })
+        foreach (double width in new[] { startupWidth, 1160d, 820d }.Distinct())
             foreach (bool dark in new[] { false, true })
             {
                 window.Width = width;
@@ -60,7 +61,7 @@ internal static partial class Program
                 await Settle();
                 viewport.ScrollToTop();
                 var emptyRows = Rows();
-                string variant = (dark ? "-dark" : "-light") + (width < 1000 ? "-compact" : "-wide");
+                string variant = (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                 foreach (string language in new[] { "en", "ar", "en", "ar" })
                 {
                     await Language(language, "empty" + variant);
