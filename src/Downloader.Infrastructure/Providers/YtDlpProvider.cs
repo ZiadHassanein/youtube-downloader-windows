@@ -7,6 +7,7 @@ namespace YouTubeDownloader
     {
         private ToolSet tools;
         private readonly DependencyManager dependencies;
+        private readonly AutomaticToolUpdates automaticUpdates;
         private readonly MediaLinkRouter links;
         private readonly WindowsProcessRunner runner = new WindowsProcessRunner();
         private readonly Dictionary<string, Tuple<string, string>> choices = new Dictionary<string, Tuple<string, string>>();
@@ -15,12 +16,14 @@ namespace YouTubeDownloader
         public YtDlpProvider(DependencyManager dependencies, MediaLinkRouter links = null)
         {
             this.dependencies = dependencies;
+            automaticUpdates = new AutomaticToolUpdates(dependencies.CacheDirectory) { FindBaseline = dependencies.DiscoverBaseline };
             this.links = links ?? MediaLink.DefaultRouter;
         }
 
-        internal YtDlpProvider(ToolSet tools)
+        internal YtDlpProvider(ToolSet tools, AutomaticToolUpdates automaticUpdates = null)
         {
             this.tools = tools;
+            this.automaticUpdates = automaticUpdates;
             links = MediaLink.DefaultRouter;
         }
 
@@ -36,7 +39,7 @@ namespace YouTubeDownloader
         {
             get
             {
-                return tools != null && tools.Ready;
+                return tools != null && tools.Ready && new[] { tools.YtDlp, tools.Deno, tools.FFmpeg, tools.FFprobe }.All(File.Exists);
             }
         }
 
@@ -54,12 +57,14 @@ namespace YouTubeDownloader
         {
             if (!IsReady)
                 tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
+            if (automaticUpdates != null)
+                tools = await automaticUpdates.CheckDailyAsync(tools, progress, token).ConfigureAwait(false);
         }
 
         public async Task<MediaToolUpdateResult> RefreshToolsAsync(IProgress<DownloadProgress> progress, CancellationToken token)
         {
-            await EnsureReadyAsync(progress, token).ConfigureAwait(false);
-            var result = await ToolRefresh.RefreshAsync(tools, dependencies.CacheDirectory, progress, token).ConfigureAwait(false);
+            if (!IsReady) tools = await dependencies.EnsureAsync(progress, token).ConfigureAwait(false);
+            var result = await automaticUpdates.RefreshAsync(tools, progress, token).ConfigureAwait(false);
             tools = result.Tools;
             return result.Result;
         }
@@ -114,11 +119,14 @@ namespace YouTubeDownloader
             if (cancelled || token.IsCancellationRequested)
                 throw new OperationCanceledException();
             if (code != 0)
-                throw new InvalidOperationException(errors.LastOrDefault(x => x.StartsWith("ERROR:", StringComparison.Ordinal)) ?? errors.LastOrDefault() ?? "The download failed.");
+                throw new MediaToolExecutionException(string.Join("\n", errors.TakeLast(12).DefaultIfEmpty("The download failed.")));
             return capture.ToString();
         }
 
         public VideoInfo Inspect(string url, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)
+            => Recover(() => InspectCore(url, token, progress), progress, token);
+
+        private VideoInfo InspectCore(string url, CancellationToken token, IProgress<DownloadProgress> progress)
         {
             url = Normalize(url, false);
             var args = Arguments.Common(tools);
@@ -150,6 +158,9 @@ namespace YouTubeDownloader
         }
 
         public PlaylistInfo InspectPlaylist(string url, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)
+            => Recover(() => InspectPlaylistCore(url, token, progress), progress, token);
+
+        private PlaylistInfo InspectPlaylistCore(string url, CancellationToken token, IProgress<DownloadProgress> progress)
         {
             url = Normalize(url, true);
             var args = Arguments.Common(tools);
@@ -160,13 +171,19 @@ namespace YouTubeDownloader
         }
 
         public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token = default(CancellationToken), IProgress<DownloadProgress> progress = null)
+            => Recover(() => DownloadItemCore(options, token, progress), progress, token);
+
+        private T Recover<T>(Func<T> action, IProgress<DownloadProgress> progress, CancellationToken token) => automaticUpdates == null ? action() :
+            automaticUpdates.RunAsync(action, () => tools, value => tools = value, progress, token).GetAwaiter().GetResult();
+
+        private DownloadResult DownloadItemCore(DownloadOptions options, CancellationToken token, IProgress<DownloadProgress> progress)
         {
             if (options.Playlist != null)
                 throw new ArgumentException("Use the application playlist queue.");
             VideoInfo fresh = null;
             if (!options.PlaylistItem && ((!options.Audio && options.Selection != null) || options.Captions?.Required == true))
             {
-                fresh = Inspect(options.Url, token, progress);
+                fresh = InspectCore(options.Url, token, progress);
                 if (fresh.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
                 if (options.Captions?.Required == true && !fresh.Captions.Any(c => c.Language == options.Captions.Language && c.Automatic == options.Captions.Automatic))
                     throw new InvalidOperationException("The selected subtitles are no longer available. Refresh output options or choose no subtitles.");

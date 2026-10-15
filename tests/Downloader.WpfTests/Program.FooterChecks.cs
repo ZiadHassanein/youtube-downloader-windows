@@ -14,7 +14,10 @@ internal static partial class Program
         var settings = (Button)WpfTree.Find(window, "SettingsButton");
         var footer = (FrameworkElement)WpfTree.Find(window, "FooterContent");
         var root = (FrameworkElement)WpfTree.Find(window, "Root");
+        window.Activate();
         contact.Focus();
+        InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(contact), Environment.TickCount, Key.Apps)
+        { RoutedEvent = Keyboard.KeyDownEvent, Source = contact });
         InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(contact), Environment.TickCount, Key.Apps)
         { RoutedEvent = Keyboard.KeyUpEvent, Source = contact });
         await Task.Delay(150);
@@ -49,6 +52,7 @@ internal static partial class Program
                         model.ContactLabel == (arabic ? "تواصل معي" : "Contact"),
                         "The footer has no author credit and keeps Settings left and Contact right");
                     double height = window.ActualHeight, footerHeight = footer.ActualHeight;
+                    window.Activate();
                     contact.Focus();
                     contact.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(contact), Environment.TickCount, Key.Up)
                     { RoutedEvent = Keyboard.PreviewKeyDownEvent });
@@ -59,7 +63,7 @@ internal static partial class Program
                         choices.Select(c => (string)c.CommandParameter).SequenceEqual(new[] { "github", "linkedin", "email" }) &&
                         choices.All(c => ReferenceEquals(c.Command, model.SocialCommand) && c.IsVisible && c.IsEnabled) &&
                         (string)choices[2].Header == model.EmailLabel,
-                        "The keyboard-opened contact menu includes the existing GitHub, LinkedIn and email actions");
+                        $"The keyboard-opened contact menu includes the existing GitHub, LinkedIn and email actions ({arabic}/{dark}/{width}, active={window.IsActive}, open={menu.IsOpen}, context={ReferenceEquals(menu.DataContext, model)}, labels={string.Join(';', choices.Select(c => c.Header + ":" + c.IsVisible + ":" + c.IsEnabled + ":" + c.CommandParameter))}, email={model.EmailLabel})");
                     var popup = (HwndSource)PresentationSource.FromVisual(menu);
                     GetClientRect(popup.Handle, out var client);
                     var popupTop = menu.PointToScreen(new Point());
@@ -77,6 +81,8 @@ internal static partial class Program
                     choices[0].Focus();
                     InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(menu), Environment.TickCount, Key.Escape)
                     { RoutedEvent = Keyboard.KeyDownEvent, Source = choices[0] });
+                    InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(menu), Environment.TickCount, Key.Escape)
+                    { RoutedEvent = Keyboard.KeyUpEvent, Source = choices[0] });
                     await Task.Delay(100);
                     Check(!menu.IsOpen && contact.IsKeyboardFocused && Math.Abs(window.ActualHeight - height) <= 1 &&
                         Math.Abs(footer.ActualHeight - footerHeight) <= 1,

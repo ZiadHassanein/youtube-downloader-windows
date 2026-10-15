@@ -115,6 +115,7 @@ public sealed class DownloadQueue
                         var result = await execute(entry.Options, progress, run.Token).ConfigureAwait(false);
                         entry.Result = result;
                         if (result.Cancelled) throw new OperationCanceledException();
+                        halt = result.StopQueue;
                         if (result.Failed > 0 || result.Remaining > 0 || result.StopReason != null)
                             throw new InvalidOperationException(result.StopReason ?? "Some playlist items failed. Retry to resume completed files.");
                         entry.State = QueueState.Completed;
@@ -132,7 +133,7 @@ public sealed class DownloadQueue
                     catch (Exception ex)
                     {
                         string error = ex.Message ?? "Download failed.";
-                        if (attempt == 0 && !DownloadErrors.IsBlocked(error) && DownloadErrors.IsTransient(error))
+                        if (attempt == 0 && !halt && ex is not MediaToolRecoveryException && !DownloadErrors.IsBlocked(error) && DownloadErrors.IsTransient(error))
                         {
                             lock (gate) entry.Generation++;
                             entry.Error = "Connection interrupted. Retrying…";
@@ -143,7 +144,7 @@ public sealed class DownloadQueue
                         }
                         entry.Error = error.Length > 512 ? error[..512] : error;
                         entry.State = QueueState.Failed;
-                        halt = ex is UnauthorizedAccessException || DownloadErrors.IsBlocked(error) || DownloadErrors.IsTransient(error);
+                        halt = halt || ex is UnauthorizedAccessException or MediaToolRecoveryException || DownloadErrors.IsBlocked(error) || DownloadErrors.IsTransient(error);
                         break;
                     }
                 }

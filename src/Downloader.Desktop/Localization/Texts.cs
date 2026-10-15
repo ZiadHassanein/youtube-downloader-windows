@@ -6,7 +6,13 @@ namespace YouTubeDownloader
     {
         private static readonly Dictionary<string, string> Arabic = new Dictionary<string, string>
         {
-            { "New download", "تنزيل جديد" },
+            { "New download", "تنزيل فيديو جديد" },
+            { "The latest downloader still couldn't read this link. The website may have changed; try again later.", "تعذّر تشغيل هذا الرابط حتى باستخدام أحدث أداة تنزيل. قد يكون الموقع تغيّر؛ جرّب مرة أخرى لاحقًا." },
+            { "The downloader couldn't be updated. Check your internet connection and try again.", "تعذّر تحديث أداة التنزيل. تحقق من اتصال الإنترنت ثم جرّب مرة أخرى." },
+            { "Checking for a downloader fix…", "جارٍ البحث عن تحديث لحل المشكلة…" },
+            { "Updating yt-dlp…", "جارٍ تحديث أداة التنزيل…" },
+            { "Updating Deno…", "جارٍ تحديث أداة تشغيل التنزيل…" },
+            { "ViFree checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.", "يبحث ViFree تلقائيًا عن تحديثات أدوات التنزيل مرة يوميًا عند استخدام رابط. ويمكنك البحث مجددًا من هنا." },
             { "More options", "خيارات إضافية" },
             { "Choose a supported audio quality.", "اختر جودة صوت متاحة للصيغة المحددة." },
             { "Language", "اللغة" },
@@ -15,6 +21,10 @@ namespace YouTubeDownloader
             { "Ready to download", "جاهز للتنزيل" },
             { "Playlist", "قائمة تشغيل" },
             { "Recent", "التنزيلات الأخيرة" },
+            { "Your last five completed files.", "آخر خمسة ملفات اكتمل تنزيلها." },
+            { "No downloads yet", "لم تنزّل أي ملفات بعد" },
+            { "File moved or deleted", "الملف نُقل أو حُذف" },
+            { "This file is no longer in its saved location.", "لم نعثر على الملف في مكانه. ربما نُقل أو حُذف." },
             { "Settings", "الإعدادات" },
             { "Contact", "تواصل معي" },
             { "Email", "البريد الإلكتروني" },
@@ -62,7 +72,6 @@ namespace YouTubeDownloader
             { "Browser integration", "الربط بالمتصفح" },
             { "Update downloader", "تحديث أداة التنزيل" },
             { "Updating downloader…", "جارٍ تحديث أداة التنزيل…" },
-            { "Use this if a video link stops working after a website changes. It updates the tool ViFree uses to read video links and download files.", "استخدم هذا الخيار إذا توقّف رابط فيديو عن العمل بعد تغييرات الموقع. يحدّث الأداة التي يستخدمها ViFree لقراءة روابط الفيديوهات وتنزيلها." },
             { "Checking downloader updates", "جارٍ البحث عن تحديث لأداة التنزيل" },
             { "Looking for an update to the tool that reads video links and downloads files…", "جارٍ البحث عن إصدار أحدث من الأداة المسؤولة عن قراءة روابط الفيديوهات وتنزيلها…" },
             { "Downloader is up to date", "أداة التنزيل محدّثة بالفعل" },

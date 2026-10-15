@@ -110,111 +110,21 @@ public sealed partial class DesktopActions
     };
     public void ShowHistory(IEnumerable<string> history, Func<string, string> t)
     {
-        var dialog = Dialog(t("Recent downloads"), 460);
-        var grid = new Grid
+        var model = new RecentDownloadsViewModel(history, t, path => OpenMedia(path, true));
+        var workArea = owner is MainWindow main ? main.CurrentWorkArea() : SystemParameters.WorkArea;
+        var dialog = new RecentDownloadsWindow
         {
-            Margin = new Thickness(24)
+            Owner = owner, DataContext = model, Icon = owner.Icon,
+            FontFamily = (owner.DataContext as MainViewModel)?.ContentFont ?? (FontFamily)Application.Current.Resources["LatinFont"],
+            FlowDirection = (owner.DataContext as MainViewModel)?.ContentDirection ?? FlowDirection.LeftToRight,
+            Width = Math.Min(600, Math.Min(owner.ActualWidth - 48, workArea.Width - 48)),
+            SizeToContent = SizeToContent.Height,
+            MaxHeight = Math.Min(owner.ActualHeight - 48, workArea.Height - 48)
         };
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        var list = new ListBox
-        {
-            BorderThickness = new Thickness(0),
-            Background = Brushes.Transparent,
-            Foreground = (Brush)Application.Current.Resources["Ink"],
-            HorizontalContentAlignment = HorizontalAlignment.Stretch
-        };
-        ScrollViewer.SetHorizontalScrollBarVisibility(list, ScrollBarVisibility.Disabled);
-        ScrollViewer.SetVerticalScrollBarVisibility(list, ScrollBarVisibility.Auto);
-        list.Resources.Add(typeof(ScrollViewer), Application.Current.Resources["InsetScrollFrame"]);
-        foreach (string file in history.Take(5))
-            list.Items.Add(new ListBoxItem
-            {
-                Content = new StackPanel
-                {
-                    Children =
-                    {
-                        new TextBlock { Text = Path.GetFileName(file), FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap },
-                        new TextBlock { Text = file, Foreground = (Brush)Application.Current.Resources["Muted"], TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap, Margin = new Thickness(0, 5, 0, 0), FlowDirection = FlowDirection.LeftToRight }
-                    }
-                },
-                Tag = file,
-                Padding = new Thickness(10),
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                ToolTip = file
-            });
-        if (list.Items.Count == 0)
-            grid.Children.Add(new TextBlock { Text = t("Your completed downloads will appear here."), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center });
-        else
-        {
-            list.SelectedIndex = 0;
-            grid.Children.Add(list);
-        }
-
-        var message = new TextBlock
-        {
-            Foreground = (Brush)Application.Current.Resources["Error"],
-            Margin = new Thickness(0, 12, 0, 0)
-        };
-        Grid.SetRow(message, 1);
-        grid.Children.Add(message);
-        var row = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Margin = new Thickness(0, 18, 0, 0)
-        };
-        Grid.SetRow(row, 2);
-        var reveal = new Button
-        {
-            Content = t("Show in folder"),
-            IsEnabled = list.SelectedItem != null
-        };
-        var close = new Button
-        {
-            Content = t("Close"),
-            IsCancel = true,
-            Margin = new Thickness(12, 0, 0, 0),
-            MinWidth = 100
-        };
-        CancellationTokenSource notice = null;
-        reveal.Click += async (_, _) =>
-        {
-            try
-            {
-                OpenMedia((string)((ListBoxItem)list.SelectedItem).Tag, true);
-            }
-            catch
-            {
-                notice?.Cancel();
-                notice = new();
-                message.Text = t("This file is no longer in its saved location.");
-                try
-                {
-                    await Task.Delay(5000, notice.Token);
-                    message.Text = "";
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
-        };
-        list.SelectionChanged += (_, _) =>
-        {
-            reveal.IsEnabled = list.SelectedItem != null;
-            notice?.Cancel();
-            message.Text = "";
-        };
-        row.Children.Add(reveal);
-        row.Children.Add(close);
-        grid.Children.Add(row);
-        dialog.Content = grid;
-        dialog.Closed += (_, _) => notice?.Cancel();
+        var previousFocus = System.Windows.Input.Keyboard.FocusedElement as UIElement;
         dialog.ShowDialog();
-        notice?.Dispose();
+        if (previousFocus is { IsEnabled: true, IsVisible: true }) previousFocus.Focus();
     }
-
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern int SHParseDisplayName(string path, IntPtr bindContext, out IntPtr item, uint attributes, out uint returnedAttributes);
     [DllImport("shell32.dll")]

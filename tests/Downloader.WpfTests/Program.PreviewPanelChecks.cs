@@ -22,7 +22,7 @@ internal static partial class Program
                     window.Width = width;
                     await Task.Delay(100);
                     window.UpdateLayout();
-                    Check(!pane.IsVisible && !inline.IsVisible && form.ActualWidth >= 760 && Grid.GetRow(form) == 0,
+                    Check(!pane.IsVisible && !inline.IsVisible && Math.Abs(form.ActualWidth - form.MaxWidth) <= 1 && Grid.GetRow(form) == 0,
                         $"An empty link has one usable form and no preview or idle status: {arabic}/{dark}/{width} (pane={pane.IsVisible}, status={inline.IsVisible}, form={form.ActualWidth}, row={Grid.GetRow(form)})");
                     Check(Equals(surface.Background, window.Background), "Preview shares the window's theme background: " + arabic + "/" + dark);
                     await CaptureCompact(window, System.IO.Path.Combine(captures,

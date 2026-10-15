@@ -148,9 +148,16 @@ public sealed class DependencyManager : IDisposable
         return pieces.Yt != null && pieces.Deno != null && pieces.Ffmpeg != null ? ToolSet.Validated(pieces.Yt, pieces.Ffmpeg, pieces.Ffprobe, pieces.Deno) : null;
     }
 
-    private (string Yt, string Ffmpeg, string Ffprobe, string Deno) DiscoverPieces(CancellationToken token)
+    internal ToolSet DiscoverBaseline(CancellationToken token)
     {
-        string yt = ToolRefresh.FindVerified(cache, token), deno = null, ffmpeg = null, ffprobe = null;
+        var pieces = DiscoverPieces(token, false);
+        return pieces.Yt != null && pieces.Deno != null && pieces.Ffmpeg != null ? ToolSet.Validated(pieces.Yt, pieces.Ffmpeg, pieces.Ffprobe, pieces.Deno) : null;
+    }
+
+    private (string Yt, string Ffmpeg, string Ffprobe, string Deno) DiscoverPieces(CancellationToken token, bool includeUpdates = true)
+    {
+        string yt = includeUpdates ? ToolRefresh.FindVerified(cache, token) : null,
+            deno = includeUpdates ? ToolRefresh.FindVerified(cache, token, "Deno") : null, ffmpeg = null, ffprobe = null;
         foreach (string folder in locations)
         {
             token.ThrowIfCancellationRequested();

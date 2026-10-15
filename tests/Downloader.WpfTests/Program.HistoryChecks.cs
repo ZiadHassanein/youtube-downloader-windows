@@ -10,9 +10,12 @@ internal static partial class Program
     private static async Task CheckRecentDownloads(Window owner, MainViewModel model, string captures)
     {
         var actions = new DesktopActions(owner);
-        string longTitle = string.Concat(Enumerable.Repeat("Local fixture — عنوان عربي طويل للفيديو — ", 6));
-        string[] files = Enumerable.Range(1, 7).Select(index => System.IO.Path.Combine(
-            System.IO.Path.GetTempPath(), "ViFree history fixture", $"{index} — {longTitle}.mp3")).ToArray();
+        string longTitle = string.Concat(Enumerable.Repeat("Local UI fixture — عنوان عربي طويل — ", 3));
+        string fixture = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ViFree-history-" + Guid.NewGuid().ToString("N"));
+        System.IO.Directory.CreateDirectory(fixture);
+        string[] files = Enumerable.Range(1, 7).Select(index => System.IO.Path.Combine(fixture, $"{index} — {longTitle}.mp3")).ToArray();
+        // Synthetic bytes exercise file presence/size only; never launch them as real media.
+        foreach (string file in files.Take(4)) System.IO.File.WriteAllBytes(file, new byte[2048]);
         double originalHeight = owner.Height;
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
@@ -36,8 +39,13 @@ internal static partial class Program
                             Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + ".png"));
                             Check(dialog.FlowDirection == model.ContentDirection && Equals(dialog.Background, owner.Background),
                                 "Recent downloads follows the current language and theme");
-                            var reveal = Descendants<Button>(dialog).Single(button => Equals(button.Content, model.RevealLabel));
-                            Check(reveal.IsEnabled == (entries > 0), "Reveal is enabled only when a completed file is selected");
+                            var historyModel = (RecentDownloadsViewModel)dialog.DataContext;
+                            var reveals = Descendants<Button>(dialog).Where(button => Equals(button.Content, model.RevealLabel)).ToArray();
+                            Check(reveals.Length == Math.Min(entries, 5) && reveals.All(button => button.IsEnabled == ((RecentDownloadView)button.DataContext).Available),
+                                "Every history row has its own reveal action; moved/deleted files stay visibly unavailable");
+                            Check(dialog.ActualWidth <= owner.ActualWidth - 47 && dialog.ActualHeight <= owner.ActualHeight - 47 &&
+                                (entries != 1 || dialog.ActualHeight <= 370), "History adapts to its owner and a single file does not leave a tall empty panel");
+                            Check(historyModel.Heading == model.HistoryLabel && (entries != 0 || historyModel.IsEmpty), "History heading and empty state use the current language");
                             if (entries > 0)
                             {
                                 var list = Descendants<ListBox>(dialog).Single();
@@ -45,10 +53,13 @@ internal static partial class Program
                                 Check(viewport.ComputedHorizontalScrollBarVisibility != Visibility.Visible && viewport.ScrollableWidth <= 1,
                                     $"Long mixed-language history names do not create a horizontal scrollbar (scroll={viewport.ScrollableWidth}, visible={viewport.ComputedHorizontalScrollBarVisibility})");
                                 Check(list.Items.Count == Math.Min(entries, 5), "Recent downloads keeps its five-file limit");
-                                var item = (ListBoxItem)list.Items[0];
-                                var labels = ((StackPanel)item.Content).Children.OfType<TextBlock>().ToArray();
-                                Check(Equals(item.Tag, files[0]) && Equals(item.ToolTip, files[0]) && labels[0].Text == System.IO.Path.GetFileName(files[0]),
-                                    "Ellipsis preserves the original title, full-path tooltip and reveal target");
+                                var item = (ListBoxItem)list.ItemContainerGenerator.ContainerFromIndex(0);
+                                var labels = Descendants<TextBlock>(item).ToArray();
+                                var fileView = (RecentDownloadView)list.Items[0];
+                                Check(Equals(list.Foreground, Application.Current.Resources["Ink"]) && Equals(item.Foreground, Application.Current.Resources["Ink"]), "History titles retain readable themed text instead of system ListBox colors");
+                                Check(fileView.FilePath == files[0] && fileView.Title == System.IO.Path.GetFileNameWithoutExtension(files[0]) &&
+                                    Descendants<Grid>(item).Any(grid => Equals(grid.ToolTip, files[0])) && labels.Any(label => label.Text == fileView.Title && label.MaxHeight == 22),
+                                    "History keeps a compact title, distinct file details, full-path tooltip and exact reveal target");
                                 Check(labels.All(label => label.ActualWidth <= viewport.ViewportWidth + 1),
                                     "Both history labels remain within the list viewport");
                                 if (entries > 1)
@@ -57,11 +68,26 @@ internal static partial class Program
                                     list.ScrollIntoView(list.SelectedItem);
                                     await Task.Delay(75);
                                     dialog.UpdateLayout();
-                                    var last = (ListBoxItem)list.SelectedItem;
+                                    var last = (ListBoxItem)list.ItemContainerGenerator.ContainerFromIndex(list.SelectedIndex);
                                     var bounds = last.TransformToAncestor(viewport).TransformBounds(new Rect(last.RenderSize));
-                                    Check(viewport.ScrollableHeight > 0 && bounds.Bottom <= viewport.ActualHeight + 1 && reveal.IsEnabled,
-                                        $"Short history dialogs can scroll vertically to the last completed file (scroll={viewport.ScrollableHeight}, offset={viewport.VerticalOffset}, viewport={viewport.ActualHeight}, last={bounds}, enabled={reveal.IsEnabled})");
+                                    Check(viewport.ScrollableHeight > 0 && bounds.Bottom <= viewport.ActualHeight + 1,
+                                        $"Short history dialogs can scroll vertically to the last file and its action (scroll={viewport.ScrollableHeight}, offset={viewport.VerticalOffset}, viewport={viewport.ActualHeight}, last={bounds})");
                                     Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + "-last.png"));
+                                }
+                                if (entries == 1)
+                                {
+                                    System.IO.File.Delete(files[0]);
+                                    try
+                                    {
+                                        var peer = new System.Windows.Automation.Peers.ButtonAutomationPeer(reveals[0]);
+                                        ((System.Windows.Automation.Provider.IInvokeProvider)peer.GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke)).Invoke();
+                                        await Task.Delay(75); dialog.UpdateLayout();
+                                        Check(historyModel.HasError && historyModel.Error == Texts.For(arabic ? "ar" : "en", "This file is no longer in its saved location."),
+                                            arabic ? "Arabic reveal failures give translated recovery feedback" : "Reveal failures give clear recovery feedback");
+                                        Check(!arabic || historyModel.Error != "This file is no longer in its saved location.", "Arabic history recovery does not fall back to English");
+                                        Capture(dialog, System.IO.Path.Combine(captures, "history-" + variant + "-missing.png"));
+                                    }
+                                    finally { System.IO.File.WriteAllBytes(files[0], new byte[2048]); }
                                 }
                             }
                         }

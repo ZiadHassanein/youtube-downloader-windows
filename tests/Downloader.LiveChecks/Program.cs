@@ -5,6 +5,9 @@ internal static class Program
     public static async Task<int> Main(string[] args)
     {
         if (args.Length == 2 && args[0] == "--workflows") return await WorkflowLiveChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--bootstrap") return await BootstrapLiveChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--cached-tools") return await BootstrapLiveChecks.Run(args[1], false);
+        if (args.Length == 2 && args[0] == "--audio-profiles") return await AudioProfileLiveChecks.Run(args[1]);
         try
         {
             string root = Path.GetFullPath(args[0]);

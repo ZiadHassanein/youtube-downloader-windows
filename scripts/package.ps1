@@ -16,7 +16,8 @@ ViFree by Ziad Hassanein
 Windows 10/11 x64. Extract this ZIP into a writable folder and open ViFree.exe.
 No separate .NET runtime, installer, WinGet or tool setup script is needed.
 On the first pasted link, the app checks compatible installed media tools and privately prepares only missing tools. Internet access and approximately 400 MB of free space may be required. Progress appears in the app. Global installations are never modified.
-Updates are manual: open Settings, choose Check for updates and then Install when a newer verified desktop package is available. Copies of YouTube Downloader require one manual ZIP download to switch to ViFree. Existing preferences and downloaded files are retained.
+Downloader and Deno updates are checked automatically once daily when you use a link. Verified updates retain the previous version. Compatible extractor/runtime failures receive one automatic update/retry; access blocks are not retried. No account, API key or paid service is needed.
+App version updates are manual: open Settings, choose Check for updates and then Install when a newer verified desktop package is available. Copies of YouTube Downloader require one manual ZIP download to switch to ViFree. Existing preferences and downloaded files are retained.
 Preferences are saved automatically in LocalAppData/YouTubeDownloader. Existing settings and media are retained. Links are not saved.
 If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Settings > Check for updates.
 The optional Browser folder contains Chrome/Edge and Firefox companions. Ordinary app use needs no extension. Read Browser/README.md to enable it; browser installation is an optional user action.
@@ -28,6 +29,7 @@ if ($Preview) {
 ViFree Windows Preview by Ziad Hassanein
 Extract this ZIP into a writable folder and open ViFree.exe. Windows x64 only.
 The .NET runtime is bundled. Compatible media tools are detected; missing tools are downloaded and verified automatically on the first link. Internet access is needed, with up to approximately 400 MB for private media tools. No separate tool setup is required.
+Downloader and Deno updates are checked automatically once daily when you use a link, with verified staging, retained previous versions and one update/retry for compatible extractor/runtime failures. No account, API key or paid service is required. Access blocks and sign-in requirements are not retried.
 This preview has separate preferences and tool/resume state in LocalAppData/ViFreePreview. It does not replace the stable app or install stable updates. Pending queue links stay in this session only.
 Output options exposes MP3/M4A/Opus/WAV/FLAC and subtitles. Queue supports multiple links and per-job recovery. Choose videos selects playlist entries. Other websites depend on yt-dlp and public access; DRM and sign-in media are unsupported.
 The optional browser companion is included in Browser. Ordinary app use needs no browser extension.

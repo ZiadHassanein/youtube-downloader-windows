@@ -7,6 +7,7 @@ namespace YouTubeDownloader
         public List<string> Files = new List<string>();
         public int Total, Completed, Failed, Skipped, Remaining;
         public string StopReason;
+        public bool StopQueue;
         public string Warning;
     }
 }

@@ -128,8 +128,9 @@ namespace YouTubeDownloader
                 {
                     result.Failed++;
                     consecutiveFailures = Unavailable(ex.Message) ? 0 : consecutiveFailures + 1;
-                    if (ShouldStop(ex.Message) || consecutiveFailures >= 3)
+                    if (ex is MediaToolRecoveryException || ShouldStop(ex.Message) || consecutiveFailures >= 3)
                     {
+                        result.StopQueue = ex is MediaToolRecoveryException;
                         result.StopReason = ex.Message;
                         done++;
                         break;

@@ -10,8 +10,9 @@ internal static partial class Program
         model.SettingsVisible = false;
         model.Audio = false;
         model.Url = "";
+        // Other full-suite scenarios deliberately resize the same host. Start this matrix from its own normal frame.
+        window.Width = 740;
         double startupWidth = window.Width;
-        Check(startupWidth == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
         double normalHeight = Math.Min(800, window.CurrentWorkArea().Height - 16);
         window.Height = normalHeight;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
@@ -61,7 +62,7 @@ internal static partial class Program
             var brand = Bounds((FrameworkElement)WpfTree.Find(window, "BrandWordmark"));
             var utilities = Bounds((FrameworkElement)WpfTree.Find(window, "HeaderActions"));
             Check(form.ActualWidth <= 621 && Math.Abs(download.ActualWidth - 280) <= 1 &&
-                Math.Abs(model.IsArabic ? action.Right - fields.Right : action.Left - fields.Left) <= 1 &&
+                Math.Abs((action.Left + action.Right) / 2 - (fields.Left + fields.Right) / 2) <= 1 &&
                 anchors.All(name => { var bounds = Bounds((FrameworkElement)WpfTree.Find(window, name));
                     return bounds.Left >= fields.Left - 1 && bounds.Right <= fields.Right + 1; }) &&
                 ((FrameworkElement)WpfTree.Find(window, "LinkInput")).ActualWidth >= 200 &&

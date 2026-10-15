@@ -38,6 +38,7 @@ internal static partial class Program
                 await Task.Delay(100);
                 window.UpdateLayout();
                 Check(window.Title == "ViFree" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
+                Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
@@ -83,6 +84,12 @@ internal static partial class Program
                     await CheckFooter(window, model, captures);
                     await CheckWindowLayout(window, model, provider, thumbnailLoader, captures);
                     Console.WriteLine(count + " WPF footer/layout checks passed.");
+                    return;
+                }
+                if (args.Contains("--contact"))
+                {
+                    await CheckFooter(window, model, captures);
+                    Console.WriteLine(count + " WPF contact checks passed.");
                     return;
                 }
                 if (args.Contains("--window-layout"))
@@ -184,6 +191,7 @@ internal static partial class Program
                 await CheckFooter(window, model, captures);
                 await CheckHeader(window, model, captures);
                 await CheckOutputPicker(window, model, captures);
+                await CheckDropdownScrolling(window, model, captures);
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await MaximizeChecks(window, model, captures);

@@ -379,6 +379,7 @@ public sealed partial class MainViewModel
     private static string FriendlyError(Exception exception, string networkRecovery = "Check your internet connection, then paste the link again to retry.")
     {
         string text = exception.Message.ToLowerInvariant();
+        if (exception is MediaToolRecoveryException) return exception.Message;
         if (exception is ArgumentException)
             return exception.Message;
         if (text.Contains("selected subtitles")) return "The selected subtitles are no longer available. Refresh output options or choose no subtitles.";

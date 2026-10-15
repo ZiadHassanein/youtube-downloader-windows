@@ -102,6 +102,11 @@ internal static class FakeDownloader
         }
 
         string url = args.Last();
+        if (File.Exists(Path.Combine(AppContext.BaseDirectory, "compatibility-failure.flag")))
+        {
+            Console.Error.WriteLine("ERROR: Signature extraction failed");
+            return 1;
+        }
         if (args.Contains("--dump-single-json"))
         {
             if (args.Contains("--yes-playlist"))

@@ -76,7 +76,7 @@ public sealed partial class MainViewModel
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
-    public string ToolRefreshHint => T("Use this if a video link stops working after a website changes. It updates the tool ViFree uses to read video links and download files.");
+    public string ToolRefreshHint => T("ViFree checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.");
     public string OutputHint => T("Audio conversion cannot improve the source quality. Subtitles are saved beside the media when available.");
     public string QueueMessage { get; private set; } = "";
     public IRelayCommand QueueCommand { get; private set; }
