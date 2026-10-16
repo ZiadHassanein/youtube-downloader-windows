@@ -79,6 +79,16 @@ public static class CoreTests
             Check(VideoLink.Normalize(expected + "&list=PLExample", true) == "https://www.youtube.com/playlist?list=PLExample", "A mixed link has an explicit whole-playlist target");
             Check(VideoLink.Parse("https://youtu.be/jNQXAC9IVRw?list=PLExample").VideoUrl == expected, "Shared playlist links retain the single-video choice");
             Check(VideoLink.Parse("https://www.youtube.com/playlist?list=PLExample").VideoUrl == null, "Playlist-only links cannot pretend to be a single video");
+            const string mix = "https://www.youtube.com/watch?v=YKMJXdNBvNQ&list=RDYKMJXdNBvNQ&start_radio=1";
+            Check(VideoLink.Normalize(mix, true) == mix && VideoLink.Normalize(VideoLink.Normalize(mix, true), true) == mix,
+                "YouTube Mix normalization preserves its starting video and is idempotent");
+            Check(VideoLink.Normalize(mix, false) == "https://www.youtube.com/watch?v=YKMJXdNBvNQ" &&
+                VideoLink.Normalize("https://www.youtube.com/playlist?list=RDYKMJXdNBvNQ", true) == mix,
+                "Mix links retain single-video scope and recover an embedded starting video");
+            bool rejectsUnseededMix = false;
+            try { VideoLink.Parse("https://www.youtube.com/playlist?list=RDMM"); }
+            catch (ArgumentException error) { rejectsUnseededMix = error.Message.Contains("playing video"); }
+            Check(rejectsUnseededMix, "A Mix without a starting video provides an actionable validation error");
             PlaylistChecks(serializer, tools);
             Console.WriteLine(checks + " core checks passed.");
             return 0;
@@ -98,6 +108,11 @@ public static class CoreTests
         {
             const string url = "https://www.youtube.com/playlist?list=PLFixture";
             var info = PlaylistMetadata.Read(url, json.Deserialize<Dictionary<string, object>>("{\"title\":\"Test\",\"entries\":[{\"id\":\"jNQXAC9IVRw\"},null,{\"id\":\"aqz-KE-bpKQ\"}]}"));
+            var mixInfo = PlaylistMetadata.Read("https://www.youtube.com/watch?v=YKMJXdNBvNQ&list=RDYKMJXdNBvNQ", json.Deserialize<Dictionary<string, object>>(
+                "{\"title\":\"Mix\",\"entries\":[{\"id\":\"jNQXAC9IVRw\",\"thumbnails\":[{\"url\":\"https://i.ytimg.com/fixture.jpg\"}]},{\"id\":\"jNQXAC9IVRw\"},{\"id\":\"aqz-KE-bpKQ\"}]}"));
+            Check(mixInfo.IsMix && mixInfo.Entries.Count == 2 && mixInfo.ThumbnailUrl == "https://i.ytimg.com/fixture.jpg" &&
+                new DownloadOptions { Playlist = mixInfo }.Snapshot().Playlist.IsMix,
+                "Mix metadata deduplicates videos, retains entry artwork and preserves identity in request snapshots");
             Check(info.Entries.Count == 3 && info.Entries[1].Url == null, "Flat metadata retains unavailable entries for an honest count");
             var options = new DownloadOptions
             {

@@ -72,8 +72,10 @@ internal static partial class Program
                     var frame = new Rect(window.Left, window.Top, window.ActualWidth, window.ActualHeight);
                     var logoBounds = Bounds(artwork);
                     brand.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                    await Task.Delay(100);
-                    Check(light.Opacity > 0 && Bounds(artwork).Width <= logoBounds.Width + .5, "Logo light pass stays inside its fixed silhouette in " + variant);
+                    // Wait for a rendered animation tick; elapsed wall time alone is not a WPF frame.
+                    await Until(() => light.Opacity > 0, "The logo begins its finite light pass in " + variant);
+                    Check(Bounds(artwork).Width <= logoBounds.Width + .5,
+                        "Logo light pass stays inside its fixed silhouette in " + variant + $" (before={logoBounds}, after={Bounds(artwork)}, opacity={light.Opacity})");
                     Shot("logo-" + variant);
                     await Task.Delay(580);
                     Check(light.Opacity == 0 && ((ScaleTransform)artwork.RenderTransform).ScaleX == 1,

@@ -8,17 +8,20 @@
  <Grid x:Name="Root" Background="{DynamicResource Page}">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <local:AppHeaderView x:Name="HeaderContent"/>
-  <ScrollViewer x:Name="Viewport" Grid.Row="1" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
-   <Grid x:Name="PageContent" FlowDirection="{Binding ContentDirection}" MinHeight="{Binding ViewportHeight,ElementName=Viewport}">
+   <Grid x:Name="PageContent" Grid.Row="1" FlowDirection="LeftToRight">
     <Grid.ColumnDefinitions><ColumnDefinition Width="55*"/><ColumnDefinition Width="45*"/></Grid.ColumnDefinitions>
-    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <local:DownloadFormView x:Name="DownloadForm" MaxWidth="620" VerticalAlignment="Top"/>
-    <Grid x:Name="ContextPane" Grid.Column="1">
+    <ScrollViewer x:Name="Viewport" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
+     <Grid x:Name="FormContent" MinHeight="{Binding ViewportHeight,ElementName=Viewport}" FlowDirection="{Binding ContentDirection}">
+      <local:DownloadFormView x:Name="DownloadForm" MaxWidth="620" VerticalAlignment="Top"/>
+     </Grid>
+    </ScrollViewer>
+    <ScrollViewer x:Name="ContextViewport" Grid.Column="1" Style="{StaticResource VerticalScrollFrame}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" FlowDirection="{Binding ContentDirection}">
+    <Grid x:Name="ContextPane">
      <local:MediaPreviewView x:Name="MediaPreview"/>
      <local:SettingsView x:Name="SettingsPane" Visibility="{Binding SettingsVisible,Converter={StaticResource BoolVisibility}}"/>
     </Grid>
+    </ScrollViewer>
    </Grid>
-  </ScrollViewer>
   <Border x:Name="FooterContent" Grid.Row="2" BorderBrush="{DynamicResource Divider}" BorderThickness="0,1,0,0" Padding="24,8">
    <local:AppFooterView/>
   </Border>

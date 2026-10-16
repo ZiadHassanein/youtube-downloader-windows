@@ -17,7 +17,8 @@ namespace YouTubeDownloader
             {
                 Id = youtube ? link.PlaylistId : Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(url))).Substring(0, 24),
                 Url = url,
-                ThumbnailUrl = data.TryGetValue("thumbnail", out var thumbnail) ? Convert.ToString(thumbnail) : null,
+                IsMix = link?.IsMix == true,
+                ThumbnailUrl = Thumbnail(data),
                 Title = data.TryGetValue("title", out title) && title != null ? Convert.ToString(title) : "Playlist"
             };
             foreach (object value in (IEnumerable)entries)
@@ -28,6 +29,8 @@ namespace YouTubeDownloader
                 string videoId = entry != null && entry.TryGetValue("id", out id) && id != null ? Convert.ToString(id) : null;
                 if (videoId != null && !Regex.IsMatch(videoId, youtube ? "^[A-Za-z0-9_-]{11}$" : "^[A-Za-z0-9_.-]{1,96}$"))
                     videoId = null;
+                if (info.IsMix && videoId != null && info.Entries.Any(item => item.Id == videoId)) continue;
+                info.ThumbnailUrl ??= entry == null ? null : Thumbnail(entry);
                 string mediaUrl = null;
                 if (videoId != null)
                 {
@@ -41,6 +44,14 @@ namespace YouTubeDownloader
             if (info.Entries.Count == 0)
                 throw new InvalidOperationException("This playlist is empty or unavailable. Try a public playlist.");
             return info;
+        }
+
+        private static string Thumbnail(Dictionary<string, object> data)
+        {
+            if (data.TryGetValue("thumbnail", out var single) && single is string address) return address;
+            return data.TryGetValue("thumbnails", out var many) && many is IEnumerable list
+                ? list.OfType<Dictionary<string, object>>().Select(item => item.TryGetValue("url", out var value) ? value as string : null)
+                    .LastOrDefault(value => !string.IsNullOrWhiteSpace(value)) : null;
         }
     }
 }

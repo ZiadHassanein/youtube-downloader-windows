@@ -12,7 +12,19 @@ public sealed partial class MainViewModel
     private ImageSource previewImage;
     private bool settingsVisible;
     private bool notifiedHasMediaPreview;
-    public ImageSource PreviewImage => previewImage;
+    private bool inlineMediaPreview;
+    public bool HasMediaContext => HasMediaPreview || QueueRunning;
+    public bool InlineMediaPreview
+    {
+        get => inlineMediaPreview;
+        internal set { if (SetProperty(ref inlineMediaPreview, value)) OnPropertyChanged(nameof(ShowInlineActivity)); }
+    }
+    private QueueEntry ActiveQueueEntry => Queue.Entries.FirstOrDefault(entry => entry.State is QueueState.Preparing or QueueState.Downloading);
+    private bool QueueMatchesPreview
+    {
+        get { try { return checkedUrl != null && downloads.Normalize(checkedUrl, WholePlaylist) == ActiveQueueEntry?.Url; } catch (ArgumentException) { return false; } }
+    }
+    public ImageSource PreviewImage => QueueRunning && !QueueMatchesPreview ? null : previewImage;
     public bool SettingsVisible
     {
         get => settingsVisible;
@@ -39,16 +51,16 @@ public sealed partial class MainViewModel
     public string DownloaderSectionLabel => T("Download support");
     public string PreviewLabel => T("Video preview");
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
-    public bool ShowInlineActivity => HasStatus && !HasMediaPreview && !SettingsVisible;
+    public bool ShowInlineActivity => HasStatus && (!HasMediaContext || InlineMediaPreview) && !SettingsVisible;
     public bool ShowDownloadActivity => HasStatus && !IsRefreshingTools;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;
     public string FolderAccessibleName => T("Save to") + ": " + Folder;
-    public string PreviewTitle => videoInfo?.Title ?? playlistInfo?.Title ?? T("Your next download");
+    public string PreviewTitle => QueueRunning ? ActiveQueueEntry?.Title ?? T("Download queue") : videoInfo?.Title ?? playlistInfo?.Title ?? T("Your next download");
     public FlowDirection PreviewTitleDirection => PreviewTitle.Any(c => c is >= '\u0600' and <= '\u06ff')
         ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
-    public string PreviewSubtitle => videoInfo?.Uploader ?? (playlistInfo == null ? T("Paste a link to see its details.") : T("Playlist"));
-    public bool HasPreviewDuration => videoInfo?.Duration is > 0 and < 8640000;
+    public string PreviewSubtitle => QueueRunning ? T("Download queue") : videoInfo?.Uploader ?? (playlistInfo == null ? T("Paste a link to see its details.") : playlistInfo.IsMix ? F("YouTube Mix · {0} videos from this changing mix", playlistInfo.Entries.Count) : T("Playlist"));
+    public bool HasPreviewDuration => (!QueueRunning || QueueMatchesPreview) && videoInfo?.Duration is > 0 and < 8640000;
     public string PreviewDuration => !HasPreviewDuration ? "" : videoInfo.Duration >= 3600
         ? TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"h\:mm\:ss")
         : TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"m\:ss");
@@ -81,6 +93,7 @@ public sealed partial class MainViewModel
         }
         foreach (string property in new[]
         {
+            nameof(HasMediaContext), nameof(PlaylistLabel), nameof(PreviewImage),
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
             nameof(PreviewStatus), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)

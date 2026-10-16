@@ -22,6 +22,17 @@ public sealed class QueueItemView : ObservableObject
     public bool CanRetry { get; private set; }
     public bool CanRemove => Entry.State is not (QueueState.Preparing or QueueState.Downloading);
     public bool HasError => Error.Length > 0;
+    public bool HasCompletedOutput => Entry.State == QueueState.Completed && (Entry.Result?.FilePath != null || Entry.Result?.Files.Count > 0);
+    public string CompletedFolder
+    {
+        get
+        {
+            string file = Entry.Result?.FilePath ?? Entry.Result?.Files.LastOrDefault();
+            try { return file == null ? null : Path.GetDirectoryName(Path.GetFullPath(file)); }
+            catch (ArgumentException) { return null; }
+        }
+    }
+    public bool CanOpenFolder => HasCompletedOutput && Directory.Exists(CompletedFolder);
     public QueueItemView(QueueEntry entry) => Entry = entry;
     public void Refresh(Func<string, string> translate, bool running)
     {
@@ -86,6 +97,7 @@ public sealed partial class MainViewModel
     public IAsyncRelayCommand QueueStartCommand { get; private set; }
     public IRelayCommand<Guid> RetryQueueCommand { get; private set; }
     public IRelayCommand<Guid> RemoveQueueCommand { get; private set; }
+    public IRelayCommand<Guid> OpenQueueFolderCommand { get; private set; }
     public IRelayCommand PlaylistSelectionCommand { get; private set; }
     public IRelayCommand BrowserCommand { get; private set; }
     public IAsyncRelayCommand ToolRefreshCommand { get; private set; }
@@ -112,6 +124,21 @@ public sealed partial class MainViewModel
         InitializeQueueInputs();
         RetryQueueCommand = new RelayCommand<Guid>(id => Queue.Retry(id), _ => !Queue.IsRunning);
         RemoveQueueCommand = new RelayCommand<Guid>(id => Queue.Remove(id));
+        OpenQueueFolderCommand = new RelayCommand<Guid>(id =>
+        {
+            var item = QueueItems.FirstOrDefault(row => row.Id == id);
+            try
+            {
+                if (item?.CanOpenFolder != true) throw new IOException();
+                actions.OpenFolder(item.CompletedFolder);
+            }
+            catch (Exception error) when (error is not OutOfMemoryException)
+            {
+                QueueMessage = T("This download folder is no longer available.");
+                OnPropertyChanged(nameof(QueueMessage));
+                SyncQueue();
+            }
+        }, id => QueueItems.Any(row => row.Id == id && row.CanOpenFolder));
         PlaylistSelectionCommand = new RelayCommand(() =>
         {
             var selected = actions.SelectPlaylist(playlistInfo, selectedPlaylistIds, T);
@@ -201,7 +228,7 @@ public sealed partial class MainViewModel
                 actions.Dispatch(() =>
                 {
                     RememberFiles(result);
-                    if (!result.Cancelled && result.Failed == 0 && result.Remaining == 0 && result.StopReason == null && Url.Trim() == request.Url) ClearLink();
+                    if (!result.Cancelled && result.Failed == 0 && result.Remaining == 0 && result.StopReason == null && MatchesQueueLink(request)) ClearLink();
                 });
                 return result;
         });
@@ -217,6 +244,11 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(HasFile));
         Save();
     }
+    private bool MatchesQueueLink(DownloadOptions request)
+    {
+        try { return downloads.Normalize(Url, WholePlaylist) == request.Url; }
+        catch (ArgumentException) { return false; }
+    }
     private void RefreshWorkflowAvailability()
     {
         AddQueueCommand?.NotifyCanExecuteChanged();
@@ -224,6 +256,7 @@ public sealed partial class MainViewModel
         QueueStartCommand?.NotifyCanExecuteChanged();
         RefreshQueueInputAvailability();
         RetryQueueCommand?.NotifyCanExecuteChanged();
+        OpenQueueFolderCommand?.NotifyCanExecuteChanged();
         PlaylistSelectionCommand?.NotifyCanExecuteChanged();
         BrowserCommand?.NotifyCanExecuteChanged();
         ToolRefreshCommand?.NotifyCanExecuteChanged();

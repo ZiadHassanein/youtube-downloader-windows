@@ -99,6 +99,10 @@
             <TextBlock Text="{Binding Error}" Foreground="{DynamicResource Error}" FontSize="12" Margin="0,6,0,0" Visibility="{Binding HasError,Converter={StaticResource BoolVisibility}}"/>
            </StackPanel>
            <StackPanel Grid.Column="2" VerticalAlignment="Top">
+            <Button x:Name="QueueOpenFolder" Content="{Binding DataContext.OpenFolderLabel,RelativeSource={RelativeSource AncestorType=Window}}"
+                    Command="{Binding DataContext.OpenQueueFolderCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}"
+                    Visibility="{Binding HasCompletedOutput,Converter={StaticResource BoolVisibility}}" IsEnabled="{Binding CanOpenFolder}"
+                    ToolTip="{Binding CompletedFolder}" Style="{StaticResource QueueQuietButton}"/>
             <Button Content="{Binding DataContext.RetryLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RetryQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" Visibility="{Binding CanRetry,Converter={StaticResource BoolVisibility}}" Style="{StaticResource QueueQuietButton}"/>
             <Button Content="{Binding DataContext.RemoveLabel,RelativeSource={RelativeSource AncestorType=Window}}" Command="{Binding DataContext.RemoveQueueCommand,RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Id}" IsEnabled="{Binding CanRemove}" Style="{StaticResource QueueQuietButton}"/>
            </StackPanel>

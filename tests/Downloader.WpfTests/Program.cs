@@ -42,6 +42,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--media-panel"))
+                {
+                    await CheckMediaPanel(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF media-panel checks passed.");
+                    return;
+                }
                 if (args.Contains("--motion"))
                 {
                     await CheckMotion(window, model, provider, captures);
@@ -200,6 +206,7 @@ internal static partial class Program
                 await CheckDropdownScrolling(window, model, captures);
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
+                await CheckMediaPanel(window, model, provider, captures);
                 await CheckMotion(window, model, provider, captures);
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
@@ -267,7 +274,7 @@ internal static partial class Program
                         window.UpdateLayout();
                         var bar = (ScrollBar)viewport.Template.FindName("PART_VerticalScrollBar", viewport);
                         var track = (Track)bar.Template.FindName("PART_Track", bar);
-                        var body = (FrameworkElement)WpfTree.Find(window, "PageContent");
+                        var body = (FrameworkElement)WpfTree.Find(window, "FormContent");
                         var barBounds = bar.TransformToAncestor(page).TransformBounds(new Rect(0, 0, bar.ActualWidth, bar.ActualHeight));
                         var bodyBounds = body.TransformToAncestor(page).TransformBounds(new Rect(0, 0, body.ActualWidth, body.ActualHeight));
                         Capture(window, System.IO.Path.Combine(captures, "scroll-" + language + (dark ? "-dark" : "-light") + ".png"));
@@ -369,7 +376,7 @@ internal static partial class Program
         window.WindowState = WindowState.Normal;
         await Task.Delay(100);
         window.UpdateLayout();
-        var page = (FrameworkElement)WpfTree.Find(window, "PageContent");
+        var page = (FrameworkElement)WpfTree.Find(window, "FormContent");
         GetWindowRect(handle, out var restoredBounds);
         Check(Math.Abs(window.Width - normalWidth) <= 1 && Math.Abs(window.Height - normalHeight) <= 1 &&
             Math.Abs(page.MinHeight - ((ScrollViewer)WpfTree.Find(window, "Viewport")).ViewportHeight) <= 1 &&
@@ -461,6 +468,8 @@ internal static partial class Program
         {
             Id = "PLFixture",
             Url = url,
+            IsMix = VideoLink.Parse(url).IsMix,
+            ThumbnailUrl = ThumbnailAddress,
             Title = "Local playlist fixture",
             Entries = new()
             {

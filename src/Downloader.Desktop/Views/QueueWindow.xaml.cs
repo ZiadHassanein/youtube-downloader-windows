@@ -9,7 +9,20 @@ public partial class QueueWindow : Window
     {
         InitializeComponent();
         SourceInitialized += (_, _) => ThemeResources.ApplyTitleBar(this, (DataContext as MainViewModel)?.IsDark == true);
-        ContentRendered += (_, _) => FocusLinkInput((DataContext as MainViewModel)?.QueueLinkInputs.FirstOrDefault());
+        ContentRendered += (_, _) => ShowInitialContent();
+    }
+
+    private void ShowInitialContent()
+    {
+        if (DataContext is not MainViewModel model) return;
+        if (model.QueueItems.Count > 0 && model.QueueItems.All(item => item.HasCompletedOutput) &&
+            model.QueueLinkInputs.All(input => string.IsNullOrWhiteSpace(input.Url)))
+        {
+            QueueItemsHost.UpdateLayout();
+            (QueueItemsHost.ItemContainerGenerator.ContainerFromIndex(0) as FrameworkElement)?.BringIntoView();
+            QueueCloseButton.Focus();
+        }
+        else FocusLinkInput(model.QueueLinkInputs.FirstOrDefault());
     }
 
     private void LinkActionClicked(object sender, RoutedEventArgs args)

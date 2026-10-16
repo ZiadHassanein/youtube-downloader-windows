@@ -31,8 +31,8 @@ internal static partial class Program
                 var formBounds = form.TransformToAncestor(root).TransformBounds(new Rect(form.RenderSize));
                 var paneBounds = pane.TransformToAncestor(root).TransformBounds(new Rect(pane.RenderSize));
                 var brandBounds = brand.TransformToAncestor(root).TransformBounds(new Rect(brand.RenderSize));
-                Check((arabic ? paneBounds.Right <= formBounds.Left + 1 : formBounds.Right <= paneBounds.Left + 1) &&
-                    brandBounds.Left < 100, "Task panes mirror while ViFree branding remains physically left");
+                Check(formBounds.Right <= paneBounds.Left + 1 &&
+                    brandBounds.Left < 100, "Media context remains physically right in both languages while branding stays left");
                 Check(form.ActualWidth > 500 && pane.ActualWidth > 400, "Split panes retain usable proportions");
                 var link = (FrameworkElement)WpfTree.Find(window, "LinkInput");
                 var paste = (FrameworkElement)WpfTree.Find(window, "PasteButton");
@@ -94,7 +94,9 @@ internal static partial class Program
         window.Width = 820;
         await Task.Delay(150);
         window.UpdateLayout();
-        Check(Grid.GetRow(form) == 1 && Grid.GetColumn(pane) == 0, "Narrow windows use a compact preview above one form column");
+        Check(((FrameworkElement)WpfTree.Find(window, "InlinePreviewHost")).IsVisible &&
+            !((FrameworkElement)WpfTree.Find(window, "ContextViewport")).IsVisible,
+            "A manually narrowed window places the compact preview below its link without a top banner");
         await CaptureCompact(window, System.IO.Path.Combine(captures, "redesign-compact-ar.png"));
         model.LanguageCommand.Execute(null);
         await Task.Delay(150);

@@ -23,7 +23,7 @@ namespace YouTubeDownloader
             ResumeDirectory = ResumeDirectory,
             Playlist = Playlist == null ? null : new PlaylistInfo
             {
-                Id = Playlist.Id, Url = Playlist.Url, Title = Playlist.Title, ThumbnailUrl = Playlist.ThumbnailUrl,
+                Id = Playlist.Id, Url = Playlist.Url, Title = Playlist.Title, ThumbnailUrl = Playlist.ThumbnailUrl, IsMix = Playlist.IsMix,
                 Entries = Playlist.Entries.Select(e => new PlaylistEntry { Id = e.Id, Title = e.Title, MediaUrl = e.MediaUrl }).ToList()
             }
         };

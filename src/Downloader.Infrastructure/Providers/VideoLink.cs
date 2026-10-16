@@ -54,11 +54,20 @@ namespace YouTubeDownloader
             bool playlistPath = parts.Length == 1 && parts[0] == "playlist";
             if (!validVideo && !(validList && playlistPath))
                 throw new ArgumentException("Use a link to a YouTube video, Short, or playlist.");
+            string videoUrl = validVideo ? "https://www.youtube.com/watch?v=" + id : null;
+            string playlistUrl = validList ? "https://www.youtube.com/playlist?list=" + list : null;
+            if (validList && list.StartsWith("RD", StringComparison.Ordinal))
+            {
+                string seed = validVideo ? id : list.Length == 13 ? list.Substring(2) : null;
+                if (seed == null || !Regex.IsMatch(seed, "^[A-Za-z0-9_-]{11}$"))
+                    throw new ArgumentException("For a YouTube Mix, copy the link of a playing video in the mix.");
+                playlistUrl = "https://www.youtube.com/watch?v=" + seed + "&list=" + list + "&start_radio=1";
+            }
             return new YouTubeLink
             {
-                VideoUrl = validVideo ? "https://www.youtube.com/watch?v=" + id : null,
+                VideoUrl = videoUrl,
                 PlaylistId = validList ? list : null,
-                PlaylistUrl = validList ? "https://www.youtube.com/playlist?list=" + list : null
+                PlaylistUrl = playlistUrl
             };
         }
 

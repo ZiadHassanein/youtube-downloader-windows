@@ -13,6 +13,7 @@ public partial class MainWindow : Window
     private readonly MainViewModel model;
     private bool closing, closed;
     private FlowDirection presentationDirection;
+    private readonly MediaPaneWindowState mediaFrame;
     public MainWindow() : this(null, null)
     {
     }
@@ -20,6 +21,7 @@ public partial class MainWindow : Window
     internal MainWindow(DownloadService service, SettingsRepository repository, IMediaThumbnailLoader thumbnailLoader = null)
     {
         InitializeComponent();
+        mediaFrame = new MediaPaneWindowState(this);
         Root.Children.Remove(Notice);
         DownloadForm.FolderNoticeHost.Children.Add(Notice);
         var actions = new DesktopActions(this);
@@ -27,7 +29,8 @@ public partial class MainWindow : Window
         presentationDirection = model.ContentDirection;
         DataContext = model;
         model.NoticeRequested += PlaceNotice;
-        SizeChanged += (_, _) => ApplyResponsiveLayout();
+        SizeChanged += (_, _) => { mediaFrame.ObserveBounds(); ApplyResponsiveLayout(); };
+        LocationChanged += (_, _) => mediaFrame.ObserveBounds();
         StateChanged += (_, _) => ConstrainToWorkArea();
         DpiChanged += (_, _) => ConstrainToWorkArea();
         model.PropertyChanged += (_, args) =>
@@ -42,16 +45,21 @@ public partial class MainWindow : Window
                 }
                 ApplyTitleBar();
             }
-            if (args.PropertyName is nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HasMediaPreview))
+            if (args.PropertyName is nameof(MainViewModel.SettingsVisible) or nameof(MainViewModel.HasMediaPreview) or nameof(MainViewModel.QueueRunning))
             {
+                mediaFrame.Update(model.HasMediaContext, CurrentWorkArea());
                 ApplyResponsiveLayout();
                 if (args.PropertyName == nameof(MainViewModel.SettingsVisible))
                 {
-                    Viewport.ScrollToTop();
+                    ContextViewport.ScrollToTop();
                     if (model.SettingsVisible) ViewMotion.Reveal(SettingsPane);
                 }
-                else if (model.HasMediaPreview && !model.SettingsVisible)
+                else if (args.PropertyName == nameof(MainViewModel.HasMediaPreview) && model.HasMediaPreview && !model.SettingsVisible)
+                {
+                    Viewport.ScrollToTop();
+                    ContextViewport.ScrollToTop();
                     ViewMotion.Reveal(MediaPreview.PreviewContent);
+                }
             }
             if (args.PropertyName == nameof(MainViewModel.HasFile) && model.HasFile && model.ShowInlineActivity)
                 Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => DownloadForm.InlineActivity.BringIntoView());
@@ -60,7 +68,7 @@ public partial class MainWindow : Window
             {
                 var element = args.PropertyName == nameof(MainViewModel.NoticeHeading) ? NoticeHeading :
                     model.SettingsVisible ? SettingsPane.ActiveDownload.StatusHeading :
-                    model.HasMediaPreview ? MediaPreview.Activity.StatusHeading : DownloadForm.InlineActivity.StatusHeading;
+                    model.HasMediaContext && !model.InlineMediaPreview ? MediaPreview.Activity.StatusHeading : DownloadForm.InlineActivity.StatusHeading;
                 (UIElementAutomationPeer.FromElement(element) ?? UIElementAutomationPeer.CreatePeerForElement(element))?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
             }
         };
@@ -80,19 +88,27 @@ public partial class MainWindow : Window
 
     private void ApplyResponsiveLayout()
     {
-        bool compact = Root.ActualWidth < 1000;
-        bool showContext = model.SettingsVisible || model.HasMediaPreview;
-        bool split = showContext && !compact;
-        PageContent.ColumnDefinitions[0].Width = new GridLength(split ? 55 : 1, GridUnitType.Star);
-        PageContent.ColumnDefinitions[1].Width = split ? new GridLength(45, GridUnitType.Star) : new GridLength(0);
-        Grid.SetColumn(ContextPane, compact ? 0 : 1);
-        Grid.SetRow(ContextPane, 0);
-        Grid.SetRow(DownloadForm, compact && showContext ? 1 : 0);
-        ContextPane.Visibility = showContext ? Visibility.Visible : Visibility.Collapsed;
-        DownloadForm.Visibility = compact && model.SettingsVisible ? Visibility.Collapsed : Visibility.Visible;
-        ContextPane.MaxWidth = compact ? DownloadForm.MaxWidth : double.PositiveInfinity;
-        MediaPreview.SetCompact(compact);
-        MediaPreview.Visibility = model.HasMediaPreview && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
+        double chrome = Math.Max(0, ActualWidth - Root.ActualWidth);
+        bool enoughSpace = Root.ActualWidth >= MinWidth - chrome + MediaPaneWindowState.MinimumPaneWidth - 1;
+        bool split = (model.HasMediaContext || model.SettingsVisible) && enoughSpace;
+        double formWidth = mediaFrame.FormWindowWidth is { } original ? original - chrome : Root.ActualWidth * .55;
+        PageContent.ColumnDefinitions[0].Width = split ? new GridLength(Math.Min(formWidth, Root.ActualWidth - MediaPaneWindowState.MinimumPaneWidth)) : new GridLength(1, GridUnitType.Star);
+        PageContent.ColumnDefinitions[1].Width = split ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        bool inline = model.HasMediaContext && !split && !model.SettingsVisible;
+        var previewHost = inline ? (Panel)DownloadForm.InlinePreviewHost : ContextPane;
+        if (MediaPreview.Parent is Panel parent && parent != previewHost)
+        {
+            parent.Children.Remove(MediaPreview);
+            previewHost.Children.Add(MediaPreview);
+        }
+        model.InlineMediaPreview = inline;
+        Grid.SetColumn(ContextViewport, split ? 1 : 0);
+        ContextViewport.Visibility = model.SettingsVisible || (model.HasMediaContext && split) ? Visibility.Visible : Visibility.Collapsed;
+        ContextPane.Visibility = ContextViewport.Visibility;
+        Viewport.Visibility = model.SettingsVisible && !split ? Visibility.Collapsed : Visibility.Visible;
+        ContextPane.MaxWidth = split ? double.PositiveInfinity : DownloadForm.MaxWidth;
+        MediaPreview.SetCompact(inline);
+        MediaPreview.Visibility = model.HasMediaContext && !model.SettingsVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private static void ResetDropDowns(DependencyObject parent)

@@ -18,6 +18,9 @@
    </Grid>
    <Button x:Name="PasteButton" Grid.Column="2" Content="{Binding PasteLabel}" Command="{Binding PasteCommand}" MinWidth="82"/>
   </Grid>
+  <StackPanel x:Name="InlinePreviewHost" Margin="0,0,0,12">
+   <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding InlineMediaPreview}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+  </StackPanel>
   <StackPanel Visibility="{Binding HasPlaylist,Converter={StaticResource BoolVisibility}}" Margin="0,0,0,20">
    <UniformGrid Columns="2">
     <RadioButton Content="{Binding SingleLabel}" IsChecked="{Binding SingleVideo}" IsEnabled="{Binding CanSelectSingle}" Margin="0,0,5,0"/>

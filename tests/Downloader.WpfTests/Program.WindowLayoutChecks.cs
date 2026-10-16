@@ -27,7 +27,7 @@ internal static partial class Program
             await Task.Delay(220);
             window.UpdateLayout();
         }
-        async Task Stable(Func<Task> action, string label)
+        async Task Stable(Func<Task> action, string label, bool mediaTransition = false)
         {
             var before = Frame();
             int heightChanges = 0;
@@ -37,8 +37,8 @@ internal static partial class Program
             finally { window.SizeChanged -= Changed; }
             var after = Frame();
             Check(heightChanges == 0 && Math.Abs(after.Height - before.Height) <= 1 &&
-                Math.Abs(after.Top - before.Top) <= 1 && Math.Abs(after.Width - before.Width) <= 1,
-                "Window bounds stay stable through " + label);
+                Math.Abs(after.Top - before.Top) <= 1 && (mediaTransition || Math.Abs(after.Width - before.Width) <= 1),
+                "Window height and top stay stable through " + label);
         }
         async Task Language(string language, string state)
         {
@@ -49,7 +49,7 @@ internal static partial class Program
             var root = (FrameworkElement)WpfTree.Find(window, "Root");
             var bounds = footer.TransformToAncestor(root).TransformBounds(new Rect(footer.RenderSize));
             Check(Math.Abs(bounds.Bottom - root.ActualHeight) <= 1 &&
-                Math.Abs(((FrameworkElement)WpfTree.Find(window, "PageContent")).MinHeight - viewport.ViewportHeight) <= 1,
+                Math.Abs(((FrameworkElement)WpfTree.Find(window, "FormContent")).MinHeight - viewport.ViewportHeight) <= 1,
                 "The footer stays outside the scrolling content and the workspace fills its viewport");
         }
         void CompactFormFits(string state)
@@ -96,8 +96,8 @@ internal static partial class Program
                     FooterAnchored();
                 }
 
-                await Stable(async () => { model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(850); }, "video inspection" + variant);
-                Check(model.HasMediaPreview && model.CanDownload, "The real media context appears without resizing the window" + variant);
+                await Stable(async () => { model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(850); }, "video inspection" + variant, true);
+                Check(model.HasMediaPreview && model.CanDownload, "The real media context appears beside the form" + variant);
                 model.SelectLanguageCommand.Execute("en");
                 await Settle();
                 var loadedRows = Rows();
@@ -127,7 +127,7 @@ internal static partial class Program
                     Capture(window, System.IO.Path.Combine(captures, "layout-playlist-" + language + variant + ".png"));
                     FooterAnchored();
                 }
-                await Stable(() => { model.Url = ""; return Task.CompletedTask; }, "clearing media" + variant);
+                await Stable(() => { model.Url = ""; return Task.CompletedTask; }, "clearing media" + variant, true);
                 await Stable(() => { model.SettingsVisible = true; return Task.CompletedTask; }, "opening Settings" + variant);
                 await Stable(() => { model.SettingsVisible = false; return Task.CompletedTask; }, "closing Settings" + variant);
             }
@@ -179,9 +179,9 @@ internal static partial class Program
                     provider.VideoTitle = string.Join(" ", Enumerable.Repeat(language == "ar" ?
                         "عنوان تجريبي طويل لاختبار عرض الفيديو" : "Local long video title fixture for layout testing", 8));
                     await Stable(async () => { model.Url = "https://youtu.be/jNQXAC9IVRz"; await Task.Delay(850); },
-                        "long " + language + " media title at width " + width);
+                        "long " + language + " media title at width " + width, true);
                     var title = (TextBlock)WpfTree.Find(window, "PreviewTitle");
-                    Check(title.ActualHeight <= title.LineHeight * (width < 1000 ? 2 : 3) + 1 &&
+                    Check(title.ActualHeight <= title.LineHeight * (model.InlineMediaPreview ? 2 : 3) + 1 &&
                         Equals(title.ToolTip, provider.VideoTitle) && viewport.ScrollableWidth == 0,
                         "Long titles stay bounded with the complete title available: " + language + "/" + width);
                     viewport.ScrollToTop();

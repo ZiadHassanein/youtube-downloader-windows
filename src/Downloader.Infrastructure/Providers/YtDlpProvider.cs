@@ -165,7 +165,8 @@ namespace YouTubeDownloader
             url = Normalize(url, true);
             var args = Arguments.Common(tools);
             args.Remove("--no-playlist");
-            args.AddRange(new[] { "--yes-playlist", "--flat-playlist", "--playlist-end", "1001", "--skip-download", "--dump-single-json", "--sleep-requests", "0.75", "--", url });
+            bool mix = new YouTubeLinkResolver().Supports(new Uri(url)) && VideoLink.Parse(url).IsMix;
+            args.AddRange(new[] { "--yes-playlist", "--flat-playlist", "--playlist-end", mix ? PlaylistInfo.MixSnapshotLimit.ToString(CultureInfo.InvariantCulture) : "1001", "--skip-download", "--dump-single-json", "--sleep-requests", "0.75", "--", url });
             Emit(progress, "Checking playlist", "Getting the playlist titles…", 0, true);
             return PlaylistMetadata.Read(url, Json().Deserialize<Dictionary<string, object>>(Execute(args, null, token)));
         }

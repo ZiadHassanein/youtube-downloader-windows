@@ -5,17 +5,25 @@
  <Border x:Name="PreviewSurface" Background="{DynamicResource Page}" Padding="30,24,30,24" FlowDirection="{Binding ContentDirection}">
   <StackPanel x:Name="PreviewContent">
    <TextBlock x:Name="PreviewLabel" Text="{Binding PreviewLabel}" Foreground="{DynamicResource Muted}" Margin="0,0,0,18"/>
-   <Border x:Name="ThumbnailFrame" Height="{Binding ActualWidth,ElementName=ThumbnailFrame,Converter={StaticResource PreviewAspectRatio}}" Background="{DynamicResource Surface}" CornerRadius="8" ClipToBounds="True" Margin="0,0,0,18">
+   <Grid x:Name="MediaIdentity">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+   <Border x:Name="ThumbnailFrame" Grid.ColumnSpan="2" Height="{Binding ActualWidth,ElementName=ThumbnailFrame,Converter={StaticResource PreviewAspectRatio}}" Background="{DynamicResource Surface}" CornerRadius="8" ClipToBounds="True" Margin="0,0,0,18">
     <Grid>
-     <Path Data="{StaticResource PlayMark}" Fill="{DynamicResource Muted}" Width="48" Height="48" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-     <Image x:Name="ThumbnailImage" Source="{Binding PreviewImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding PreviewTitle}"/>
+     <Path Data="{StaticResource PlayMark}" Fill="{DynamicResource Muted}" Width="48" Height="48" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Path.Style><Style TargetType="Path"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding PreviewImage}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Path.Style>
+     </Path>
+     <Image x:Name="ThumbnailImage" Source="{Binding PreviewImage}" Stretch="Uniform" AutomationProperties.Name="{Binding PreviewTitle}"/>
      <Border x:Name="DurationBadge" Background="#E6171C20" CornerRadius="5" Padding="7,4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Visibility="{Binding HasPreviewDuration,Converter={StaticResource BoolVisibility}}">
       <TextBlock Text="{Binding PreviewDuration}" FontFamily="{StaticResource LatinFont}" Foreground="White" FontSize="12" FlowDirection="LeftToRight"/>
      </Border>
     </Grid>
    </Border>
+   <StackPanel x:Name="MetadataText" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center">
    <TextBlock x:Name="PreviewTitle" Text="{Binding PreviewTitle}" ToolTip="{Binding PreviewTitle}" FontWeight="SemiBold" FontSize="23" LineHeight="32" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" MaxHeight="96" TextTrimming="CharacterEllipsis" FlowDirection="{Binding PreviewTitleDirection}"/>
    <TextBlock x:Name="PreviewSubtitle" Text="{Binding PreviewSubtitle}" Foreground="{DynamicResource Muted}" Margin="0,9,0,0" TextTrimming="CharacterEllipsis"/>
+   </StackPanel>
+   </Grid>
    <Border x:Name="PreviewDivider" Height="1" Background="{DynamicResource Divider}" Margin="0,22,0,20"/>
    <local:DownloadActivityView x:Name="Activity"/>
    <StackPanel x:Name="OutputSummary" Margin="0,18,0,0">

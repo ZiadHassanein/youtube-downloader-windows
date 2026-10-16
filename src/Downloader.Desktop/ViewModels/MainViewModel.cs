@@ -132,6 +132,11 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (!SetProperty(ref url, value ?? ""))
                 return;
+            if (IsIdle)
+            {
+                lastFile = null;
+                OnPropertyChanged(nameof(HasFile));
+            }
             if (downloadActionState != DownloadActionState.Downloading)
                 SetDownloadAction(DownloadActionState.Ready);
             videoInfo = null;
@@ -236,7 +241,7 @@ public sealed partial class MainViewModel : ObservableObject
     public string LinkPlaceholder => T("Videos, Shorts, and playlists");
     public string PasteLabel => T("Paste");
     public string SingleLabel => T("This video");
-    public string PlaylistLabel => T("Whole playlist");
+    public string PlaylistLabel => T(playlistInfo?.IsMix == true ? "YouTube Mix (up to 50 videos)" : "Whole playlist");
     public string FormatLabel => T("Save as");
     public string VideoLabel => T("Video · MP4");
     public string AudioLabel => T("Audio") + " · " + SelectedEncoding.Label;

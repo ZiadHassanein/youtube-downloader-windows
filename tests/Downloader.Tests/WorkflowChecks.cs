@@ -36,6 +36,9 @@ internal static class WorkflowChecks
         foreach (string name in new[] { "yt-dlp.exe", "ffmpeg.exe", "ffprobe.exe", "deno.exe" }) File.Copy(Path.Combine(root, "FakeDownloader.exe"), Path.Combine(root, name));
         var tools = ToolSet.Validated(Path.Combine(root, "yt-dlp.exe"), Path.Combine(root, "ffmpeg.exe"), Path.Combine(root, "ffprobe.exe"), Path.Combine(root, "deno.exe"));
         using var provider = new YtDlpProvider(tools);
+        var mix = provider.InspectPlaylist("https://www.youtube.com/watch?v=YKMJXdNBvNQ&list=RDYKMJXdNBvNQ", CancellationToken.None);
+        Check(mix.IsMix && mix.Entries.Count == 3 && mix.Url.Contains("watch?v=YKMJXdNBvNQ"),
+            "Mix inspection sends its starting video and limits the changing list to a finite snapshot");
         var a = provider.Inspect(youtube); var selection = a.Qualities.Single().Selection;
         provider.Inspect(vimeo); provider.Inspect(youtube);
         var request = new DownloadOptions { Url = youtube, Folder = Path.Combine(root, "Media"), Height = selection.Resolution, Selection = selection };
