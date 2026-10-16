@@ -8,7 +8,7 @@ ViFree uses three projects. Core depends only on .NET; operating-system and thir
 | Downloader.Infrastructure | yt-dlp adapter and link routing, process containment, file validation, verified tools, storage, updates, browser transport and registration | Core, Windows APIs |
 | Downloader.Desktop | WPF views, commands, presentation state, localization, themes and desktop actions | Core, Infrastructure, CommunityToolkit.Mvvm |
 
-Open `Downloader.slnx`. Windows x64 is the shipping target. The current release is v4.0.0; preview builds can still isolate their data with ViFreePreview=true.
+Open `Downloader.slnx`. Windows x64 is the shipping target. The current release is v4.1.0; preview builds can still isolate their data with ViFreePreview=true.
 
 ## Boundaries and extension points
 

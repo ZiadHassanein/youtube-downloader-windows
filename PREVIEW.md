@@ -1,5 +1,11 @@
 # ViFree 4.1.0 Preview 30
 
+## Stable promotion
+
+Preview 30 is the accepted baseline for stable **v4.1.0**. Source, releases, Windows downloads, support and future app-update checks now use [ZiadHassanein/ViFree](https://github.com/ZiadHassanein/ViFree). The promotion changes version/channel identity and the release destination, preserving the accepted interface and download behavior. Older versions that check the separate downloads repository require one manual ZIP upgrade; preview preferences remain separate from stable preferences.
+
+## Preview acceptance and validation history
+
 Preview 30 was accepted for merge into main on 16 October 2026. This acceptance includes browser companion 1.2.1, the direct-media metadata correction and the Settings correction. The public stable release remains 4.0.0; this source merge does not publish a release.
 
 - The playing-video tab reads **Download by ViFree** and stays outside the picture, above its physical top-right corner or in clear space immediately to the right. Its explicit click copies the selected video's resolved public link and opens ViFree. Website access does not guarantee every player or protected video is supported.

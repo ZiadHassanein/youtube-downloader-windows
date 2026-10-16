@@ -1,4 +1,4 @@
-param([string]$Version='4.0.0', [switch]$Preview)
+param([string]$Version='4.1.0', [switch]$Preview)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
 $env:DOTNET_CLI_HOME=Join-Path $projectRoot 'build/dotnet-home'
@@ -22,7 +22,7 @@ Preferences are saved automatically in LocalAppData/YouTubeDownloader. Existing 
 If upgrading from v3.x or a preview, close the older app and extract this ZIP into a new writable folder once. Future v4 updates are available through Settings > Check for updates.
 The optional Browser folder contains Chrome/Edge and Firefox companions. Ordinary app use needs no extension. Read Browser/README.md to enable it; browser installation is an optional user action.
 Only download content you have permission to save. Protected and sign-in-only content is not supported. YouTube limits can still occur.
-Downloads and support: https://github.com/ZiadHassanein/ViFree-Downloads
+Downloads and support: https://github.com/ZiadHassanein/ViFree
 '@
 if ($Preview) {
     $instructions=@'
