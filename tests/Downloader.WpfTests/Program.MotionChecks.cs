@@ -31,6 +31,7 @@ internal static partial class Program
         var brand = (Button)WpfTree.Find(header, "BrandButton");
         var light = (System.Windows.Shapes.Path)WpfTree.Find(header, "LogoLight");
         var artwork = (FrameworkElement)WpfTree.Find(header, "BrandArtwork");
+        var logoScale = (ScaleTransform)((FrameworkElement)WpfTree.Find(header, "BrandInitial")).RenderTransform;
         var viewport = (ScrollViewer)WpfTree.Find(window, "Viewport");
         var transition = (ThemeTransitionView)WpfTree.Find(window, "ThemeTransition");
         GetMotionCursor(out var originalCursor);
@@ -86,7 +87,7 @@ internal static partial class Program
                         "Logo light pass stays inside its fixed silhouette in " + variant + $" (before={logoBounds}, after={Bounds(artwork)}, opacity={light.Opacity})");
                     Shot("logo-" + variant);
                     await Task.Delay(580);
-                    Check(light.Opacity == 0 && ((ScaleTransform)artwork.RenderTransform).ScaleX == 1,
+                    Check(light.Opacity == 0 && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
                         "The logo settles without a decorative loop in " + variant);
                     await Input();
                     action.BringIntoView();
@@ -236,7 +237,7 @@ internal static partial class Program
             brand.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             await Task.Delay(80);
             MotionPreferences.SetTestOverride(false);
-            Check(light.Opacity == 0 && ((ScaleTransform)artwork.RenderTransform).ScaleX == 1,
+            Check(light.Opacity == 0 && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
                 "A preference change interrupts an in-flight logo animation");
             MotionPreferences.SetTestOverride(true);
             model.ThemeCommand.Execute(null);
