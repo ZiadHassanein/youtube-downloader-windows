@@ -1,0 +1,31 @@
+{
+  "appVersion": "4.1.0",
+  "stableTag": "v4.1.0",
+  "sourceCommit": "8f3a272849142bbb4554c147ef626c37feccb48f",
+  "companionVersion": "1.2.1",
+  "images": [
+    {
+      "files": ["../../assets/screenshot-en-dark.png", "../../assets/screenshot-ar-light.png"],
+      "kind": "Lossless WPF client-area captures",
+      "source": "build/v4.1.0-ui-captures/layout-empty-{en-dark,ar-light}-default.png",
+      "state": "Empty app UI from the stable release capture suite; no synthetic media data shown"
+    },
+    {
+      "files": ["../../assets/screenshots/v4.1.0/en-dark-ready.jpg", "../../assets/screenshots/v4.1.0/ar-light-ready.jpg"],
+      "kind": "Native stable executable screenshots",
+      "state": "Actual W3Schools sample inspection: mov_bbb, MP4, measured 176p, 10 seconds",
+      "samplePage": "https://www.w3schools.com/html/html5_video.asp"
+    },
+    {
+      "files": ["extension/02-enable-connection.jpg"],
+      "kind": "Native stable executable dialog screenshot",
+      "state": "Browser integration dialog; pointer outside captured dialog bounds"
+    },
+    {
+      "files": ["extension/01-folders.svg", "extension/03-chromium-setup.svg", "extension/04-send-video.svg"],
+      "kind": "Original resolution-independent setup illustrations",
+      "state": "Labeled diagrams, not browser screenshots or installation proof"
+    }
+  ],
+  "publication": "Cursor-free images only. Screenshots retained at captured resolution, with no UI reconstruction or upscaling. Stable release ZIP is unchanged."
+}

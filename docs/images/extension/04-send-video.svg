@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Send a playing video to ViFree using the tab outside the picture</title>
+  <desc id="desc">Playback illustration. Download by ViFree sits above the video's top-right border. Click it to copy the link and open the app, then review and choose Download. The button can instead use free space on the right.</desc>
+  <rect width="1200" height="760" rx="20" fill="#f4f8f7"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect width="1200" height="110" rx="20" fill="#171e22"/><rect y="85" width="1200" height="25" fill="#171e22"/>
+    <circle cx="60" cy="55" r="24" fill="#54cdb0"/><text x="60" y="64" text-anchor="middle" font-size="26" font-weight="700" fill="#102b25">5</text>
+    <text x="105" y="51" font-size="31" font-weight="600" fill="#edf5f2">Play the video. Send its link.</text>
+    <text x="105" y="82" font-size="18" fill="#b5c8c1">PLAYBACK ILLUSTRATION · no download starts until you choose it in ViFree</text>
+    <text x="60" y="180" font-size="23" font-weight="600" fill="#193c33">The tab stays outside the video.</text>
+    <text x="60" y="216" font-size="20" fill="#62756e">It can use the clear space to the right when the upper position is blocked.</text>
+    <rect x="826" y="246" width="314" height="55" rx="10" fill="#171e22" stroke="#54cdb0" stroke-width="2"/>
+    <text x="983" y="281" text-anchor="middle" font-size="23" font-weight="600" fill="#edf5f2">Download by ViFree</text>
+    <path d="M783 274H807" stroke="#0b7b67" stroke-width="3"/><circle cx="754" cy="274" r="20" fill="#0b7b67"/>
+    <text x="754" y="282" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">1</text>
+    <rect x="60" y="317" width="1080" height="271" rx="10" fill="#232c32"/>
+    <circle cx="600" cy="435" r="43" fill="none" stroke="#78968b" stroke-width="2"/>
+    <path d="M588 412L623 435L588 458Z" fill="#b6d8cb"/>
+    <text x="600" y="522" text-anchor="middle" font-size="20" fill="#acc4ba">Example video player</text>
+    <path d="M90 555H1110" stroke="#637d72" stroke-width="4"/><path d="M90 555H360" stroke="#54cdb0" stroke-width="4"/>
+    <rect x="60" y="626" width="1080" height="91" rx="12" fill="#e1eeea"/>
+    <text x="89" y="663" font-size="22" font-weight="600" fill="#193c33">2. Link copied &amp; app opened</text>
+    <text x="89" y="696" font-size="19" fill="#445f55">Review the selected video.</text>
+    <path d="M548 671H612M600 659L612 671L600 683" fill="none" stroke="#0b7b67" stroke-width="3"/>
+    <text x="659" y="663" font-size="22" font-weight="600" fill="#193c33">3. Choose Download in ViFree</text>
+    <text x="659" y="696" font-size="19" fill="#445f55">Select format, quality and destination first.</text>
+  </g>
+</svg>

@@ -2,8 +2,10 @@
 
 Optional Chrome/Edge and Firefox companions are included in the app ZIP under `Browser`. Normal app downloads need no extension. Version 1.2 adds a small **Download by ViFree** tab just above the playing video's top-right corner, outside its border, across websites including embedded HTML5 players. Clicking it copies that video's link and opens the app. You review the result, choose quality and click Download in ViFree.
 
+**New to the extension? Follow the [setup guide with pictures](https://github.com/ZiadHassanein/ViFree/blob/main/docs/browser-extension-setup.md), available in English and Arabic.** Use the companion included with stable v4.1.0, named **ViFree**, to connect to the stable app. A separately built **ViFree Preview** companion uses the preview channel.
+
 1. Extract the app ZIP into a permanent folder and open `ViFree.exe`.
-2. Choose **Browser integration → Enable connection** in the app. This registers the connection for your Windows account only.
+2. Choose **Settings → Browser integration → Enable connection** in the app. This registers the connection for your Windows account only.
 3. Chrome/Edge: open the extensions page, enable Developer mode, choose **Load unpacked**, and select `Browser/chromium`. Firefox: open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `Browser/firefox/manifest.json`.
 4. Play a video and click its **Download by ViFree** tab. The tab stays visible during playback, follows the largest visible playing video within each frame, and hides when playback stops. It prefers the space above the top-right corner; version 1.2.1 also uses clear space immediately to the right when a header or caption blocks the upper position. Both placements stay outside the picture. If neither position is free, use the toolbar popup. Feedback stays outside the picture; when space is tight, the tab label and tooltip give the result. The toolbar popup and right-click link actions remain available. Finish/cancel any active download before sending another link.
 

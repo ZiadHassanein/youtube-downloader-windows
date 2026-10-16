@@ -6,7 +6,7 @@
 
 **[Download the stable Windows app — ViFree v4.1.0 (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.1.0/ViFree-v4.1.0-win-x64.zip)**
 
-[Setup guide](#getting-started) · [Latest published release](https://github.com/ZiadHassanein/ViFree/releases/latest) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
+[Setup guide](#getting-started) · [App screenshots](#screenshots) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
 
 ## Releases and current source
 
@@ -39,7 +39,7 @@ The optional **Chrome, Microsoft Edge and Firefox** companion is included in the
 
 Facebook, TikTok and YouTube detection uses the selected player's public permalink. Other HTML5 players may provide a direct media URL or a single-video page link. Available space, custom players and site restrictions can limit detection. Use the toolbar popup when the tab cannot be placed safely.
 
-See [browser setup, permissions and limitations](browser/README.md). The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
+Follow the **[illustrated extension setup guide](docs/browser-extension-setup.md)** for Chrome, Edge and Firefox, including [Arabic instructions](docs/browser-extension-setup.md#arabic). See [permissions and limitations](browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
 
 ## Getting started
 
@@ -92,12 +92,20 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 ## Screenshots
 
+**ViFree v4.1.0 — English / dark and العربية / light.** Click an image to view its full resolution.
+
 <p align="center">
-  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="48%" alt="ViFree v3.0.2 English interface in dark theme — historical screenshot"></a>
-  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="48%" alt="ViFree v3.0.2 Arabic interface in light theme — historical screenshot"></a>
+  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="48%" alt="ViFree v4.1.0 English dark interface with video and audio format buttons, quality, subtitles and a centered Download button"></a>
+  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="48%" alt="واجهة ViFree 4.1.0 العربية بالمظهر الفاتح، مع خيارات الفيديو والصوت والترجمة وزر تنزيل في المنتصف"></a>
 </p>
 
-These historical screenshots show **v3.0.2**. Version 4.1.0 behavior is documented above and in the [accepted preview notes](PREVIEW.md).
+**A video ready to download, with its details in the right panel:**
+
+<p align="center">
+  <a href="assets/screenshots/v4.1.0/en-dark-ready.jpg"><img src="assets/screenshots/v4.1.0/en-dark-ready.jpg" width="900" alt="Stable ViFree v4.1.0 showing the W3Schools sample video ready as MP4 at its measured 176p resolution in the right preview panel"></a>
+</p>
+
+The interface gallery uses lossless captures of the v4.1.0 app UI. The ready view was captured from the stable app using the [public W3Schools video example](https://www.w3schools.com/html/html5_video.asp); available quality depends on your video. See the [Arabic/light media preview](assets/screenshots/v4.1.0/ar-light-ready.jpg) too. The [extension guide](docs/browser-extension-setup.md) includes a real connection-dialog capture and labeled setup illustrations. Published images contain no mouse pointer.
 
 ## Author and support
 
