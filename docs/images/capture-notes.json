@@ -8,8 +8,8 @@
         "../../assets/screenshot-ar-light.png"
       ],
       "kind": "Lossless WPF client-area captures",
-      "source": "build/vydrop-slim-captures/layout-empty-{en-dark,ar-light}-default.png",
-      "state": "Cursor-free WPF client rendering of the final slimmer-logo Vydrop working-tree build; empty UI with no media fixture"
+      "source": "build/vydrop-final-wordmark-captures/layout-empty-{en-dark,ar-light}-default.png",
+      "state": "Cursor-free WPF client rendering of final compact Vydrop logo: larger bespoke red V and lighter ydrop; empty UI, no media fixture"
     },
     {
       "files": [
@@ -51,7 +51,7 @@
       ],
       "kind": "Original transparent WPF vector raster exports",
       "source": "scripts/render-brand.ps1 from Themes/Symbols.xaml",
-      "state": "User-approved red download mark, slim 5.5-unit shaft/tray; custom V and licensed Inter SemiBold wordmark; no cursor, generated scenery or media"
+      "state": "Slim red download mark; larger red V with original angled terminal; licensed Inter Regular remaining letters; no cursor or generated scenery"
     }
   ],
   "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",

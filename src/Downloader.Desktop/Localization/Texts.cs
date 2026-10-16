@@ -7,7 +7,7 @@ namespace YouTubeDownloader
         private static readonly Dictionary<string, string> Arabic = new Dictionary<string, string>
         {
             { "New download", "تنزيل فيديو جديد" },
-            { "Audio bitrate", "معدل بت الصوت" },
+            { "Audio bitrate", "جودة الصوت" },
             { "Video format", "صيغة الفيديو" },
             { "No bitrate setting", "لا يتطلب معدل بت" },
             { "Choose a subtitle language and file format.", "اختر لغة الترجمة وصيغة ملفها." },

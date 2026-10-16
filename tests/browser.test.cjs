@@ -6,6 +6,15 @@ const vm = require('node:vm');
 const crypto = require('node:crypto');
 const root = path.join(__dirname, '..');
 
+test('Shared logo SVG paths use browser syntax rather than WPF fill prefixes', () => {
+  for (const file of ['assets/brand-logo-light.svg', 'assets/brand-logo-dark.svg', 'browser/common/popup.html']) {
+    const markup = fs.readFileSync(path.join(root, file), 'utf8');
+    const paths = [...markup.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)];
+    assert.ok(paths.length >= 2, `${file} includes the initial and remaining lettering`);
+    for (const [, data] of paths) assert.match(data, /^[Mm]/, `${file}: SVG paths must start with a moveto command`);
+  }
+});
+
 for (const channel of ['Vydrop', 'Vydrop Preview', 'ViFree', 'ViFree Preview']) test(`${channel} companion sends only explicit public links to its own channel`, async () => {
   const sent = [], menus = [], listeners = {};
   const api = {

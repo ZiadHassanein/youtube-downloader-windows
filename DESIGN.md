@@ -150,7 +150,7 @@ components:
 
 **Creative North Star: "The Red Download Mark"**
 
-Vydrop makes the next download decision clear. Its approved identity pairs a rounded red arrow and receiving tray with a compact vector wordmark. Light rose neutrals or charcoal working surfaces keep links, real media details and controls readable. The red family connects identity, primary actions and selection without replacing the separate success, information and error roles.
+Vydrop makes the next download decision clear. Its approved identity pairs a rounded red arrow and receiving tray with a compact vector wordmark: a larger bespoke red V with an angled right terminal, followed by slim Inter Regular outlines in theme Ink. Light rose neutrals or charcoal working surfaces keep links, real media details and controls readable. The red family connects identity, primary actions and selection without replacing the separate success, information and error roles.
 
 The established interface is restrained, compact and bilingual. Preserve its native Windows controls, embedded lettering, visible keyboard focus and quiet separators. This document records the user-approved Vydrop rebrand of 16 October 2026; it supersedes historical ViFree lettering, play marks and teal/amber/blue brand directions. It describes implemented source, not a certification of every workflow or machine.
 
@@ -179,7 +179,7 @@ The sidecar's eight-step OKLCH tonal ramps are synthesized display metadata: eac
 - **Page:** the shared form/media ground and main application background.
 - **Surface:** restrained grouping, menu frames, notices and thumbnail placeholders.
 - **Field:** editable inputs and ordinary button faces.
-- **Ink / Muted:** primary content and supporting text respectively. The vector wordmark follows Ink.
+- **Ink / Muted:** primary content and supporting text respectively. The wordmark's “ydrop” outlines follow Ink; its custom V follows BrandFill.
 - **Border / Divider:** interactive boundaries and quieter structural separators respectively.
 - **Hover:** a tonal overlay on existing faces. Do not substitute a new saturated accent for this role.
 - **OnAccent:** lettering over the filled primary action.
@@ -203,7 +203,7 @@ The hierarchy is compact, with semibold task headings and ordinary body copy. Bo
 - **Download-label:** the main action's distinct, slightly larger label.
 - **Queue-heading / queue-body:** the queue's local compact density; do not shrink other screens to match it.
 
-**The Lettering Rule.** The Vydrop wordmark is `BrandWordmarkGeometry`, composed from a custom V and licensed Inter SemiBold “ydrop” outlines. It is not a live text label and must not be recreated by choosing another font or weight. Keep the Inter license with distributed assets.
+**The Lettering Rule.** The Vydrop wordmark uses `BrandInitialGeometry` for its larger bespoke red V with an angled right terminal and `BrandLettersGeometry` for the licensed Inter Regular “ydrop” outlines in theme Ink. The V is 28 source units tall, deliberately larger than the remaining letters' approximately 21.8-unit ascender height, while their baseline stays aligned. It is not a live text label and must not be recreated by choosing another font or weight. Keep the Inter license with distributed assets.
 
 ## Layout
 
@@ -223,7 +223,7 @@ Feedback changes opacity, transforms or a clipped theme snapshot rather than lay
 
 Controls, menus, notices and thumbnail clipping share gently rounded eight-DIP corners. Inner hover layers use seven-DIP corners to sit inside the one-DIP face border; duration and history badges retain their smaller local shapes. Line icons use rounded caps and joins, generally 18-DIP boxes with a 1.5-DIP stroke. Header icons keep their existing larger measurements.
 
-The canonical download mark is the filled arrow/tray geometry in `Themes/Symbols.xaml`, with a slim 5.5-unit shaft and tray on its 64-unit canvas. This slimmer weight follows the user’s refinement; retain its rounded ends and the same silhouette. The desktop lockup uses a 38 × 42-DIP symbol box, a ten-DIP gap and a 106 × 32-DIP wordmark box. Both scale uniformly. The companion repeats that geometry as vector lettering beside its mark. Keep the entire lockup physically LTR in Arabic.
+The canonical download mark is the filled arrow/tray geometry in `Themes/Symbols.xaml`, with a slim 5.5-unit shaft and tray on its 64-unit canvas. This slimmer weight follows the user’s refinement; retain its rounded ends and the same silhouette. The desktop lockup uses a 30 × 34-DIP symbol box, an eight-DIP gap and a 90 × 30-DIP wordmark Viewbox containing a 104.066 × 34.104-unit canvas. The visual boxes still span 128 DIP together, inside the fixed-height brand button. Both scale uniformly. The companion repeats the two canonical wordmark paths beside its mark. Keep the entire lockup physically LTR in Arabic. Light/dark brand-logo PNG exports are 512 × 168 pixels, with SVG exports generated from the same compact geometry.
 
 ## Components
 
@@ -241,6 +241,8 @@ Text fields use Field, Ink, Border, Accent caret and Selected text selection. Th
 
 Video and Audio share the same FormatSegment style: equal prominence, 46-DIP minimum, rounded outlined faces and distinct labeled icons. Checked state combines Selected, Accent and semibold text. Keyboard focus uses a two-DIP Accent boundary; hover preserves selection and adds a restrained tonal overlay.
 
+The Arabic label above the audio-quality picker is **جودة الصوت**. The English label remains **Audio bitrate**; this localized copy refinement does not rename the English control or change its inspected-source and bitrate-selection behavior.
+
 Language, output-format and quality choices use separate rounded button faces with a persistent selected boundary. Keep native MenuItem, ComboBox and radio semantics, keyboard navigation and dismissal. Checkmarks remain physically left in both languages while labels follow their own direction. The language menu is the quieter 160-DIP Surface/Divider frame with four-DIP padding, two equal 40-DIP rows and one four-DIP gap; Audio retains its own density. Preserve the dropdown scrollbar gutter.
 
 ### Cards / Containers
@@ -251,7 +253,9 @@ Media context is a flat Page surface with symmetric insets; it is not a raised c
 
 The header's fixed-left logo is an actual new-download button with an accessible action name. Recent downloads, language and theme are quiet utilities separated by thin Divider lines. Keep history counts legible as text in their Selected badge. The fixed footer keeps Settings left and Contact right. Do not reintroduce the removed visible author credit.
 
-Use the same symbol and custom vector wordmark as a unified lockup in desktop and companion. BrandFill paints the mark; theme Ink paints the wordmark. Asset regeneration must read the canonical geometry; do not hand-edit PNG/ICO exports into a separate identity.
+Use the same symbol and custom vector wordmark as a unified lockup in desktop and companion. BrandFill paints the mark and custom V; theme Ink paints the remaining letters. Asset regeneration must read the canonical geometry; do not hand-edit PNG/ICO exports into a separate identity.
+
+**The Stable Focus Rule.** The dedicated BrandButtonStyle has a fixed 42-DIP height and four-DIP horizontal padding. Its two-DIP Accent focus border is an overlay inside those fixed bounds, never part of measurement. Clicking, pressing or focusing the brand must not alter header height or move the content below it. Preserve the tonal hover, Selected press, disabled opacity and finite symbol feedback within that stable frame.
 
 ## Do's and Don'ts
 

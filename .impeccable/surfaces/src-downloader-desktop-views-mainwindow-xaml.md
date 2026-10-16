@@ -9,7 +9,7 @@ related_targets: ["src/Downloader.Desktop/Views/QueueWindow.xaml", "src/Download
 
 ## Vydrop branding authority — 2026-10-16
 
-The user selected **Vydrop**, approved the red download symbol in `outputs/branding/red-download-2026-10-16/name-concepts.png`, and explicitly requested the name/logo in the app and extension plus matching app colors. The final mark uses a slimmer 5.5-unit shaft/tray at the user’s request; preserve its rounded download silhouette and the vector wordmark. This supersedes the old ViFree wordmark, notched play mark and teal palette. Existing layout, typography, bilingual flows, user preferences, download tools, updates and browser permission scope remain authoritative.
+The user selected **Vydrop**, approved the red download symbol in `outputs/branding/red-download-2026-10-16/name-concepts.png`, and explicitly requested the name/logo in the app and extension plus matching app colors. The final mark uses a slim 5.5-unit shaft/tray. The compact wordmark uses a larger red bespoke V with an angled terminal and lighter Inter Regular ydrop. Mark30×34, gap8, wordmark90×30; the fixed42-DIP button paints focus inside its bounds so the header never grows on click. Arabic Audio bitrate reads «جودة الصوت». Preserve the rounded download silhouette and physicallyLTR lettering. This supersedes the old ViFree wordmark, notched play mark and teal palette. Existing layout, typography, bilingual flows, user preferences, download tools, updates and browser permission scope remain authoritative.
 
 THESIS: A recognizable red download mark connects the desktop app and the exact video sent by its companion.
 

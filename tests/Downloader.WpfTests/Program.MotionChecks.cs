@@ -72,10 +72,16 @@ internal static partial class Program
                     await Task.Delay(30);
                     string variant = locale + (dark ? "-dark" : "-light");
                     var frame = new Rect(window.Left, window.Top, window.ActualWidth, window.ActualHeight);
+                    double headerHeight = header.ActualHeight;
+                    double headingTop = Bounds((FrameworkElement)WpfTree.Find(window, "NewDownloadHeading")).Top;
                     var logoBounds = Bounds(artwork);
+                    brand.Focus();
                     brand.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     // Wait for a rendered animation tick; elapsed wall time alone is not a WPF frame.
                     await Until(() => light.Opacity > 0, "The logo begins its finite light pass in " + variant);
+                    Check(Math.Abs(header.ActualHeight - headerHeight) < .1 &&
+                        Math.Abs(Bounds((FrameworkElement)WpfTree.Find(window, "NewDownloadHeading")).Top - headingTop) < .1,
+                        "Clicking the logo animates inside fixed bounds without moving the form in " + variant);
                     Check(Bounds(artwork).Width <= logoBounds.Width + .5,
                         "Logo light pass stays inside its fixed silhouette in " + variant + $" (before={logoBounds}, after={Bounds(artwork)}, opacity={light.Opacity})");
                     Shot("logo-" + variant);

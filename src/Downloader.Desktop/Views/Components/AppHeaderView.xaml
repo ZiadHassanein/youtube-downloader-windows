@@ -1,22 +1,52 @@
 <UserControl x:Class="YouTubeDownloader.AppHeaderView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader"
  FlowDirection="LeftToRight" FontFamily="{Binding ContentFont}">
+ <UserControl.Resources>
+  <Style x:Key="BrandButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
+   <Setter Property="Height" Value="42"/>
+   <Setter Property="Padding" Value="4,0"/>
+   <Setter Property="Template">
+    <Setter.Value><ControlTemplate TargetType="Button">
+     <Grid>
+      <Border x:Name="Face" CornerRadius="8" Background="{TemplateBinding Background}">
+       <Grid>
+        <Border x:Name="HoverLayer" CornerRadius="8" Background="{DynamicResource Hover}" Opacity="0" IsHitTestVisible="False" local:HoverMotion.Enabled="True"/>
+        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+       </Grid>
+      </Border>
+      <!-- Focus is paint inside fixed bounds, never extra layout space. -->
+      <Border x:Name="FocusRing" CornerRadius="8" BorderBrush="{DynamicResource Accent}" BorderThickness="2" Opacity="0" IsHitTestVisible="False"/>
+     </Grid>
+     <ControlTemplate.Triggers>
+      <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1"/></Trigger>
+      <Trigger Property="IsPressed" Value="True"><Setter TargetName="Face" Property="Background" Value="{DynamicResource Selected}"/><Setter TargetName="HoverLayer" Property="Visibility" Value="Hidden"/></Trigger>
+      <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".55"/></Trigger>
+     </ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value>
+   </Setter>
+  </Style>
+ </UserControl.Resources>
  <Border Background="{DynamicResource Page}" BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,0,1" Padding="24,16">
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Left" Padding="0" AutomationProperties.Name="{Binding NewDownloadLabel}">
+   <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
     <StackPanel Orientation="Horizontal">
-     <Grid x:Name="BrandArtwork" Width="38" Height="42" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5">
+     <Grid x:Name="BrandArtwork" Width="30" Height="34" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
       <Grid.RenderTransform><ScaleTransform x:Name="LogoScale"/></Grid.RenderTransform>
-      <Path x:Name="BrandMark" Data="{StaticResource BrandMarkGeometry}" Fill="{StaticResource BrandFill}" Width="38" Height="42" Stretch="Uniform" AutomationProperties.Name="Vydrop logo"/>
-      <Path x:Name="LogoLight" Data="{StaticResource BrandMarkGeometry}" Width="38" Height="42" Stretch="Uniform" IsHitTestVisible="False" Opacity="0">
+      <Path x:Name="BrandMark" Data="{StaticResource BrandMarkGeometry}" Fill="{StaticResource BrandFill}" Width="30" Height="34" Stretch="Uniform" AutomationProperties.Name="Vydrop logo"/>
+      <Path x:Name="LogoLight" Data="{StaticResource BrandMarkGeometry}" Width="30" Height="34" Stretch="Uniform" IsHitTestVisible="False" Opacity="0">
        <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.4">
         <LinearGradientBrush.RelativeTransform><TranslateTransform x:Name="LightOffset" X="1.2"/></LinearGradientBrush.RelativeTransform>
         <GradientStop Color="#00FFFFFF" Offset="0.2"/><GradientStop Color="#CFFFFFFF" Offset="0.5"/><GradientStop Color="#00FFFFFF" Offset="0.8"/>
        </LinearGradientBrush></Path.Fill>
       </Path>
      </Grid>
-     <Path x:Name="BrandWordmark" Data="{StaticResource BrandWordmarkGeometry}" Width="106" Height="32" Stretch="Uniform" Fill="{DynamicResource Ink}" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop"/>
+     <Viewbox x:Name="BrandWordmark" Width="90" Height="30" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
+      <Canvas Width="104.066" Height="34.104">
+       <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}"/>
+       <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
+      </Canvas>
+     </Viewbox>
     </StackPanel>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">

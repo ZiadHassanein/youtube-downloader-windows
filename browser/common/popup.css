@@ -2,7 +2,7 @@
 @media (prefers-color-scheme: dark) { :root { --page: #181b20; --ink: #f6f2f4; --muted: #beb2bb; --accent: #cb2d42; --focus: #ff8393; } }
 * { box-sizing: border-box; }
 body { width: 304px; padding: 20px; margin: 0; font: 14px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--page); }
-header { display: flex; gap: 9px; align-items: center; direction: ltr; }
+header { display: flex; gap: 8px; align-items: center; direction: ltr; }
 p { color: var(--muted); margin: 14px 0; }
 button { display: block; width: 100%; min-height: 44px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); cursor: pointer; }
 button:hover { filter: brightness(.93); }

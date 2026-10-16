@@ -33,13 +33,20 @@ internal static partial class Program
                     await Task.Delay(150);
                     window.UpdateLayout();
                     Rect Bounds(FrameworkElement element) => element.TransformToAncestor(window).TransformBounds(new Rect(element.RenderSize));
+                    var heading = (FrameworkElement)WpfTree.Find(window, "NewDownloadHeading");
+                    double headerHeight = header.ActualHeight, headingTop = Bounds(heading).Top;
+                    ((Button)WpfTree.Find(window, "BrandButton")).Focus();
+                    await Task.Delay(60);
+                    window.UpdateLayout();
+                    Check(Math.Abs(header.ActualHeight - headerHeight) < .1 && Math.Abs(Bounds(heading).Top - headingTop) < .1,
+                        $"Focusing the logo preserves header height and form position (header={headerHeight}->{header.ActualHeight}, heading={headingTop}->{Bounds(heading).Top})");
                     var brandBounds = Bounds(brand);
                     var actionBounds = Bounds(actions);
                     Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&
                         Bounds(settings).Top > Bounds(header).Bottom,
                         "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
-                    Check(brand is System.Windows.Shapes.Path lettering && Equals(lettering.Fill, Application.Current.Resources["Ink"]) && lettering.Data.Bounds.Width > 100 && lettering.FlowDirection == FlowDirection.LeftToRight,
-                        "The vector wordmark keeps its complete lettering, themed ink and fixed direction across themes");
+                    Check(brand is Viewbox && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandLetters")).Fill, Application.Current.Resources["Ink"]) && Equals(((System.Windows.Shapes.Path)WpfTree.Find(window, "BrandInitial")).Fill, Application.Current.Resources["BrandFill"]) && brand.FlowDirection == FlowDirection.LeftToRight,
+                        "The compact vector wordmark keeps a red V, themed remaining letters and fixed direction across themes");
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
                     language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
