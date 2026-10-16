@@ -15,6 +15,7 @@ for (const channel of ['ViFree', 'ViFree Preview']) test(`${channel} companion s
   };
   const context = vm.createContext({ browser: api, URL });
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/connection.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/video-detection.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/background.js'), 'utf8'), context);
   assert.equal(sent.length, 0);
   await listeners.install();
@@ -36,12 +37,13 @@ test('popup waits for user action and reports failure without opening hidden pag
   const api = { tabs: { query: async () => [{ url: 'https://example.com/video' }] }, runtime: { getManifest: () => ({ name: 'ViFree' }), sendNativeMessage: async (host, message) => { calls++; assert.equal(host, 'com.vifree'); assert.equal(message.type, 'open-link'); return { ok: false }; } } };
   const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/connection.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/video-detection.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/popup.js'), 'utf8'), context);
   assert.equal(calls, 0);
   await click();
   assert.equal(calls, 1);
   assert.equal(button.disabled, false);
-  assert.match(status.textContent, /enable Browser integration/u);
+  assert.match(status.textContent, /enable browser integration/iu);
 });
 
 test('public Chromium key matches native-host identity and carries no private key', () => {
@@ -51,4 +53,39 @@ test('public Chromium key matches native-host identity and carries no private ke
   const id = [...crypto.createHash('sha256').update(Buffer.from(key, 'base64')).digest().subarray(0, 16)].map(b => String.fromCharCode(97 + (b >> 4), 97 + (b & 15))).join('');
   const source = fs.readFileSync(path.join(root, 'src/Downloader.Infrastructure/Browser/BrowserIdentity.cs'), 'utf8');
   assert.ok(source.includes(`ChromiumId = "${id}"`));
+});
+
+for (const detected of [true, false]) test(`popup ${detected ? 'sends the detected TikTok video' : 'explains a missing video without sending its homepage'}`, async () => {
+  let click, calls = 0, inspections = 0;
+  const button = { disabled: false, addEventListener: (_, fn) => { click = fn; } }, status = { textContent: '' };
+  const url = 'https://www.tiktok.com/@synthetic/video/7000000000000000001';
+  const api = {
+    tabs: { query: async () => [{ id: 42, url: 'https://www.tiktok.com/en/' }] },
+    scripting: { executeScript: async () => { inspections++; return [{ frameId: 0, result: detected ? { url, reason: 'player' } : { url: '', reason: 'no-video' } }]; } },
+    runtime: { getManifest: () => ({ name: 'ViFree Preview' }), sendNativeMessage: async (host, request) => { calls++; assert.equal(host, 'com.vifree.preview'); assert.equal(request.url, url); return { ok: true }; } }
+  };
+  const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
+  for (const name of ['connection.js', 'video-detection.js', 'popup.js']) vm.runInContext(fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'), context);
+  assert.equal(inspections, 0); assert.equal(calls, 0);
+  await click(); assert.equal(inspections, 1); assert.equal(calls, detected ? 1 : 0); assert.equal(button.disabled, false);
+  assert.match(status.textContent, detected ? /Opened in ViFree/u : /Share → Copy link/u);
+});
+
+test('missing native host has actionable guidance instead of a browser API error', async () => {
+  const context = vm.createContext({ URL, browser: { runtime: { getManifest: () => ({ name: 'ViFree' }), sendNativeMessage: async () => { throw new Error('Specified native messaging host not found'); } } } });
+  vm.runInContext(fs.readFileSync(path.join(root, 'Browser/common/connection.js'), 'utf8'), context);
+  await assert.rejects(context.ViFreeConnection.sendLink('https://example.com/video'), /enable Browser integration/u);
+});
+
+if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and request only click-scoped inspection', () => {
+  for (const browser of ['chromium', 'firefox']) {
+    const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
+    assert.equal(manifest.version, '1.1.0'); assert.equal(manifest.name, 'ViFree Preview');
+    assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
+    assert.equal(manifest.host_permissions, undefined); assert.equal(manifest.content_scripts, undefined);
+    for (const name of ['connection.js', 'video-detection.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
+    assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /video-detection\.js/u);
+    if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());
+    else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, 'vifree-preview@ziadhassanein.github.io'); }
+  }
 });

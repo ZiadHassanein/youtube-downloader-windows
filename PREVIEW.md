@@ -1,5 +1,7 @@
 # ViFree 4.1.0 Preview 27
 
+Preview 27 was accepted and merged into main. The desktop ZIP is unchanged. A separate browser companion 1.1.0 candidate adds click-triggered Facebook/TikTok player detection; its source remains on `fix/browser-active-video` for review. Extract the companion into a permanent folder, reload/load its `chromium` folder, and keep Preview 27's Browser integration enabled. Detection needs no account import or paid service. TikTok's actual feed was checked across two videos; Facebook returned a login wall, so signed-in feed detection remains unverified.
+
 Unreleased preview with source-aware output choices and clearer download feedback. Stable remains 4.0.0; owner testing is pending.
 
 Extract the ZIP and open **ViFree.exe**. Its runtime is bundled. Missing media tools download automatically on the first link; internet is required. No account, API key, paid service or manual setup is needed. Preview data stays separate; pending queue links are not saved. App-version updates are disabled.

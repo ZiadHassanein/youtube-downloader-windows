@@ -5,9 +5,12 @@ globalThis.ViFreeConnection = (() => {
   const host = preview ? "com.vifree.preview" : "com.vifree";
   async function sendLink(value) {
     if (typeof value !== "string" || value.length > 8192 || /[\u0000-\u001f\u007f]/u.test(value)) throw new Error("Choose a public video link.");
-    const url = new URL(value);
+    let url;
+    try { url = new URL(value); } catch { throw new Error("Choose a public video link."); }
     if (!["https:", "http:"].includes(url.protocol) || url.username || url.password || url.port) throw new Error("Choose a public video link.");
-    const response = await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href });
+    let response;
+    try { response = await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
+    catch { throw new Error(`Open ${name} and enable Browser integration, then try again.`); }
     if (!response?.ok) throw new Error(response?.message ?? `Open ${name} and enable browser integration first.`);
     return response;
   }
