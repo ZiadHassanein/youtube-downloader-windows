@@ -87,7 +87,7 @@ public sealed partial class MainViewModel
     public string CloseLabel => T("Close");
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
-    public string ToolRefreshHint => T("ViFree checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.");
+    public string ToolRefreshHint => T("Vydrop checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.");
     public string OutputHint => T("Subtitles are saved as a separate file beside the video or audio.");
     public string QueueMessage { get; private set; } = "";
     public IRelayCommand QueueCommand { get; private set; }

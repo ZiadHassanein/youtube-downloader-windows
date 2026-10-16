@@ -25,21 +25,21 @@ internal static class ThemeResources
 
     private static readonly Dictionary<string, (string Light, string Dark)> Palette = new()
     {
-        ["Page"] = ("#F5F7F6", "#171C20"),
-        ["Surface"] = ("#E9F0ED", "#1E262B"),
-        ["Field"] = ("#FFFFFF", "#252D33"),
-        ["Ink"] = ("#1D2A28", "#F0F5F3"),
-        ["Muted"] = ("#536660", "#AABAB4"),
-        ["Accent"] = ("#096B5B", "#62D8BC"),
-        ["Action"] = ("#0C7665", "#55D3B4"),
-        ["OnAccent"] = ("#FFFFFF", "#092E25"),
-        ["Border"] = ("#778C84", "#748D86"),
-        ["Hover"] = ("#EDF4F1", "#2D3C3D"),
-        ["Selected"] = ("#DDF2EB", "#203F39"),
-        ["Error"] = ("#B33146", "#FF9EAD"),
-        ["InfoAccent"] = ("#3B6593", "#9FC4ED"),
-        ["Divider"] = ("#D4DFDA", "#3B4A48"),
-        ["Success"] = ("#1C754E", "#7CD7A5")
+        ["Page"] = ("#F8F7F8", "#181B20"),
+        ["Surface"] = ("#F1EDF0", "#20242A"),
+        ["Field"] = ("#FFFFFF", "#282B32"),
+        ["Ink"] = ("#272329", "#F6F2F4"),
+        ["Muted"] = ("#655963", "#BEB2BB"),
+        ["Accent"] = ("#A91F33", "#FF8393"),
+        ["Action"] = ("#BA263A", "#CB2D42"),
+        ["OnAccent"] = ("#FFFFFF", "#FFFFFF"),
+        ["Border"] = ("#8E7D87", "#94828D"),
+        ["Hover"] = ("#F3E9ED", "#353039"),
+        ["Selected"] = ("#F8E3E9", "#3E2933"),
+        ["Error"] = ("#A12232", "#FFB0B7"),
+        ["InfoAccent"] = ("#355F8D", "#AACAF1"),
+        ["Divider"] = ("#DFD7DC", "#48414A"),
+        ["Success"] = ("#24643E", "#85D1A2")
     };
 
     public static void Apply(bool dark, bool animate = false)

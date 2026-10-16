@@ -28,7 +28,7 @@ namespace YouTubeDownloader
             { "Checking for a downloader fix…", "جارٍ البحث عن تحديث لحل المشكلة…" },
             { "Updating yt-dlp…", "جارٍ تحديث أداة التنزيل…" },
             { "Updating Deno…", "جارٍ تحديث أداة تشغيل التنزيل…" },
-            { "ViFree checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.", "يبحث ViFree تلقائيًا عن تحديثات أدوات التنزيل مرة يوميًا عند استخدام رابط. ويمكنك البحث مجددًا من هنا." },
+            { "Vydrop checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.", "يبحث Vydrop تلقائيًا عن تحديثات أدوات التنزيل مرة يوميًا عند استخدام رابط. ويمكنك البحث مجددًا من هنا." },
             { "More options", "خيارات إضافية" },
             { "For a YouTube Mix, copy the link of a playing video in the mix.", "لقوائم YouTube Mix، انسخ رابط أحد الفيديوهات أثناء تشغيله من القائمة." },
             { "YouTube Mix · {0} videos from this changing mix", "YouTube Mix · {0} فيديو من القائمة المتجددة" },
@@ -55,7 +55,7 @@ namespace YouTubeDownloader
             { "Change", "تغيير" },
             { "App updates", "تحديثات التطبيق" },
             { "Download support", "دعم التنزيل" },
-            { "Send a video link from your browser to ViFree.", "أرسل رابط الفيديو من المتصفح إلى ViFree." },
+            { "Send a video link from your browser to Vydrop.", "أرسل رابط الفيديو من المتصفح إلى Vydrop." },
             { "Video preview", "معاينة الفيديو" },
             { "Your next download", "تنزيلك القادم" },
             { "Paste a link to see its details.", "الصق رابطًا لعرض تفاصيله." },
@@ -96,7 +96,7 @@ namespace YouTubeDownloader
             { "Checking downloader updates", "جارٍ البحث عن تحديث لأداة التنزيل" },
             { "Looking for an update to the tool that reads video links and downloads files…", "جارٍ البحث عن إصدار أحدث من الأداة المسؤولة عن قراءة روابط الفيديوهات وتنزيلها…" },
             { "Downloader is up to date", "أداة التنزيل محدّثة بالفعل" },
-            { "No new downloader update is available. You can use ViFree as usual.", "لا يوجد تحديث جديد لأداة التنزيل. يمكنك متابعة استخدام التطبيق كالمعتاد." },
+            { "No new downloader update is available. You can use Vydrop as usual.", "لا يوجد تحديث جديد لأداة التنزيل. يمكنك متابعة استخدام التطبيق كالمعتاد." },
             { "Downloading the downloader update…", "جارٍ تنزيل تحديث أداة التنزيل…" },
             { "Downloader updated", "تم تحديث أداة التنزيل" },
             { "The update is ready. Try the video link that was not working again.", "التحديث جاهز. جرّب رابط الفيديو الذي لم يعمل مرة أخرى." },
@@ -127,11 +127,11 @@ namespace YouTubeDownloader
             { "Use selection", "استخدام التحديد" },
             { "Choose at least one available video.", "اختر فيديو متاحًا واحدًا على الأقل." },
             { "Send a link from your browser", "إرسال رابط من المتصفح" },
-            { "Keep ViFree in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading.", "ضع ViFree في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من مجلد Browser المرفق مع التطبيق. يدعم التحميل المحلي Chrome وEdge وFirefox." },
-            { "Click the extension or right-click a link to open it in ViFree. Nothing downloads until you choose Download.", "انقر الإضافة أو انقر بزر الفأرة الأيمن على رابط لفتحه في ViFree. لا يبدأ التنزيل حتى تختار تنزيل." },
+            { "Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading.", "ضع Vydrop في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من مجلد Browser المرفق مع التطبيق. يدعم التحميل المحلي Chrome وEdge وFirefox." },
+            { "Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download.", "انقر الإضافة أو انقر بزر الفأرة الأيمن على رابط لفتحه في Vydrop. لا يبدأ التنزيل حتى تختار تنزيل." },
             { "Enable connection", "تفعيل الاتصال" },
             { "Disable connection", "تعطيل الاتصال" },
-            { "Could not change the browser connection. Keep ViFree.exe in a writable folder and try again.", "تعذّر تغيير اتصال المتصفح. ضع ViFree.exe في مجلد قابل للكتابة وأعد المحاولة." },
+            { "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.", "تعذّر تغيير اتصال المتصفح. ضع Vydrop.exe في مجلد قابل للكتابة وأعد المحاولة." },
             { "Browser connection enabled. Load the companion extension to send links.", "تم تفعيل اتصال المتصفح. حمّل الإضافة لإرسال الروابط." },
             { "Browser connection disabled.", "تم تعطيل اتصال المتصفح." },
             { "Preview build", "نسخة تجريبية" },
@@ -343,8 +343,8 @@ namespace YouTubeDownloader
                 "حُفظ الملف المكتمل، لكن تعذّر حفظ معلومات الاستئناف."
             },
             {
-                "ViFree",
-                "ViFree"
+                "Vydrop",
+                "Vydrop"
             },
             {
                 "Close",
@@ -367,8 +367,8 @@ namespace YouTubeDownloader
                 "رابط يوتيوب"
             },
             {
-                "ViFree logo",
-                "شعار ViFree"
+                "Vydrop logo",
+                "شعار Vydrop"
             },
             {
                 "Open the save folder and try opening the file there.",

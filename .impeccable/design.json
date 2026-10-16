@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T18:41:38.4143887Z",
+  "title": "Design System: Vydrop",
+  "extensions": {
+    "colorMeta": {
+      "brand": {
+        "role": "primary",
+        "displayName": "Download Red",
+        "tonalRamp": [
+          "oklch(15.00% 0.20436 20.71)",
+          "oklch(26.43% 0.20436 20.71)",
+          "oklch(37.86% 0.20436 20.71)",
+          "oklch(49.29% 0.20436 20.71)",
+          "oklch(60.71% 0.20436 20.71)",
+          "oklch(72.14% 0.20436 20.71)",
+          "oklch(83.57% 0.20436 20.71)",
+          "oklch(95.00% 0.20436 20.71)"
+        ]
+      },
+      "page-light": {
+        "role": "neutral",
+        "displayName": "Page (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00169 325.59)",
+          "oklch(26.43% 0.00169 325.59)",
+          "oklch(37.86% 0.00169 325.59)",
+          "oklch(49.29% 0.00169 325.59)",
+          "oklch(60.71% 0.00169 325.59)",
+          "oklch(72.14% 0.00169 325.59)",
+          "oklch(83.57% 0.00169 325.59)",
+          "oklch(95.00% 0.00169 325.59)"
+        ]
+      },
+      "page-dark": {
+        "role": "neutral",
+        "displayName": "Page (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01080 260.68)",
+          "oklch(26.43% 0.01080 260.68)",
+          "oklch(37.86% 0.01080 260.68)",
+          "oklch(49.29% 0.01080 260.68)",
+          "oklch(60.71% 0.01080 260.68)",
+          "oklch(72.14% 0.01080 260.68)",
+          "oklch(83.57% 0.01080 260.68)",
+          "oklch(95.00% 0.01080 260.68)"
+        ]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "Surface (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00583 333.98)",
+          "oklch(26.43% 0.00583 333.98)",
+          "oklch(37.86% 0.00583 333.98)",
+          "oklch(49.29% 0.00583 333.98)",
+          "oklch(60.71% 0.00583 333.98)",
+          "oklch(72.14% 0.00583 333.98)",
+          "oklch(83.57% 0.00583 333.98)",
+          "oklch(95.00% 0.00583 333.98)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Surface (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01272 258.37)",
+          "oklch(26.43% 0.01272 258.37)",
+          "oklch(37.86% 0.01272 258.37)",
+          "oklch(49.29% 0.01272 258.37)",
+          "oklch(60.71% 0.01272 258.37)",
+          "oklch(72.14% 0.01272 258.37)",
+          "oklch(83.57% 0.01272 258.37)",
+          "oklch(95.00% 0.01272 258.37)"
+        ]
+      },
+      "field-light": {
+        "role": "neutral",
+        "displayName": "Field (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 0.00)",
+          "oklch(26.43% 0.00000 0.00)",
+          "oklch(37.86% 0.00000 0.00)",
+          "oklch(49.29% 0.00000 0.00)",
+          "oklch(60.71% 0.00000 0.00)",
+          "oklch(72.14% 0.00000 0.00)",
+          "oklch(83.57% 0.00000 0.00)",
+          "oklch(95.00% 0.00000 0.00)"
+        ]
+      },
+      "field-dark": {
+        "role": "neutral",
+        "displayName": "Field (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01348 267.09)",
+          "oklch(26.43% 0.01348 267.09)",
+          "oklch(37.86% 0.01348 267.09)",
+          "oklch(49.29% 0.01348 267.09)",
+          "oklch(60.71% 0.01348 267.09)",
+          "oklch(72.14% 0.01348 267.09)",
+          "oklch(83.57% 0.01348 267.09)",
+          "oklch(95.00% 0.01348 267.09)"
+        ]
+      },
+      "ink-light": {
+        "role": "neutral",
+        "displayName": "Ink (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01243 314.60)",
+          "oklch(26.43% 0.01243 314.60)",
+          "oklch(37.86% 0.01243 314.60)",
+          "oklch(49.29% 0.01243 314.60)",
+          "oklch(60.71% 0.01243 314.60)",
+          "oklch(72.14% 0.01243 314.60)",
+          "oklch(83.57% 0.01243 314.60)",
+          "oklch(95.00% 0.01243 314.60)"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00501 345.28)",
+          "oklch(26.43% 0.00501 345.28)",
+          "oklch(37.86% 0.00501 345.28)",
+          "oklch(49.29% 0.00501 345.28)",
+          "oklch(60.71% 0.00501 345.28)",
+          "oklch(72.14% 0.00501 345.28)",
+          "oklch(83.57% 0.00501 345.28)",
+          "oklch(95.00% 0.00501 345.28)"
+        ]
+      },
+      "muted-light": {
+        "role": "neutral",
+        "displayName": "Muted (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.02189 331.43)",
+          "oklch(26.43% 0.02189 331.43)",
+          "oklch(37.86% 0.02189 331.43)",
+          "oklch(49.29% 0.02189 331.43)",
+          "oklch(60.71% 0.02189 331.43)",
+          "oklch(72.14% 0.02189 331.43)",
+          "oklch(83.57% 0.02189 331.43)",
+          "oklch(95.00% 0.02189 331.43)"
+        ]
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "Muted (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01843 334.27)",
+          "oklch(26.43% 0.01843 334.27)",
+          "oklch(37.86% 0.01843 334.27)",
+          "oklch(49.29% 0.01843 334.27)",
+          "oklch(60.71% 0.01843 334.27)",
+          "oklch(72.14% 0.01843 334.27)",
+          "oklch(83.57% 0.01843 334.27)",
+          "oklch(95.00% 0.01843 334.27)"
+        ]
+      },
+      "accent-light": {
+        "role": "primary",
+        "displayName": "Readable Red (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.17181 19.69)",
+          "oklch(26.43% 0.17181 19.69)",
+          "oklch(37.86% 0.17181 19.69)",
+          "oklch(49.29% 0.17181 19.69)",
+          "oklch(60.71% 0.17181 19.69)",
+          "oklch(72.14% 0.17181 19.69)",
+          "oklch(83.57% 0.17181 19.69)",
+          "oklch(95.00% 0.17181 19.69)"
+        ]
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Readable Red (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.15088 13.27)",
+          "oklch(26.43% 0.15088 13.27)",
+          "oklch(37.86% 0.15088 13.27)",
+          "oklch(49.29% 0.15088 13.27)",
+          "oklch(60.71% 0.15088 13.27)",
+          "oklch(72.14% 0.15088 13.27)",
+          "oklch(83.57% 0.15088 13.27)",
+          "oklch(95.00% 0.15088 13.27)"
+        ]
+      },
+      "action-light": {
+        "role": "primary",
+        "displayName": "Action Crimson (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.18233 19.80)",
+          "oklch(26.43% 0.18233 19.80)",
+          "oklch(37.86% 0.18233 19.80)",
+          "oklch(49.29% 0.18233 19.80)",
+          "oklch(60.71% 0.18233 19.80)",
+          "oklch(72.14% 0.18233 19.80)",
+          "oklch(83.57% 0.18233 19.80)",
+          "oklch(95.00% 0.18233 19.80)"
+        ]
+      },
+      "action-dark": {
+        "role": "primary",
+        "displayName": "Action Crimson (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.19257 19.56)",
+          "oklch(26.43% 0.19257 19.56)",
+          "oklch(37.86% 0.19257 19.56)",
+          "oklch(49.29% 0.19257 19.56)",
+          "oklch(60.71% 0.19257 19.56)",
+          "oklch(72.14% 0.19257 19.56)",
+          "oklch(83.57% 0.19257 19.56)",
+          "oklch(95.00% 0.19257 19.56)"
+        ]
+      },
+      "on-accent-light": {
+        "role": "neutral",
+        "displayName": "On Accent (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 0.00)",
+          "oklch(26.43% 0.00000 0.00)",
+          "oklch(37.86% 0.00000 0.00)",
+          "oklch(49.29% 0.00000 0.00)",
+          "oklch(60.71% 0.00000 0.00)",
+          "oklch(72.14% 0.00000 0.00)",
+          "oklch(83.57% 0.00000 0.00)",
+          "oklch(95.00% 0.00000 0.00)"
+        ]
+      },
+      "on-accent-dark": {
+        "role": "neutral",
+        "displayName": "On Accent (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 0.00)",
+          "oklch(26.43% 0.00000 0.00)",
+          "oklch(37.86% 0.00000 0.00)",
+          "oklch(49.29% 0.00000 0.00)",
+          "oklch(60.71% 0.00000 0.00)",
+          "oklch(72.14% 0.00000 0.00)",
+          "oklch(83.57% 0.00000 0.00)",
+          "oklch(95.00% 0.00000 0.00)"
+        ]
+      },
+      "border-light": {
+        "role": "neutral",
+        "displayName": "Border (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.02529 341.72)",
+          "oklch(26.43% 0.02529 341.72)",
+          "oklch(37.86% 0.02529 341.72)",
+          "oklch(49.29% 0.02529 341.72)",
+          "oklch(60.71% 0.02529 341.72)",
+          "oklch(72.14% 0.02529 341.72)",
+          "oklch(83.57% 0.02529 341.72)",
+          "oklch(95.00% 0.02529 341.72)"
+        ]
+      },
+      "border-dark": {
+        "role": "neutral",
+        "displayName": "Border (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.02693 340.65)",
+          "oklch(26.43% 0.02693 340.65)",
+          "oklch(37.86% 0.02693 340.65)",
+          "oklch(49.29% 0.02693 340.65)",
+          "oklch(60.71% 0.02693 340.65)",
+          "oklch(72.14% 0.02693 340.65)",
+          "oklch(83.57% 0.02693 340.65)",
+          "oklch(95.00% 0.02693 340.65)"
+        ]
+      },
+      "hover-light": {
+        "role": "neutral",
+        "displayName": "Hover (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01200 350.98)",
+          "oklch(26.43% 0.01200 350.98)",
+          "oklch(37.86% 0.01200 350.98)",
+          "oklch(49.29% 0.01200 350.98)",
+          "oklch(60.71% 0.01200 350.98)",
+          "oklch(72.14% 0.01200 350.98)",
+          "oklch(83.57% 0.01200 350.98)",
+          "oklch(95.00% 0.01200 350.98)"
+        ]
+      },
+      "hover-dark": {
+        "role": "neutral",
+        "displayName": "Hover (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01717 310.16)",
+          "oklch(26.43% 0.01717 310.16)",
+          "oklch(37.86% 0.01717 310.16)",
+          "oklch(49.29% 0.01717 310.16)",
+          "oklch(60.71% 0.01717 310.16)",
+          "oklch(72.14% 0.01717 310.16)",
+          "oklch(83.57% 0.01717 310.16)",
+          "oklch(95.00% 0.01717 310.16)"
+        ]
+      },
+      "selected-light": {
+        "role": "primary",
+        "displayName": "Rose Selection (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.02423 358.30)",
+          "oklch(26.43% 0.02423 358.30)",
+          "oklch(37.86% 0.02423 358.30)",
+          "oklch(49.29% 0.02423 358.30)",
+          "oklch(60.71% 0.02423 358.30)",
+          "oklch(72.14% 0.02423 358.30)",
+          "oklch(83.57% 0.02423 358.30)",
+          "oklch(95.00% 0.02423 358.30)"
+        ]
+      },
+      "selected-dark": {
+        "role": "primary",
+        "displayName": "Rose Selection (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.03514 349.24)",
+          "oklch(26.43% 0.03514 349.24)",
+          "oklch(37.86% 0.03514 349.24)",
+          "oklch(49.29% 0.03514 349.24)",
+          "oklch(60.71% 0.03514 349.24)",
+          "oklch(72.14% 0.03514 349.24)",
+          "oklch(83.57% 0.03514 349.24)",
+          "oklch(95.00% 0.03514 349.24)"
+        ]
+      },
+      "error-light": {
+        "role": "semantic",
+        "displayName": "Error (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.16180 19.89)",
+          "oklch(26.43% 0.16180 19.89)",
+          "oklch(37.86% 0.16180 19.89)",
+          "oklch(49.29% 0.16180 19.89)",
+          "oklch(60.71% 0.16180 19.89)",
+          "oklch(72.14% 0.16180 19.89)",
+          "oklch(83.57% 0.16180 19.89)",
+          "oklch(95.00% 0.16180 19.89)"
+        ]
+      },
+      "error-dark": {
+        "role": "semantic",
+        "displayName": "Error (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.09288 13.43)",
+          "oklch(26.43% 0.09288 13.43)",
+          "oklch(37.86% 0.09288 13.43)",
+          "oklch(49.29% 0.09288 13.43)",
+          "oklch(60.71% 0.09288 13.43)",
+          "oklch(72.14% 0.09288 13.43)",
+          "oklch(83.57% 0.09288 13.43)",
+          "oklch(95.00% 0.09288 13.43)"
+        ]
+      },
+      "info-accent-light": {
+        "role": "semantic",
+        "displayName": "Information (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.08850 252.08)",
+          "oklch(26.43% 0.08850 252.08)",
+          "oklch(37.86% 0.08850 252.08)",
+          "oklch(49.29% 0.08850 252.08)",
+          "oklch(60.71% 0.08850 252.08)",
+          "oklch(72.14% 0.08850 252.08)",
+          "oklch(83.57% 0.08850 252.08)",
+          "oklch(95.00% 0.08850 252.08)"
+        ]
+      },
+      "info-accent-dark": {
+        "role": "semantic",
+        "displayName": "Information (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.06498 253.58)",
+          "oklch(26.43% 0.06498 253.58)",
+          "oklch(37.86% 0.06498 253.58)",
+          "oklch(49.29% 0.06498 253.58)",
+          "oklch(60.71% 0.06498 253.58)",
+          "oklch(72.14% 0.06498 253.58)",
+          "oklch(83.57% 0.06498 253.58)",
+          "oklch(95.00% 0.06498 253.58)"
+        ]
+      },
+      "divider-light": {
+        "role": "neutral",
+        "displayName": "Divider (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01101 339.36)",
+          "oklch(26.43% 0.01101 339.36)",
+          "oklch(37.86% 0.01101 339.36)",
+          "oklch(49.29% 0.01101 339.36)",
+          "oklch(60.71% 0.01101 339.36)",
+          "oklch(72.14% 0.01101 339.36)",
+          "oklch(83.57% 0.01101 339.36)",
+          "oklch(95.00% 0.01101 339.36)"
+        ]
+      },
+      "divider-dark": {
+        "role": "neutral",
+        "displayName": "Divider (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.01760 318.68)",
+          "oklch(26.43% 0.01760 318.68)",
+          "oklch(37.86% 0.01760 318.68)",
+          "oklch(49.29% 0.01760 318.68)",
+          "oklch(60.71% 0.01760 318.68)",
+          "oklch(72.14% 0.01760 318.68)",
+          "oklch(83.57% 0.01760 318.68)",
+          "oklch(95.00% 0.01760 318.68)"
+        ]
+      },
+      "success-light": {
+        "role": "semantic",
+        "displayName": "Success (light)",
+        "tonalRamp": [
+          "oklch(15.00% 0.09045 154.24)",
+          "oklch(26.43% 0.09045 154.24)",
+          "oklch(37.86% 0.09045 154.24)",
+          "oklch(49.29% 0.09045 154.24)",
+          "oklch(60.71% 0.09045 154.24)",
+          "oklch(72.14% 0.09045 154.24)",
+          "oklch(83.57% 0.09045 154.24)",
+          "oklch(95.00% 0.09045 154.24)"
+        ]
+      },
+      "success-dark": {
+        "role": "semantic",
+        "displayName": "Success (dark)",
+        "tonalRamp": [
+          "oklch(15.00% 0.10136 156.12)",
+          "oklch(26.43% 0.10136 156.12)",
+          "oklch(37.86% 0.10136 156.12)",
+          "oklch(49.29% 0.10136 156.12)",
+          "oklch(60.71% 0.10136 156.12)",
+          "oklch(72.14% 0.10136 156.12)",
+          "oklch(83.57% 0.10136 156.12)",
+          "oklch(95.00% 0.10136 156.12)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Task heading",
+        "purpose": "New download; the active language selects the embedded font."
+      },
+      "title": {
+        "displayName": "Media title",
+        "purpose": "Wide context title, at most three native lines."
+      },
+      "title-compact": {
+        "displayName": "Compact media title",
+        "purpose": "Compact strip title, at most two native lines."
+      },
+      "body": {
+        "displayName": "Latin body",
+        "purpose": "Main interface text; WPF units are DIP, represented as CSS pixels in frontmatter."
+      },
+      "body-arabic": {
+        "displayName": "Arabic body",
+        "purpose": "Noto Sans Arabic for localized task content, sharing the body line rhythm."
+      },
+      "label": {
+        "displayName": "Section and selection label",
+        "purpose": "Semibold labels and selected control emphasis."
+      },
+      "download-label": {
+        "displayName": "Download label",
+        "purpose": "Larger semibold primary-action text."
+      },
+      "queue-heading": {
+        "displayName": "Compact queue heading",
+        "purpose": "Local QueueWindow hierarchy; does not reset other screens."
+      },
+      "queue-body": {
+        "displayName": "Compact queue body",
+        "purpose": "QueueWindow local body and row density."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "value": "CubicEase(EaseOut)",
+        "purpose": "Native common easing; CSS snippets use the equivalent cubic curve.",
+        "name": "ease-out"
+      },
+      {
+        "value": "130ms",
+        "purpose": "Existing overlay opacity fades in; primary uses OnAccent at 0.08, selection faces Hover at 0.35.",
+        "name": "hover-enter"
+      },
+      {
+        "value": "100ms",
+        "purpose": "Overlay opacity returns to rest.",
+        "name": "hover-leave"
+      },
+      {
+        "value": "180ms",
+        "purpose": "One recognized-media reveal, opacity 0.82 to 1 and Y translation 5 to 0 DIP.",
+        "name": "view-reveal"
+      },
+      {
+        "value": "260ms",
+        "purpose": "Opaque clipped theme snapshot; settles on interruption, resize or disabled animation.",
+        "name": "theme-reveal"
+      },
+      {
+        "value": "360ms",
+        "purpose": "Finite symbol scale from 0.94 to 1.",
+        "name": "logo-scale"
+      },
+      {
+        "value": "600ms",
+        "purpose": "Finite symbol highlight; no looping or sound.",
+        "name": "logo-highlight"
+      },
+      {
+        "value": "180ms",
+        "purpose": "Animate only real reported progress changes.",
+        "name": "progress-interpolation"
+      },
+      {
+        "value": "250ms",
+        "purpose": "Intent sequence, five-DIP displacement peak at 110ms then return.",
+        "name": "download-arrow"
+      },
+      {
+        "value": "240ms",
+        "purpose": "Completion stroke responds to success.",
+        "name": "completion-check"
+      },
+      {
+        "value": "850ms",
+        "purpose": "Brief finite feedback, entering at 100ms and leaving after 650ms.",
+        "name": "queue-feedback"
+      }
+    ],
+    "breakpoints": [
+      {
+        "value": "1000px",
+        "name": "auto-expand-guard-native-dip"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Download action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Light-theme translation of the centered native 280 × 52-DIP primary action; state styling preserves its semantic role.",
+      "html": "<button class=\"ds-primary\" type=\"button\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M10 1V13M5 8L10 13L15 8M2 14V19H18V14\"/></svg>Download</button>",
+      "css": ".ds-primary{box-sizing:border-box;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:10px;width:280px;min-height:52px;padding:8px 16px;border:1px solid #BA263A;border-radius:8px;background:#BA263A;color:#FFF;font:600 17px Inter,sans-serif;cursor:pointer}.ds-primary svg{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-primary::before{content:\"\";position:absolute;z-index:-1;inset:0;border-radius:7px;background:#FFF;opacity:0;pointer-events:none;transition:opacity 100ms cubic-bezier(.333333,1,.666667,1)}.ds-primary:hover::before{opacity:.08;transition-duration:130ms}.ds-primary:active{border-color:#272329}.ds-primary:focus-visible{outline:2px solid #272329;outline-offset:-2px}.ds-primary:disabled{opacity:.5;cursor:default}.ds-primary:disabled::before{opacity:0}@media(prefers-reduced-motion:reduce){.ds-primary::before{transition:none}}"
+    },
+    {
+      "name": "Download action — dark",
+      "kind": "button",
+      "refersTo": "button-primary-dark",
+      "description": "Dark-theme primary face uses Action, while readable detail and focus use their own theme roles.",
+      "html": "<button class=\"ds-primary-dark\" type=\"button\">Download</button>",
+      "css": ".ds-primary-dark{box-sizing:border-box;position:relative;isolation:isolate;width:280px;min-height:52px;padding:8px 16px;border:1px solid #CB2D42;border-radius:8px;background:#CB2D42;color:#FFF;font:600 17px Inter,sans-serif;cursor:pointer}.ds-primary-dark::before{content:\"\";position:absolute;z-index:-1;inset:0;border-radius:7px;background:#FFF;opacity:0;pointer-events:none;transition:opacity 100ms cubic-bezier(.333333,1,.666667,1)}.ds-primary-dark:hover::before{opacity:.08;transition-duration:130ms}.ds-primary-dark:active{border-color:#F6F2F4}.ds-primary-dark:focus-visible{outline:2px solid #F6F2F4;outline-offset:-2px}.ds-primary-dark:disabled{opacity:.5;cursor:default}.ds-primary-dark:disabled::before{opacity:0}@media(prefers-reduced-motion:reduce){.ds-primary-dark::before{transition:none}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Native outlined field-face action, with tonal hover/press and a visible focus boundary.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Open folder</button>",
+      "css": ".ds-secondary{box-sizing:border-box;position:relative;isolation:isolate;min-height:44px;padding:8px 16px;border:1px solid #8E7D87;border-radius:8px;background:#FFF;color:#272329;font:14px/22px Inter,sans-serif;cursor:pointer}.ds-secondary::before{content:\"\";position:absolute;z-index:-1;inset:0;border-radius:7px;background:#F3E9ED;opacity:0;pointer-events:none;transition:opacity 100ms cubic-bezier(.333333,1,.666667,1)}.ds-secondary:hover::before{opacity:1;transition-duration:130ms}.ds-secondary:active{background:#F8E3E9}.ds-secondary:active::before{opacity:0}.ds-secondary:focus-visible{outline:2px solid #A91F33;outline-offset:-2px}.ds-secondary:disabled{opacity:.55;cursor:default}.ds-secondary:disabled::before{opacity:0}@media(prefers-reduced-motion:reduce){.ds-secondary::before{transition:none}}"
+    },
+    {
+      "name": "Quiet action",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Transparent secondary emphasis for optional actions and supporting commands.",
+      "html": "<button class=\"ds-quiet\" type=\"button\">Choose videos</button>",
+      "css": ".ds-quiet{box-sizing:border-box;position:relative;isolation:isolate;min-height:44px;padding:8px 16px;border:1px solid transparent;border-radius:8px;background:transparent;color:#A91F33;font:14px/22px Inter,sans-serif;cursor:pointer}.ds-quiet::before{content:\"\";position:absolute;z-index:-1;inset:0;border-radius:7px;background:#F3E9ED;opacity:0;pointer-events:none;transition:opacity 100ms cubic-bezier(.333333,1,.666667,1)}.ds-quiet:hover::before{opacity:1;transition-duration:130ms}.ds-quiet:active{background:#F8E3E9}.ds-quiet:active::before{opacity:0}.ds-quiet:focus-visible{outline:2px solid #A91F33;outline-offset:-2px}.ds-quiet:disabled{opacity:.55;cursor:default}.ds-quiet:disabled::before{opacity:0}@media(prefers-reduced-motion:reduce){.ds-quiet::before{transition:none}}"
+    },
+    {
+      "name": "Link field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Literal-LTR native link input, translated to a full-width HTML input for preview.",
+      "html": "<input class=\"ds-link\" type=\"url\" dir=\"ltr\" aria-label=\"Video or playlist link\" placeholder=\"Paste a video or playlist link\">",
+      "css": ".ds-link{box-sizing:border-box;width:100%;height:44px;padding:5px 12px;border:1px solid #8E7D87;border-radius:8px;background:#FFF;color:#272329;caret-color:#A91F33;font:14px/22px Inter,sans-serif}.ds-link::placeholder{color:#655963}.ds-link:focus-visible{outline:none;border-color:#A91F33}.ds-link::selection{background:#F8E3E9}.ds-link:disabled{opacity:.55}"
+    },
+    {
+      "name": "Selected output segment",
+      "kind": "button",
+      "refersTo": "format-selected",
+      "description": "The same selected face serves Video and Audio; labels and distinct icons carry mode meaning.",
+      "html": "<button class=\"ds-segment\" type=\"button\" role=\"radio\" aria-checked=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M1 4H12V15H1ZM12 7L18 4V15L12 12\"/></svg>Video · MP4</button>",
+      "css": ".ds-segment{box-sizing:border-box;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 12px;border:1px solid #A91F33;border-radius:8px;background:#F8E3E9;color:#A91F33;font:600 14px/22px Inter,sans-serif;cursor:pointer}.ds-segment svg{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-segment::before{content:\"\";position:absolute;z-index:-1;inset:0;border-radius:7px;background:#F3E9ED;opacity:0;pointer-events:none;transition:opacity 100ms cubic-bezier(.333333,1,.666667,1)}.ds-segment:hover::before{opacity:.35;transition-duration:130ms}.ds-segment:focus-visible{outline:2px solid #A91F33;outline-offset:-2px}.ds-segment:disabled{opacity:.55;cursor:default}.ds-segment:disabled::before{opacity:0}@media(prefers-reduced-motion:reduce){.ds-segment::before{transition:none}}"
+    },
+    {
+      "name": "Language choices",
+      "kind": "nav",
+      "refersTo": "language-menu",
+      "description": "Two equal button faces in the quieter language frame; selected check stays physically left.",
+      "html": "<nav class=\"ds-language\" aria-label=\"Language\"><button class=\"ds-language-row ds-language-current\" type=\"button\" aria-pressed=\"true\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M2 10L7 15L18 3\"/></svg><span>English</span><i></i></button><button class=\"ds-language-row\" type=\"button\" aria-pressed=\"false\"><i></i><span lang=\"ar\" dir=\"rtl\">العربية</span><i></i></button></nav>",
+      "css": ".ds-language{box-sizing:border-box;width:160px;padding:4px;border:1px solid #DFD7DC;border-radius:8px;background:#F1EDF0}.ds-language-row{box-sizing:border-box;position:relative;isolation:isolate;display:grid;grid-template-columns:18px 1fr 18px;align-items:center;direction:ltr;gap:8px;width:100%;height:40px;margin:0 0 4px;padding:6px 10px;border:1px solid #DFD7DC;border-radius:8px;background:#FFF;color:#272329;font:14px/22px Inter,sans-serif;cursor:pointer}.ds-language-row:last-child{margin:0}.ds-language-row span{text-align:center}.ds-language-row span[lang=ar]{font-family:\"Noto Sans Arabic\",sans-serif}.ds-language-row svg{fill:none;stroke:#A91F33;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-language-current{background:#F8E3E9;border-color:#A91F33;font-weight:600}.ds-language-row:hover{border-color:#A91F33}.ds-language-row:focus-visible{outline:none;border-color:#272329}.ds-language-row:disabled{opacity:.55;cursor:default}"
+    },
+    {
+      "name": "Flat media context",
+      "kind": "card",
+      "refersTo": "media-surface",
+      "description": "Shared Page ground with bounded media title, quiet supporting text and a Divider; example copy is illustrative.",
+      "html": "<section class=\"ds-media\" aria-label=\"Media context\"><p class=\"ds-media-label\">Media details</p><h2 class=\"ds-media-title\">Inspected media title</h2><p class=\"ds-media-subtitle\">Source details</p><hr class=\"ds-media-divider\"><p class=\"ds-media-label\">Output</p><p class=\"ds-media-output\">Video · MP4</p></section>",
+      "css": ".ds-media{box-sizing:border-box;padding:24px 30px;background:#F8F7F8;color:#272329;font:14px/22px Inter,sans-serif}.ds-media-label{margin:0 0 18px;color:#655963}.ds-media-title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0;font:600 23px/32px Inter,sans-serif}.ds-media-subtitle{margin:9px 0 0;color:#655963}.ds-media-divider{height:1px;margin:22px 0 20px;border:0;background:#DFD7DC}.ds-media-output{margin:5px 0 16px}"
+    },
+    {
+      "name": "Vydrop vector lockup",
+      "kind": "custom",
+      "description": "The canonical filled symbol and fixed custom-V/Inter SemiBold outlines in one physical-LTR header action. Slim 5.5-unit shaft/tray; rounded ends retained.",
+      "html": "<button class=\"ds-brand\" type=\"button\" aria-label=\"New download\"><svg class=\"ds-brand-mark\" width=\"38\" height=\"42\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><path fill=\"#E63D4D\" d=\"M29.25,5 Q29.25,3 31.25,3 H33 L34.75,4.75 V33.5 L45,23.25 Q47,21.25 49,23.25 Q51,25.25 49,27.25 L34,42.25 Q32,44.25 30,42.25 L15,27.25 Q13,25.25 15,23.25 Q17,21.25 19,23.25 L29.25,33.5 Z M9,40.25 Q11.75,40.25 11.75,43 V48 Q11.75,55.25 19,55.25 H45 Q52.25,55.25 52.25,48 V43 Q52.25,40.25 55,40.25 Q57.75,40.25 57.75,43 V48 Q57.75,60.75 45,60.75 H19 Q6.25,60.75 6.25,48 V43 Q6.25,40.25 9,40.25 Z\"/></svg><svg class=\"ds-brand-wordmark\" width=\"106\" height=\"32\" viewBox=\"0 0 106.272 32.104\" role=\"img\" aria-label=\"Vydrop\"><path fill=\"currentColor\" d=\"M0,0L5.5,0 11.3,18.7 17.3,0 23,0 14.4,26 8.2,26z M24.0712890625,9.486379623413086L28.1435546875,9.486379623413086 31.1318359375,18.392629623413086C31.6005859375,19.813528060913086 31.9228515625,21.219778060913086 32.2451171875,22.655324935913086 32.611328125,21.219778060913086 32.9775390625,19.798879623413086 33.4609375,18.392629623413086L36.5517578125,9.486379623413086 40.580078125,9.486379623413086 33.548828125,27.972707748413086C32.552734375,30.594778060913086 30.8681640625,32.10356903076172 27.9091796875,32.10356903076172 26.8251953125,32.10356903076172 25.873046875,31.913137435913086 25.3603515625,31.708059310913086L26.25390625,28.734426498413086 26.7080078125,28.851613998413086C28.421875,29.305715560913086,29.623046875,28.836965560913086,30.0185546875,26.961965560913086L30.2529296875,25.921926498413086 24.0712890625,9.486379623413086z M49.696678161621094,12.416067123413086C47.118553161621094,12.416067123413086 45.800193786621094,14.642629623413086 45.800193786621094,17.689504623413086 45.800193786621094,20.765676498413086 47.147850036621094,23.021535873413086 49.696678161621094,23.021535873413086 52.172264099121094,23.021535873413086 53.578514099121094,20.882863998413086 53.578514099121094,17.689504623413086 53.578514099121094,14.496145248413086 52.201560974121094,12.416067123413086 49.696678161621094,12.416067123413086z M53.505271911621094,4.037160873413086L57.313865661621094,4.037160873413086 57.313865661621094,25.863332748413086 53.578514099121094,25.863332748413086 53.578514099121094,23.270559310913086 53.344139099121094,23.270559310913086C52.743553161621094,24.457082748413086 51.483787536621094,26.156301498413086 48.656639099121094,26.156301498413086 44.774803161621094,26.156301498413086 41.903709411621094,23.080129623413086 41.903709411621094,17.704153060913086 41.903709411621094,12.254934310913086 44.862693786621094,9.281301498413086 48.641990661621094,9.281301498413086 51.557029724121094,9.281301498413086 52.758201599121094,11.039113998413086 53.344139099121094,12.196340560913086L53.505271911621094,12.196340560913086 53.505271911621094,4.037160873413086z M69.25164031982422,9.266653060913086C69.67644500732422,9.266653060913086,70.27703094482422,9.310598373413086,70.64324188232422,9.369192123413086L70.64324188232422,12.870168685913086C70.32097625732422,12.782278060913086 69.51531219482422,12.679738998413086 68.84148406982422,12.679738998413086 66.71746063232422,12.679738998413086 65.15007781982422,14.144582748413086 65.15007781982422,16.224660873413086L65.15007781982422,25.863332748413086 61.34148406982422,25.863332748413086 61.34148406982422,9.486379623413086 65.03289031982422,9.486379623413086 65.03289031982422,12.225637435913086 65.20867156982422,12.225637435913086C65.79460906982422,10.335988998413086,67.37664031982422,9.266653060913086,69.25164031982422,9.266653060913086z M79.69597625732422,12.372121810913086C77.04460906982422,12.372121810913086 75.75554656982422,14.730520248413086 75.75554656982422,17.748098373413086 75.75554656982422,20.736379623413086 77.04460906982422,23.109426498413086 79.69597625732422,23.109426498413086 82.36199188232422,23.109426498413086 83.66570281982422,20.736379623413086 83.66570281982422,17.748098373413086 83.66570281982422,14.730520248413086 82.36199188232422,12.372121810913086 79.69597625732422,12.372121810913086z M79.69597625732422,9.281301498413086C84.47136688232422,9.281301498413086 87.53289031982422,12.665090560913086 87.53289031982422,17.762746810913086 87.53289031982422,22.801809310913086 84.47136688232422,26.200246810913086 79.69597625732422,26.200246810913086 74.92058563232422,26.200246810913086 71.87371063232422,22.801809310913086 71.87371063232422,17.762746810913086 71.87371063232422,12.665090560913086 74.92058563232422,9.281301498413086 79.69597625732422,9.281301498413086z M98.47866821289062,12.416067123413086C95.95913696289062,12.416067123413086 94.59683227539062,14.496145248413086 94.59683227539062,17.689504623413086 94.59683227539062,20.882863998413086 95.98843383789062,23.021535873413086 98.47866821289062,23.021535873413086 101.02749633789062,23.021535873413086 102.36050415039062,20.765676498413086 102.36050415039062,17.689504623413086 102.36050415039062,14.642629623413086 101.05679321289062,12.416067123413086 98.47866821289062,12.416067123413086z M99.51870727539062,9.281301498413086C103.29800415039062,9.281301498413086 106.27163696289062,12.254934310913086 106.27163696289062,17.704153060913086 106.27163696289062,23.080129623413086 103.38589477539062,26.156301498413086 99.50405883789062,26.156301498413086 96.69155883789062,26.156301498413086 95.41714477539062,24.457082748413086 94.83120727539062,23.270559310913086L94.67007446289062,23.270559310913086 94.67007446289062,31.986379623413086 90.86148071289062,31.986379623413086 90.86148071289062,9.486379623413086 94.58218383789062,9.486379623413086 94.58218383789062,12.196340560913086 94.83120727539062,12.196340560913086C95.40249633789062,11.039113998413086,96.60366821289062,9.281301498413086,99.51870727539062,9.281301498413086z\"/></svg></button>",
+      "css": ".ds-brand{box-sizing:border-box;display:inline-flex;align-items:center;gap:10px;direction:ltr;min-height:42px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#272329;cursor:pointer}.ds-brand-mark,.ds-brand-wordmark{display:block;flex:none}.ds-brand:hover{background:#F3E9ED}.ds-brand:active{background:#F8E3E9}.ds-brand:focus-visible{outline:2px solid #A91F33;outline-offset:-2px}.ds-brand:disabled{opacity:.55;cursor:default}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Red Download Mark",
+    "overview": "Vydrop pairs a rounded red download arrow and receiving tray with a compact fixed vector wordmark. Crimson actions and rose selections sit on shared light or charcoal working surfaces. The established bilingual Windows composition, embedded type and visible focus stay intact. These are extracted source rules for the approved rebrand; the HTML samples are illustrative WPF translations and do not substitute for native rendering or workflow verification.",
+    "keyCharacteristics": [
+      "One flat red mark and a custom vector wordmark across desktop and companion.",
+      "Continuous Page ground with tonal control faces and quiet separators.",
+      "English/Arabic task direction with stable physical header and pane anchors.",
+      "Short, silent, finite feedback that respects Windows animation and high contrast preferences."
+    ],
+    "rules": [
+      {
+        "body": "BrandFill is identity paint; Action is a filled control; Accent is a readable detail. Preserve independent semantic status roles and system high-contrast substitutions.",
+        "section": "colors",
+        "name": "The Role Rule"
+      },
+      {
+        "body": "Reuse BrandWordmarkGeometry: custom V and licensed Inter SemiBold ydrop outlines. Keep it physically LTR and uniformly scaled beside the canonical symbol.",
+        "section": "typography",
+        "name": "The Lettering Rule"
+      },
+      {
+        "body": "Use Page, Surface, Field and thin borders for depth. Inspected native themes define no shared application shadow token.",
+        "section": "elevation",
+        "name": "Tonal Depth"
+      },
+      {
+        "body": "The split threshold is computed from client width, MinWidth, chrome and the 320-DIP pane minimum. The 1000-DIP constant only guards automatic expansion; it is not a universal responsive breakpoint.",
+        "section": "layout",
+        "name": "Content Fit"
+      },
+      {
+        "name": "Tonal Ramp Metadata",
+        "body": "The eight-step OKLCH ramps are synthesized display metadata derived from each canonical hexadecimal token: constant hue and chroma, stepped lightness from 15% to 95%. They do not introduce application theme tokens or change the normative palette.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do use semantic light/dark pairs and preserve Windows high contrast.",
+      "Do keep labels, checkmarks and keyboard focus alongside color.",
+      "Do preserve approved layout, type, control geometry and finite silent motion.",
+      "Do reuse the canonical vector lockup and preserve its LTR direction.",
+      "Do label synthetic evidence and retain raster provenance."
+    ],
+    "donts": [
+      "Do not restore historical ViFree lettering or superseded brand palettes on current Vydrop surfaces.",
+      "Do not recreate the wordmark as ordinary text.",
+      "Do not fabricate media details, artwork or success.",
+      "Do not add sound, looping decoration or motion that overrides Windows preferences.",
+      "Do not rename persisted compatibility identifiers as part of a visible rebrand."
+    ]
+  }
+}

@@ -87,8 +87,8 @@ public sealed partial class DesktopActions
         var dialog = Dialog(t("Browser integration"), 400);
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = t("Send a link from your browser"), FontSize = 20, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
-        panel.Children.Add(new TextBlock { Text = t("Keep ViFree in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["Muted"], Margin = new Thickness(0, 12, 0, 0) });
-        panel.Children.Add(new TextBlock { Text = t("Click the extension or right-click a link to open it in ViFree. Nothing downloads until you choose Download."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 20) });
+        panel.Children.Add(new TextBlock { Text = t("Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading."), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["Muted"], Margin = new Thickness(0, 12, 0, 0) });
+        panel.Children.Add(new TextBlock { Text = t("Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download."), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 20) });
         var buttons = new WrapPanel();
         var enable = new Button { Content = t("Enable connection"), Style = (Style)Application.Current.Resources["PrimaryButton"] };
         var disable = new Button { Content = t("Disable connection"), Margin = new Thickness(12, 0, 0, 0) };
@@ -99,7 +99,7 @@ public sealed partial class DesktopActions
             notice?.Cancel();
             var lifetime = notice = new();
             try { action(); message.Text = t(success); }
-            catch { message.Text = t("Could not change the browser connection. Keep ViFree.exe in a writable folder and try again."); }
+            catch { message.Text = t("Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again."); }
             try { await Task.Delay(5000, lifetime.Token); message.Text = ""; } catch (OperationCanceledException) { }
             finally { lifetime.Dispose(); if (ReferenceEquals(notice, lifetime)) notice = null; }
         }

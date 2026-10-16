@@ -1,31 +1,61 @@
 {
-  "appVersion": "4.1.0",
-  "stableTag": "v4.1.0",
-  "sourceCommit": "8f3a272849142bbb4554c147ef626c37feccb48f",
-  "companionVersion": "1.2.1",
+  "appVersion": "4.2.0",
+  "companionVersion": "1.3.0",
   "images": [
     {
-      "files": ["../../assets/screenshot-en-dark.png", "../../assets/screenshot-ar-light.png"],
+      "files": [
+        "../../assets/screenshot-en-dark.png",
+        "../../assets/screenshot-ar-light.png"
+      ],
       "kind": "Lossless WPF client-area captures",
-      "source": "build/v4.1.0-ui-captures/layout-empty-{en-dark,ar-light}-default.png",
-      "state": "Empty app UI from the stable release capture suite; no synthetic media data shown"
+      "source": "build/vydrop-slim-captures/layout-empty-{en-dark,ar-light}-default.png",
+      "state": "Cursor-free WPF client rendering of the final slimmer-logo Vydrop working-tree build; empty UI with no media fixture"
     },
     {
-      "files": ["../../assets/screenshots/v4.1.0/en-dark-ready.jpg", "../../assets/screenshots/v4.1.0/ar-light-ready.jpg"],
+      "files": [
+        "../../assets/screenshots/v4.1.0/en-dark-ready.jpg",
+        "../../assets/screenshots/v4.1.0/ar-light-ready.jpg"
+      ],
       "kind": "Native stable executable screenshots",
       "state": "Actual W3Schools sample inspection: mov_bbb, MP4, measured 176p, 10 seconds",
-      "samplePage": "https://www.w3schools.com/html/html5_video.asp"
+      "samplePage": "https://www.w3schools.com/html/html5_video.asp",
+      "historicalProduct": "ViFree",
+      "historicalVersion": "4.1.0",
+      "sourceCommit": "8f3a272849142bbb4554c147ef626c37feccb48f"
     },
     {
-      "files": ["extension/02-enable-connection.jpg"],
+      "files": [
+        "extension/02-enable-connection.jpg"
+      ],
       "kind": "Native stable executable dialog screenshot",
-      "state": "Browser integration dialog; pointer outside captured dialog bounds"
+      "state": "Browser integration dialog; pointer outside captured dialog bounds",
+      "historicalProduct": "ViFree",
+      "historicalVersion": "4.1.0",
+      "sourceCommit": "8f3a272849142bbb4554c147ef626c37feccb48f"
     },
     {
-      "files": ["extension/01-folders.svg", "extension/03-chromium-setup.svg", "extension/04-send-video.svg"],
+      "files": [
+        "extension/01-folders.svg",
+        "extension/03-chromium-setup.svg",
+        "extension/04-send-video.svg",
+        "extension/02-enable-connection.svg"
+      ],
       "kind": "Original resolution-independent setup illustrations",
       "state": "Labeled diagrams, not browser screenshots or installation proof"
+    },
+    {
+      "files": [
+        "../../assets/header-logo.png",
+        "../../assets/brand-logo-light.png",
+        "../../assets/brand-logo-dark.png"
+      ],
+      "kind": "Original transparent WPF vector raster exports",
+      "source": "scripts/render-brand.ps1 from Themes/Symbols.xaml",
+      "state": "User-approved red download mark, slim 5.5-unit shaft/tray; custom V and licensed Inter SemiBold wordmark; no cursor, generated scenery or media"
     }
   ],
-  "publication": "Cursor-free images only. Screenshots retained at captured resolution, with no UI reconstruction or upscaling. Stable release ZIP is unchanged."
+  "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",
+  "product": "Vydrop",
+  "publicationStatus": "Local unpublished branding candidate; published ViFree v4.1.0 assets remain unchanged",
+  "sourceBaseCommit": "a0809c85577c66560bf119286b6d43cc765cd646"
 }

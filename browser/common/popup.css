@@ -1,12 +1,14 @@
-:root { color-scheme: light dark; --page: #f6f5f1; --ink: #1d2329; --muted: #56616c; --accent: #275bd8; --on-accent: #fff; }
-@media (prefers-color-scheme: dark) { :root { --page: #17191e; --ink: #f3f1ed; --muted: #b8b7b3; --accent: #7499ff; --on-accent: #0e1f46; } }
+:root { color-scheme: light dark; --page: #f8f7f8; --ink: #272329; --muted: #655963; --accent: #ba263a; --on-accent: #fff; --focus: #a91f33; }
+@media (prefers-color-scheme: dark) { :root { --page: #181b20; --ink: #f6f2f4; --muted: #beb2bb; --accent: #cb2d42; --focus: #ff8393; } }
 * { box-sizing: border-box; }
 body { width: 304px; padding: 20px; margin: 0; font: 14px/1.5 system-ui, sans-serif; color: var(--ink); background: var(--page); }
-header { display: flex; gap: 12px; align-items: center; font-size: 22px; }
+header { display: flex; gap: 9px; align-items: center; direction: ltr; }
 p { color: var(--muted); margin: 14px 0; }
 button { display: block; width: 100%; min-height: 44px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); cursor: pointer; }
 button:hover { filter: brightness(.93); }
-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 button:disabled { opacity: .6; cursor: wait; }
 #status { margin-bottom: 0; overflow-wrap: anywhere; }
 ::selection { color: var(--on-accent); background: var(--accent); }
+
+.brand-wordmark { display: block; color: var(--ink); flex: none; }

@@ -31,15 +31,15 @@ jobs:
           }
           ./scripts/package.ps1 -Version $version
           ./scripts/smoke-exe.ps1 -Version $version
-          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --package "./dist/ViFree-v$version-win-x64.zip"
+          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --package "./dist/Vydrop-v$version-win-x64.zip"
           if ($LASTEXITCODE -ne 0) { throw 'Packaged app checks failed.' }
-          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --native-host "./dist/ViFree-$version-win-x64/ViFree.exe"
+          dotnet ./tests/Downloader.Tests/bin/Release/net10.0-windows/Downloader.Tests.dll --native-host "./dist/Vydrop-$version-win-x64/Vydrop.exe"
           if ($LASTEXITCODE -ne 0) { throw 'Packaged browser host checks failed.' }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: windows-app
           path: |
-            dist/ViFree-v*-win-x64.zip
+            dist/Vydrop-v*-win-x64.zip
             dist/checksums-desktop.json
           if-no-files-found: error
   release:

@@ -5,15 +5,15 @@
 
   const arabic = document.documentElement.lang.toLowerCase().startsWith("ar");
   const text = arabic ? {
-    open: "تنزيل بواسطة ViFree", action: "نسخ رابط الفيديو وفتحه في ViFree", finding: "جارٍ تحديد الفيديو…",
-    opening: "جارٍ الفتح…", opened: "تم الفتح في ViFree", copied: "تم نسخ الرابط وفتح الفيديو في ViFree.",
-    clipboard: "تم الفتح في ViFree، لكن تعذّر نسخ الرابط.", missing: "افتح صفحة هذا الفيديو أو استخدم مشاركة ثم نسخ الرابط.",
-    retry: "حاول مجددًا", failed: "تعذّر فتح ViFree. افتح التطبيق وفعّل الربط بالمتصفح، وأنهِ أي تنزيل جارٍ ثم حاول مجددًا."
+    open: "تنزيل بواسطة Vydrop", action: "نسخ رابط الفيديو وفتحه في Vydrop", finding: "جارٍ تحديد الفيديو…",
+    opening: "جارٍ الفتح…", opened: "تم الفتح في Vydrop", copied: "تم نسخ الرابط وفتح الفيديو في Vydrop.",
+    clipboard: "تم الفتح في Vydrop، لكن تعذّر نسخ الرابط.", missing: "افتح صفحة هذا الفيديو أو استخدم مشاركة ثم نسخ الرابط.",
+    retry: "حاول مجددًا", failed: "تعذّر فتح Vydrop. افتح التطبيق وفعّل الربط بالمتصفح، وأنهِ أي تنزيل جارٍ ثم حاول مجددًا."
   } : {
-    open: "Download by ViFree", action: "Copy video link and open ViFree", finding: "Finding video…",
-    opening: "Opening…", opened: "Opened in ViFree", copied: "Link copied and video opened in ViFree.",
-    clipboard: "Opened in ViFree. The clipboard was unavailable.", missing: "Open this video's own page or use Share → Copy link.",
-    retry: "Try again", failed: "Could not open ViFree. Open the app, enable Browser integration and finish any active download, then try again."
+    open: "Download by Vydrop", action: "Copy video link and open Vydrop", finding: "Finding video…",
+    opening: "Opening…", opened: "Opened in Vydrop", copied: "Link copied and video opened in Vydrop.",
+    clipboard: "Opened in Vydrop. The clipboard was unavailable.", missing: "Open this video's own page or use Share → Copy link.",
+    retry: "Try again", failed: "Could not open Vydrop. Open the app, enable Browser integration and finish any active download, then try again."
   };
   const host = document.createElement("div");
   host.id = "vifree-video-action";
@@ -24,20 +24,20 @@
     :host{color-scheme:dark;font-family:system-ui,sans-serif}
     *{box-sizing:border-box}
     .action{display:flex;align-items:center;gap:7px;min-height:34px;max-width:100%;margin-left:auto;padding:6px 10px;
-      border:1px solid #748d86;border-radius:8px;background:#252d33;color:#f0f5f3;font:600 12px/20px system-ui,sans-serif;
+      border:1px solid #94828d;border-radius:8px;background:#282b32;color:#f6f2f4;font:600 12px/20px system-ui,sans-serif;
       cursor:pointer;pointer-events:auto;white-space:nowrap;transition:background-color 140ms ease-out,border-color 140ms ease-out}
-    .action:hover{background:#203f39;border-color:#62d8bc}
+    .action:hover{background:#3e2933;border-color:#ff8393}
     :host([data-placement=side]) .action{margin-left:0}
-    .action:focus-visible{outline:2px solid #62d8bc;outline-offset:3px}
+    .action:focus-visible{outline:2px solid #ff8393;outline-offset:3px}
     .action:disabled{cursor:progress;opacity:.85}
-    .action[data-state=success]{background:#203f39;border-color:#62d8bc}
-    .action svg{width:17px;height:18px;flex:none;fill:#62d8bc;direction:ltr}
+    .action[data-state=success]{background:#3e2933;border-color:#ff8393}
+    .action svg{width:17px;height:18px;flex:none;fill:#e63d4d;direction:ltr}
     .action span{overflow:hidden;text-overflow:ellipsis}
-    .status{display:none;position:absolute;right:0;bottom:calc(100% + 6px);width:min(250px,calc(100vw - 16px));padding:8px 10px;border:1px solid #748d86;border-radius:8px;
-      background:#252d33;color:#f0f5f3;font:400 12px/18px system-ui,sans-serif;overflow-wrap:anywhere}
+    .status{display:none;position:absolute;right:0;bottom:calc(100% + 6px);width:min(250px,calc(100vw - 16px));padding:8px 10px;border:1px solid #94828d;border-radius:8px;
+      background:#282b32;color:#f6f2f4;font:400 12px/18px system-ui,sans-serif;overflow-wrap:anywhere}
     .status:not(:empty){display:block}
     .status[data-compact=true]{width:1px;height:1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%)}
-    ::selection{background:#203f39;color:#f0f5f3}
+    ::selection{background:#3e2933;color:#f6f2f4}
     @media(prefers-reduced-motion:reduce){.action{transition:none}}
     @media(forced-colors:active){.action,.status{background:Canvas;color:CanvasText;border-color:ButtonText}.action svg{fill:ButtonText}}
   `;
@@ -52,7 +52,7 @@
   icon.setAttribute("aria-hidden", "true");
   const mark = document.createElementNS("http://www.w3.org/2000/svg", "path");
   mark.setAttribute("fill-rule", "evenodd");
-  mark.setAttribute("d", "M17,4 C12,1 7,4 7,10 L7,54 C7,60 12,63 17,60 L57,37 C64,33 64,29 57,25 Z M7,46 L24,36 C27,34 30,38 27,40 L7,53 Z");
+  mark.setAttribute("d", "M29.25,5 Q29.25,3 31.25,3 H33 L34.75,4.75 V33.5 L45,23.25 Q47,21.25 49,23.25 Q51,25.25 49,27.25 L34,42.25 Q32,44.25 30,42.25 L15,27.25 Q13,25.25 15,23.25 Q17,21.25 19,23.25 L29.25,33.5 Z M9,40.25 Q11.75,40.25 11.75,43 V48 Q11.75,55.25 19,55.25 H45 Q52.25,55.25 52.25,48 V43 Q52.25,40.25 55,40.25 Q57.75,40.25 57.75,43 V48 Q57.75,60.75 45,60.75 H19 Q6.25,60.75 6.25,48 V43 Q6.25,40.25 9,40.25 Z");
   icon.append(mark);
   const label = document.createElement("span");
   label.textContent = text.open;

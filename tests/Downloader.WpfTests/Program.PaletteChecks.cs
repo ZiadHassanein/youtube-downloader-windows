@@ -42,6 +42,11 @@ internal static partial class Program
                         "Readable " + foreground + " on " + background + " in " + (dark ? "dark" : "light") + " theme");
             Check(Contrast(Role("OnAccent"), Role("Action")) >= 4.5 && Contrast(Role("Action"), Role("Page")) >= 3,
                 "The primary action and its label remain distinct and readable");
+            var action = Role("Action"); var label = Role("OnAccent");
+            var hoveredAction = Color.FromRgb((byte)(action.R * .92 + label.R * .08),
+                (byte)(action.G * .92 + label.G * .08), (byte)(action.B * .92 + label.B * .08));
+            Check(Contrast(label, hoveredAction) >= 4.5,
+                "The primary action label remains readable through its hover wash");
             foreach (string background in new[] { "Page", "Field", "Surface", "Hover" })
                 Check(Contrast(Role("Border"), Role(background)) >= 3, "Control boundaries remain visible on " + background);
             foreach (bool arabic in new[] { false, true })

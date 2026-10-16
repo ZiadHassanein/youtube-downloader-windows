@@ -24,7 +24,7 @@ internal static class PackageArtifactChecks
         {
             using var input = zip.GetEntry($"Browser/{browser}/manifest.json")?.Open() ?? throw new InvalidDataException("The browser companion is missing.");
             using var manifest = JsonDocument.Parse(input);
-            string expectedName = ReleaseChannel.IsPreview ? "ViFree Preview" : "ViFree";
+            string expectedName = ReleaseChannel.IsPreview ? "Vydrop Preview" : "Vydrop";
             if (manifest.RootElement.GetProperty("name").GetString() != expectedName || zip.GetEntry($"Browser/{browser}/connection.js") == null)
                 throw new InvalidDataException("The browser companion uses the wrong release channel.");
             if (browser == "firefox" && manifest.RootElement.GetProperty("browser_specific_settings").GetProperty("gecko").GetProperty("id").GetString() != BrowserIdentity.FirefoxId)
@@ -50,7 +50,7 @@ internal static class PackageArtifactChecks
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(input)), file.Value, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Invalid preview payload hash.");
         }
-        string executable = Path.Combine(directory, "ViFree.exe");
+        string executable = Path.Combine(directory, "Vydrop.exe");
         var info = FileVersionInfo.GetVersionInfo(executable);
         if (!ToolProbe.IsX64(executable) || info.FileVersion != version.Split('-')[0] + ".0" || !info.ProductVersion.StartsWith(version + "+", StringComparison.Ordinal))
             throw new InvalidDataException("Invalid preview executable identity.");

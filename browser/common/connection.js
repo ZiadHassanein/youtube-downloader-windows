@@ -1,7 +1,7 @@
 globalThis.ViFreeConnection = (() => {
   const api = globalThis.browser ?? chrome;
-  const preview = api.runtime.getManifest().name === "ViFree Preview";
-  const name = preview ? "ViFree Preview" : "ViFree";
+  const preview = api.runtime.getManifest().name.endsWith(" Preview");
+  const name = preview ? "Vydrop Preview" : "Vydrop";
   const host = preview ? "com.vifree.preview" : "com.vifree";
   async function sendLink(value) {
     if (typeof value !== "string" || value.length > 8192 || /[\u0000-\u001f\u007f]/u.test(value)) throw new Error("Choose a public video link.");

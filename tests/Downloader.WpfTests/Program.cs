@@ -22,7 +22,7 @@ internal static partial class Program
     public static int Main(string[] args)
     {
         var app = new Application();
-        app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/ViFree;component/Themes/Controls.xaml") });
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(root);
         Exception failure = null;
@@ -37,7 +37,7 @@ internal static partial class Program
                 var model = (MainViewModel)window.DataContext;
                 await Task.Delay(100);
                 window.UpdateLayout();
-                Check(window.Title == "ViFree" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
+                Check(window.Title == "Vydrop" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
                 Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;

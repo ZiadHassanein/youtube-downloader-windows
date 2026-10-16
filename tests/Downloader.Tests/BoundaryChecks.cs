@@ -173,7 +173,7 @@ internal static class BoundaryChecks
     {
         string stage = Path.Combine(root, "package");
         Directory.CreateDirectory(stage);
-        File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "ViFree.exe"));
+        File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "Vydrop.exe"));
         File.WriteAllText(Path.Combine(stage, "README.txt"), "new readme");
         File.WriteAllText(Path.Combine(stage, "THIRD-PARTY-NOTICES.txt"), "new notices");
         var manifest = new PackageManifest
@@ -191,7 +191,7 @@ internal static class BoundaryChecks
         Check(AppUpdates.ValidatePackage(stage, new Version(2, 0, 0)) != null, "Exact desktop package hashes, architecture and executable version validate");
         foreach (string protectedName in new[]
         {
-            "ViFree.exe",
+            "Vydrop.exe",
             "README.txt",
             "Renamed.exe"
         }
@@ -203,13 +203,13 @@ internal static class BoundaryChecks
             foreach (string name in AppUpdates.PackageFiles)
                 File.WriteAllText(Path.Combine(target, name), "old bytes");
             if (protectedName == "Renamed.exe")
-                File.Move(Path.Combine(target, "ViFree.exe"), Path.Combine(target, protectedName));
+                File.Move(Path.Combine(target, "Vydrop.exe"), Path.Combine(target, protectedName));
             string protectedFile = Path.Combine(target, protectedName);
             File.SetAttributes(protectedFile, FileAttributes.ReadOnly);
             bool rejected = false;
             try
             {
-                UpdateTransaction.Launch(stage, Path.Combine(target, protectedName == "Renamed.exe" ? protectedName : "ViFree.exe"), Environment.ProcessId);
+                UpdateTransaction.Launch(stage, Path.Combine(target, protectedName == "Renamed.exe" ? protectedName : "Vydrop.exe"), Environment.ProcessId);
             }
             catch (UnauthorizedAccessException)
             {
@@ -236,12 +236,12 @@ internal static class BoundaryChecks
         {
             string target = Path.Combine(root, "target-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(target);
-            File.WriteAllText(Path.Combine(target, "ViFree.exe"), "old exe");
+            File.WriteAllText(Path.Combine(target, "Vydrop.exe"), "old exe");
             File.WriteAllText(Path.Combine(target, "README.txt"), "old readme");
             var journal = new UpdateJournal
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Target = Path.Combine(target, "ViFree.exe"),
+                Target = Path.Combine(target, "Vydrop.exe"),
                 Stage = stage,
                 Backup = Path.Combine(root, "backup-" + Guid.NewGuid().ToString("N")),
                 Version = "2.0.0",
@@ -273,7 +273,7 @@ internal static class BoundaryChecks
         Directory.CreateDirectory(committed);
         var success = new UpdateJournal
         {
-            Target = Path.Combine(committed, "ViFree.exe"),
+            Target = Path.Combine(committed, "Vydrop.exe"),
             Stage = stage,
             Backup = Path.Combine(root, "backup-success"),
             Version = "2.0.0"
@@ -301,7 +301,7 @@ internal static class BoundaryChecks
 
         Check(oldRelease, "Legacy release names cannot be installed as native desktop payloads");
         Check(AppUpdates.Repository == "https://github.com/ZiadHassanein/ViFree",
-            "Updates use the main ViFree repository for releases and source");
+            "Updates use the main Vydrop repository for releases and source");
         string releaseJson = System.Text.Json.JsonSerializer.Serialize(new
         {
             draft = false,
@@ -309,20 +309,20 @@ internal static class BoundaryChecks
             tag_name = "v3.0.1",
             assets = new[]
             {
-                new { name = "ViFree-v3.0.1-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v3.0.1/ViFree-v3.0.1-win-x64.zip" },
+                new { name = "Vydrop-v3.0.1-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v3.0.1/Vydrop-v3.0.1-win-x64.zip" },
                 new { name = "checksums-desktop.json", browser_download_url = AppUpdates.Repository + "/releases/download/v3.0.1/checksums-desktop.json" }
             }
         });
         var release = AppUpdates.Parse(releaseJson, new Version(3, 0, 0));
-        Check(release.Version == new Version(3, 0, 1) && release.PackageName == "ViFree-v3.0.1-win-x64.zip",
-            "ViFree discovers a newer package with its required checksum asset");
+        Check(release.Version == new Version(3, 0, 1) && release.PackageName == "Vydrop-v3.0.1-win-x64.zip",
+            "Vydrop discovers a newer package with its required checksum asset");
         Check(AppUpdates.Parse(releaseJson, new Version(3, 0, 1)) == null,
-            "An installed ViFree release is recognized as current");
+            "An installed Vydrop release is recognized as current");
         string digest = new('a', 64);
         string zipOnlyJson = System.Text.Json.JsonSerializer.Serialize(new
         {
             draft = false, prerelease = false, tag_name = "v4.0.0",
-            assets = new[] { new { name = "ViFree-v4.0.0-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v4.0.0/ViFree-v4.0.0-win-x64.zip", digest = "sha256:" + digest } }
+            assets = new[] { new { name = "Vydrop-v4.0.0-win-x64.zip", browser_download_url = AppUpdates.Repository + "/releases/download/v4.0.0/Vydrop-v4.0.0-win-x64.zip", digest = "sha256:" + digest } }
         });
         var zipOnly = AppUpdates.Parse(zipOnlyJson, new Version(3, 0, 2));
         Check(zipOnly.PackageHash == digest && zipOnly.ChecksumUrl == null, "A single-ZIP release uses GitHub's published SHA256 without a separate checksum asset");
@@ -337,13 +337,13 @@ internal static class BoundaryChecks
         {
             releaseJson.Replace(AppUpdates.Repository, "https://github.com/other/ViFree"),
             releaseJson.Replace(AppUpdates.Repository, "https://github.com/ZiadHassanein/ViFree-Downloads"),
-            releaseJson.Replace("ViFree-v3.0.1-win-x64.zip", "YouTubeDownloader-v3.0.1-win-x64.zip")
+            releaseJson.Replace("Vydrop-v3.0.1-win-x64.zip", "YouTubeDownloader-v3.0.1-win-x64.zip")
         })
         {
             bool rejected = false;
             try { AppUpdates.Parse(invalid, new Version(3, 0, 0)); }
             catch (InvalidDataException) { rejected = true; }
-            Check(rejected, "A foreign repository or obsolete package name cannot supply a ViFree update");
+            Check(rejected, "A foreign repository or obsolete package name cannot supply a Vydrop update");
         }
         NativeStartupChecks(root, fixtureDirectory);
     }
@@ -368,13 +368,13 @@ internal static class BoundaryChecks
                 Directory.CreateDirectory(target);
                 foreach (string file in Directory.GetFiles(fixtureDirectory))
                     File.Copy(file, Path.Combine(target, Path.GetFileName(file)));
-                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(target, "ViFree.exe"));
+                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(target, "Vydrop.exe"));
                 File.WriteAllText(Path.Combine(target, "README.txt"), "old readme");
                 if (!acknowledge)
                     File.WriteAllText(Path.Combine(target, "no-ack.flag"), "fixture");
                 string stage = Path.Combine(jobs, Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(stage);
-                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "ViFree.exe"));
+                File.Copy(Path.Combine(fixtureDirectory, "FakeDownloader.exe"), Path.Combine(stage, "Vydrop.exe"));
                 File.WriteAllText(Path.Combine(stage, "README.txt"), "new readme");
                 File.WriteAllText(Path.Combine(stage, "THIRD-PARTY-NOTICES.txt"), "new notices");
                 var manifest = new PackageManifest
@@ -392,7 +392,7 @@ internal static class BoundaryChecks
                 var journal = new UpdateJournal
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Target = Path.Combine(target, "ViFree.exe"),
+                    Target = Path.Combine(target, "Vydrop.exe"),
                     Stage = stage,
                     Backup = Path.Combine(stage, "previous"),
                     Version = "2.0.0",

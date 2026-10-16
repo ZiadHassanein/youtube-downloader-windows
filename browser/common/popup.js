@@ -9,7 +9,7 @@ button.addEventListener("click", async () => {
     const url = await globalThis.ViFreeVideoDetection.resolve(tab);
     status.textContent = "Opening…";
     await sendLink(url);
-    status.textContent = "Opened in ViFree. Review the link before downloading.";
+    status.textContent = "Opened in Vydrop. Review the link before downloading.";
   } catch (error) {
     status.textContent = error.message || `Open ${name} and enable Browser integration, then try again.`;
   } finally { button.disabled = false; }

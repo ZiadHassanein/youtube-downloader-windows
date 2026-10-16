@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const crypto = require('node:crypto');
 const root = path.join(__dirname, '..');
 
-for (const channel of ['ViFree', 'ViFree Preview']) test(`${channel} companion sends only explicit public links to its own channel`, async () => {
+for (const channel of ['Vydrop', 'Vydrop Preview', 'ViFree', 'ViFree Preview']) test(`${channel} companion sends only explicit public links to its own channel`, async () => {
   const sent = [], menus = [], listeners = {};
   const api = {
     runtime: { id: 'test-extension', onMessage: { addListener: fn => { listeners.message = fn; } }, getManifest: () => ({ name: channel }), onInstalled: { addListener: fn => { listeners.install = fn; } }, sendNativeMessage: async (...args) => { sent.push(args); return { ok: true }; } },
@@ -22,7 +22,7 @@ for (const channel of ['ViFree', 'ViFree Preview']) test(`${channel} companion s
   assert.equal(menus.length, 2);
   await listeners.click({ linkUrl: 'https://vimeo.com/76979871' }, { id: 1 });
   assert.equal(sent.length, 1);
-  assert.equal(sent[0][0], channel === 'ViFree Preview' ? 'com.vifree.preview' : 'com.vifree');
+  assert.equal(sent[0][0], channel.endsWith(' Preview') ? 'com.vifree.preview' : 'com.vifree');
   assert.equal(sent[0][1].type, 'open-link');
   assert.equal(sent[0][1].url, 'https://vimeo.com/76979871');
   await listeners.click({ linkUrl: 'file:///C:/private.txt' }, { id: 1 });
@@ -49,7 +49,7 @@ test('popup waits for user action and reports failure without opening hidden pag
   let click, calls = 0;
   const button = { disabled: false, addEventListener: (_, fn) => { click = fn; } };
   const status = { textContent: '' };
-  const api = { tabs: { query: async () => [{ url: 'https://example.com/video' }] }, runtime: { getManifest: () => ({ name: 'ViFree' }), sendNativeMessage: async (host, message) => { calls++; assert.equal(host, 'com.vifree'); assert.equal(message.type, 'open-link'); return { ok: false }; } } };
+  const api = { tabs: { query: async () => [{ url: 'https://example.com/video' }] }, runtime: { getManifest: () => ({ name: 'Vydrop' }), sendNativeMessage: async (host, message) => { calls++; assert.equal(host, 'com.vifree'); assert.equal(message.type, 'open-link'); return { ok: false }; } } };
   const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/connection.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'browser/common/video-detection.js'), 'utf8'), context);
@@ -77,17 +77,17 @@ for (const detected of [true, false]) test(`popup ${detected ? 'sends the detect
   const api = {
     tabs: { query: async () => [{ id: 42, url: 'https://www.tiktok.com/en/' }] },
     scripting: { executeScript: async () => { inspections++; return [{ frameId: 0, result: detected ? { url, reason: 'player' } : { url: '', reason: 'no-video' } }]; } },
-    runtime: { getManifest: () => ({ name: 'ViFree Preview' }), sendNativeMessage: async (host, request) => { calls++; assert.equal(host, 'com.vifree.preview'); assert.equal(request.url, url); return { ok: true }; } }
+    runtime: { getManifest: () => ({ name: 'Vydrop Preview' }), sendNativeMessage: async (host, request) => { calls++; assert.equal(host, 'com.vifree.preview'); assert.equal(request.url, url); return { ok: true }; } }
   };
   const context = vm.createContext({ browser: api, URL, document: { querySelector: name => name === '#send' ? button : status } });
   for (const name of ['connection.js', 'video-detection.js', 'popup.js']) vm.runInContext(fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'), context);
   assert.equal(inspections, 0); assert.equal(calls, 0);
   await click(); assert.equal(inspections, 1); assert.equal(calls, detected ? 1 : 0); assert.equal(button.disabled, false);
-  assert.match(status.textContent, detected ? /Opened in ViFree/u : /Share → Copy link/u);
+  assert.match(status.textContent, detected ? /Opened in Vydrop/u : /Share → Copy link/u);
 });
 
 test('missing native host has actionable guidance instead of a browser API error', async () => {
-  const context = vm.createContext({ URL, browser: { runtime: { getManifest: () => ({ name: 'ViFree' }), sendNativeMessage: async () => { throw new Error('Specified native messaging host not found'); } } } });
+  const context = vm.createContext({ URL, browser: { runtime: { getManifest: () => ({ name: 'Vydrop' }), sendNativeMessage: async () => { throw new Error('Specified native messaging host not found'); } } } });
   vm.runInContext(fs.readFileSync(path.join(root, 'Browser/common/connection.js'), 'utf8'), context);
   await assert.rejects(context.ViFreeConnection.sendLink('https://example.com/video'), /enable Browser integration/u);
 });
@@ -95,7 +95,7 @@ test('missing native host has actionable guidance instead of a browser API error
 if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and enable on-video actions across web frames', () => {
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
-    assert.equal(manifest.version, '1.2.1'); assert.equal(manifest.name, 'ViFree Preview');
+    assert.equal(manifest.version, '1.3.0'); assert.equal(manifest.name, 'Vydrop Preview');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);

@@ -28,7 +28,7 @@ internal static class UpdateTransaction
 
     internal static void Launch(string stage, string target, int parentPid)
     {
-        var manifest = AppUpdates.ValidatePackage(stage, Version.Parse(FileVersionInfo.GetVersionInfo(Path.Combine(stage, "ViFree.exe")).FileVersion));
+        var manifest = AppUpdates.ValidatePackage(stage, Version.Parse(FileVersionInfo.GetVersionInfo(Path.Combine(stage, "Vydrop.exe")).FileVersion));
         PreflightTarget(target);
         using var parent = Process.GetProcessById(parentPid);
         var journal = new UpdateJournal
@@ -57,7 +57,7 @@ internal static class UpdateTransaction
         {
             foreach (string name in AppUpdates.PackageFiles)
             {
-                string file = name == "ViFree.exe" ? Path.GetFullPath(target) : Path.Combine(directory, name);
+                string file = name == "Vydrop.exe" ? Path.GetFullPath(target) : Path.Combine(directory, name);
                 if (!File.Exists(file))
                     continue;
                 var attributes = File.GetAttributes(file);
@@ -310,7 +310,7 @@ internal static class UpdateTransaction
         }
     }
 
-    private static string Target(UpdateJournal journal, string name) => name == "ViFree.exe" ? journal.Target : Path.Combine(Path.GetDirectoryName(journal.Target), name);
+    private static string Target(UpdateJournal journal, string name) => name == "Vydrop.exe" ? journal.Target : Path.Combine(Path.GetDirectoryName(journal.Target), name);
     private static void Rollback(string path, UpdateJournal journal)
     {
         // Validate every backup before restoring any target.

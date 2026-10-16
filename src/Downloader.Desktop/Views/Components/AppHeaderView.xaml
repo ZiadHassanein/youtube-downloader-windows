@@ -6,17 +6,17 @@
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" Style="{StaticResource ToolbarButton}" HorizontalAlignment="Left" Padding="0" AutomationProperties.Name="{Binding NewDownloadLabel}">
     <StackPanel Orientation="Horizontal">
-     <Grid x:Name="BrandArtwork" Width="38" Height="42" Margin="0,0,16,0" RenderTransformOrigin="0.5,0.5">
+     <Grid x:Name="BrandArtwork" Width="38" Height="42" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5">
       <Grid.RenderTransform><ScaleTransform x:Name="LogoScale"/></Grid.RenderTransform>
-      <Path x:Name="BrandMark" Data="{StaticResource PlayMark}" Fill="{StaticResource BrandFill}" Width="38" Height="42" Stretch="Uniform" AutomationProperties.Name="ViFree logo"/>
-      <Path x:Name="LogoLight" Data="{StaticResource PlayMark}" Width="38" Height="42" Stretch="Uniform" IsHitTestVisible="False" Opacity="0">
+      <Path x:Name="BrandMark" Data="{StaticResource BrandMarkGeometry}" Fill="{StaticResource BrandFill}" Width="38" Height="42" Stretch="Uniform" AutomationProperties.Name="Vydrop logo"/>
+      <Path x:Name="LogoLight" Data="{StaticResource BrandMarkGeometry}" Width="38" Height="42" Stretch="Uniform" IsHitTestVisible="False" Opacity="0">
        <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.4">
         <LinearGradientBrush.RelativeTransform><TranslateTransform x:Name="LightOffset" X="1.2"/></LinearGradientBrush.RelativeTransform>
         <GradientStop Color="#00FFFFFF" Offset="0.2"/><GradientStop Color="#CFFFFFFF" Offset="0.5"/><GradientStop Color="#00FFFFFF" Offset="0.8"/>
        </LinearGradientBrush></Path.Fill>
       </Path>
      </Grid>
-     <TextBlock x:Name="BrandWordmark" Text="ViFree" FontFamily="{StaticResource LatinFont}" FontSize="28" LineHeight="36" FontWeight="Bold" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" AutomationProperties.Name="ViFree"/>
+     <Path x:Name="BrandWordmark" Data="{StaticResource BrandWordmarkGeometry}" Width="106" Height="32" Stretch="Uniform" Fill="{DynamicResource Ink}" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop"/>
     </StackPanel>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">

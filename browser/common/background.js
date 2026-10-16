@@ -9,7 +9,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
     allowed = sender.id === api.runtime.id && Number.isInteger(sender.tab?.id) &&
       Number.isInteger(sender.frameId) && sender.frameId >= 0 && /^https?:$/u.test(page.protocol) && !page.username && !page.password;
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
-  if (!allowed) { respond({ ok: false, message: "This video page cannot open ViFree." }); return false; }
+  if (!allowed) { respond({ ok: false, message: "This video page cannot open Vydrop." }); return false; }
   sendLink(message.url).then(() => respond({ ok: true }), error => respond({ ok: false, message: error.message }));
   return true;
 });
@@ -23,7 +23,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
     await sendLink(await globalThis.ViFreeVideoDetection.resolve(tab, info));
     await api.action.setBadgeText({ text: "OK", tabId: tab?.id });
-    await api.action.setBadgeBackgroundColor({ color: "#275BD8", tabId: tab?.id });
+    await api.action.setBadgeBackgroundColor({ color: "#CB2D42", tabId: tab?.id });
     await api.action.setTitle({ title: `Open video in ${name}`, tabId: tab?.id });
   } catch (error) {
     await api.action.setBadgeText({ text: "!", tabId: tab?.id });

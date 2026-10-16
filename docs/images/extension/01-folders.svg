@@ -1,32 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
-  <title id="title">Keep the extracted ViFree app and Browser folder together</title>
+  <title id="title">Keep the extracted Vydrop app and Browser folder together</title>
   <desc id="desc">Chrome and Edge select the chromium folder. Firefox selects manifest.json inside the firefox folder. This is a folder illustration, not a Windows screenshot.</desc>
   <rect width="1200" height="650" rx="20" fill="#f4f8f7"/>
   <g font-family="Segoe UI, Arial, sans-serif">
     <rect width="1200" height="110" rx="20" fill="#171e22"/><rect y="85" width="1200" height="25" fill="#171e22"/>
-    <circle cx="60" cy="55" r="24" fill="#54cdb0"/><text x="60" y="64" text-anchor="middle" font-size="26" font-weight="700" fill="#102b25">1</text>
-    <text x="105" y="51" font-size="31" font-weight="600" fill="#edf5f2">Extract once. Keep the folder.</text>
-    <text x="105" y="82" font-size="18" fill="#b5c8c1">FOLDER ILLUSTRATION · ViFree v4.1.0</text>
+    <circle cx="60" cy="55" r="24" fill="#E63D4D"/><text x="60" y="64" text-anchor="middle" font-size="26" font-weight="700" fill="#FFFFFF">1</text>
+    <text x="105" y="51" font-size="31" font-weight="600" fill="#F6F2F4">Extract once. Keep the folder.</text>
+    <text x="105" y="82" font-size="18" fill="#D4BEC5">FOLDER ILLUSTRATION · Vydrop v4.2.0</text>
     <rect x="38" y="143" width="580" height="465" rx="14" fill="#fff" stroke="#c5d5d0"/>
-    <text x="68" y="188" font-size="23" font-weight="600" fill="#193c33">Documents / ViFree</text>
+    <text x="68" y="188" font-size="23" font-weight="600" fill="#272329">Documents / Vydrop</text>
     <path d="M88 215V542 M88 250H119 M88 302H119 M137 333V493 M137 375H168 M137 432H168 M184 449V495H218" fill="none" stroke="#b9cac4" stroke-width="3"/>
-    <text x="132" y="258" font-size="23" fill="#233431">ViFree.exe</text>
+    <text x="132" y="258" font-size="23" fill="#233431">Vydrop.exe</text>
     <text x="132" y="310" font-size="23" font-weight="600" fill="#233431">Browser</text>
-    <rect x="167" y="346" width="408" height="48" rx="8" fill="#dff4ed" stroke="#0b7b67" stroke-width="2"/>
-    <text x="185" y="378" font-size="23" font-weight="600" fill="#086a58">chromium</text>
-    <text x="420" y="377" font-size="17" fill="#086a58">Chrome / Edge</text>
+    <rect x="167" y="346" width="408" height="48" rx="8" fill="#F8E3E9" stroke="#A91F33" stroke-width="2"/>
+    <text x="185" y="378" font-size="23" font-weight="600" fill="#A91F33">chromium</text>
+    <text x="420" y="377" font-size="17" fill="#A91F33">Chrome / Edge</text>
     <text x="185" y="435" font-size="23" fill="#233431">firefox</text>
     <rect x="216" y="470" width="359" height="48" rx="8" fill="#ecf2f7" stroke="#7e99ab"/>
     <text x="233" y="502" font-size="23" fill="#294b60">manifest.json</text>
     <text x="68" y="576" font-size="19" fill="#62756e">Example location · choose your own permanent folder</text>
-    <text x="672" y="202" font-size="24" font-weight="600" fill="#193c33">Chrome &amp; Microsoft Edge</text>
+    <text x="672" y="202" font-size="24" font-weight="600" fill="#272329">Chrome &amp; Microsoft Edge</text>
     <text x="672" y="241" font-size="21" fill="#374e46">Load the chromium folder.</text>
     <text x="672" y="277" font-size="20" fill="#62756e">Do not select the ZIP or outer Browser folder.</text>
-    <text x="672" y="374" font-size="24" font-weight="600" fill="#193c33">Firefox</text>
+    <text x="672" y="374" font-size="24" font-weight="600" fill="#272329">Firefox</text>
     <text x="672" y="414" font-size="21" fill="#374e46">Select firefox / manifest.json.</text>
     <text x="672" y="450" font-size="20" fill="#62756e">This browser uses a temporary add-on.</text>
-    <rect x="667" y="514" width="491" height="94" rx="12" fill="#e1eeea"/>
-    <text x="688" y="550" font-size="21" font-weight="600" fill="#193c33">Keep these files after setup.</text>
+    <rect x="667" y="514" width="491" height="94" rx="12" fill="#F1EDF0"/>
+    <text x="688" y="550" font-size="21" font-weight="600" fill="#272329">Keep these files after setup.</text>
     <text x="688" y="583" font-size="19" fill="#445f55">Moving them requires reconnecting the app.</text>
   </g>
 </svg>

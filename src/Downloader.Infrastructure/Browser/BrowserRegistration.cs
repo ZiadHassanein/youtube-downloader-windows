@@ -11,10 +11,10 @@ public static class BrowserRegistration
 
     public static void Enable(string executable)
     {
-        if (!Path.IsPathFullyQualified(executable) || !File.Exists(executable) || Path.GetExtension(executable) != ".exe") throw new IOException("Keep ViFree.exe in a permanent folder before connecting your browser.");
+        if (!Path.IsPathFullyQualified(executable) || !File.Exists(executable) || Path.GetExtension(executable) != ".exe") throw new IOException("Keep Vydrop.exe in a permanent folder before connecting your browser.");
         Directory.CreateDirectory(DirectoryPath);
-        var chromium = new { name = HostName, description = "Send a media link to ViFree", path = executable, type = "stdio", allowed_origins = new[] { "chrome-extension://" + ChromiumId + "/" } };
-        var firefox = new { name = HostName, description = "Send a media link to ViFree", path = executable, type = "stdio", allowed_extensions = new[] { FirefoxId } };
+        var chromium = new { name = HostName, description = "Send a media link to Vydrop", path = executable, type = "stdio", allowed_origins = new[] { "chrome-extension://" + ChromiumId + "/" } };
+        var firefox = new { name = HostName, description = "Send a media link to Vydrop", path = executable, type = "stdio", allowed_extensions = new[] { FirefoxId } };
         string chromePath = Path.Combine(DirectoryPath, HostName + ".chromium.json"), firefoxPath = Path.Combine(DirectoryPath, HostName + ".firefox.json");
         File.WriteAllText(chromePath, JsonSerializer.Serialize(chromium));
         File.WriteAllText(firefoxPath, JsonSerializer.Serialize(firefox));

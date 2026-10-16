@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 namespace YouTubeDownloader;
 public static class AppPaths
 {
+    // These legacy directories retain existing preferences, history and verified media tools.
     public static string UserData => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ReleaseChannel.IsPreview ? "ViFreePreview" : "YouTubeDownloader");
 
     public static string Downloads

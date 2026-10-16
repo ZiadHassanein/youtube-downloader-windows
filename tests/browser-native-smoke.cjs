@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const path = require('node:path');
 const [exe, value] = process.argv.slice(2);
-if (!exe || !value) throw new Error('Usage: node browser-native-smoke.cjs <ViFree.exe> <public-video-url>');
+if (!exe || !value) throw new Error('Usage: node browser-native-smoke.cjs <Vydrop.exe> <public-video-url>');
 const url = new URL(value);
 if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.port) throw new Error('A public video URL is required.');
 const key = fs.readFileSync(path.join(__dirname, '../browser/public-key.txt'), 'utf8').trim();

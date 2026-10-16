@@ -1,12 +1,12 @@
-param([string]$Version = '4.1.0')
+param([string]$Version = '4.2.0')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$source = Join-Path $projectRoot "dist/ViFree-$Version-win-x64/ViFree.exe"
+$source = Join-Path $projectRoot "dist/Vydrop-$Version-win-x64/Vydrop.exe"
 $root = Join-Path $projectRoot ('build/exe-only-' + [Guid]::NewGuid().ToString('N'))
 $appFolder = Join-Path $root 'App'
 $stateFolder = Join-Path $root 'State'
 New-Item -ItemType Directory -Path $appFolder, (Join-Path $root 'empty-runtime') -Force | Out-Null
-$executable = Join-Path $appFolder 'ViFree.exe'
+$executable = Join-Path $appFolder 'Vydrop.exe'
 Copy-Item -LiteralPath $source -Destination $executable
 $start = [Diagnostics.ProcessStartInfo]::new($executable)
 $start.UseShellExecute = $false

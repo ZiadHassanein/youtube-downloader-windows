@@ -38,7 +38,7 @@ public sealed partial class MainViewModel
         {
             var result = await downloads.RefreshToolsAsync(progress, token);
             ShowNotice(result.Updated ? "Downloader updated" : "Downloader is up to date",
-                result.Updated ? "The update is ready. Try the video link that was not working again." : "No new downloader update is available. You can use ViFree as usual.", false, "tools");
+                result.Updated ? "The update is ready. Try the video link that was not working again." : "No new downloader update is available. You can use Vydrop as usual.", false, "tools");
         }
         catch (OperationCanceledException)
         {

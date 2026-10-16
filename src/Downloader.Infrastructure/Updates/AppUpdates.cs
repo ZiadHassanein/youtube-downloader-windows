@@ -24,7 +24,7 @@ public static class AppUpdates
     private const string Api = "https://api.github.com/repos/ZiadHassanein/ViFree/releases/latest";
     internal static readonly string[] PackageFiles =
     {
-        "ViFree.exe",
+        "Vydrop.exe",
         "README.txt",
         "THIRD-PARTY-NOTICES.txt",
         "package.json"
@@ -50,7 +50,7 @@ public static class AppUpdates
             return null;
         if (!Version.TryParse(root.GetProperty("tag_name").GetString()?.TrimStart('v', 'V'), out var version) || version.Build < 0 || Compare(version) <= Compare(current))
             return null;
-        string name = "ViFree-v" + version.ToString(3) + "-win-x64.zip", package = null, checksum = null, packageHash = null;
+        string name = "Vydrop-v" + version.ToString(3) + "-win-x64.zip", package = null, checksum = null, packageHash = null;
         foreach (var asset in root.GetProperty("assets").EnumerateArray())
         {
             string url = asset.GetProperty("browser_download_url").GetString(), file = asset.GetProperty("name").GetString();
@@ -135,7 +135,7 @@ public static class AppUpdates
                 throw new InvalidDataException("The update files failed their integrity check.");
         }
 
-        string executable = Path.Combine(directory, "ViFree.exe");
+        string executable = Path.Combine(directory, "Vydrop.exe");
         if (!ToolProbe.IsX64(executable) || !Version.TryParse(FileVersionInfo.GetVersionInfo(executable).FileVersion, out var actual) || Compare(actual) != Compare(version))
             throw new InvalidDataException("The update executable version is invalid.");
         return manifest;

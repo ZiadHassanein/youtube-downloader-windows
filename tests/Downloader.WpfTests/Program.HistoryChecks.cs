@@ -11,7 +11,7 @@ internal static partial class Program
     {
         var actions = new DesktopActions(owner);
         string longTitle = string.Concat(Enumerable.Repeat("Local UI fixture — عنوان عربي طويل — ", 3));
-        string fixture = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ViFree-history-" + Guid.NewGuid().ToString("N"));
+        string fixture = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Vydrop-history-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(fixture);
         string[] files = Enumerable.Range(1, 7).Select(index => System.IO.Path.Combine(fixture, $"{index} — {longTitle}.mp3")).ToArray();
         // Synthetic bytes exercise file presence/size only; never launch them as real media.

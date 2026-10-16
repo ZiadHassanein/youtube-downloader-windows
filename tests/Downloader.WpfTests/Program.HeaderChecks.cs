@@ -38,8 +38,8 @@ internal static partial class Program
                     Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&
                         Bounds(settings).Top > Bounds(header).Bottom,
                         "Header remains unclipped with fixed-left branding, right actions and reachable footer Settings");
-                    Check(Equals(((TextBlock)brand).Foreground, Application.Current.Resources["Ink"]) && ((TextBlock)brand).FontWeight == FontWeights.Bold,
-                        "The wordmark keeps the reference's strong readable treatment across themes");
+                    Check(brand is System.Windows.Shapes.Path lettering && Equals(lettering.Fill, Application.Current.Resources["Ink"]) && lettering.Data.Bounds.Width > 100 && lettering.FlowDirection == FlowDirection.LeftToRight,
+                        "The vector wordmark keeps its complete lettering, themed ink and fixed direction across themes");
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
                     language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -157,17 +157,19 @@ internal static partial class Program
         }));
         ((Button)WpfTree.Find(window, "RecentDownloadsButton")).Command.Execute(null);
         if (dialogFailure != null) throw dialogFailure;
-        using var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/ViFree;component/Assets/app.ico")).Stream;
+        using var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/Vydrop;component/Assets/app.ico")).Stream;
         var frames = new IconBitmapDecoder(iconStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames;
         Check(frames.Select(frame => frame.PixelWidth).SequenceEqual(new[] { 16, 24, 32, 48, 64, 128, 256 }),
             "The app icon contains seven native sizes instead of a stretched small bitmap");
-        using var logoStream = Application.GetResourceStream(new Uri("pack://application:,,,/ViFree;component/Assets/header-logo.png")).Stream;
+        using var logoStream = Application.GetResourceStream(new Uri("pack://application:,,,/Vydrop;component/Assets/header-logo.png")).Stream;
         var logo = new FormatConvertedBitmap(BitmapFrame.Create(logoStream), PixelFormats.Bgra32, null, 0);
         byte[] pixels = new byte[logo.PixelWidth * logo.PixelHeight * 4];
         logo.CopyPixels(pixels, logo.PixelWidth * 4, 0);
-        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(360 * 512 + 48) * 4 + 3] == 0 &&
-            pixels[(350 * 512 + 120) * 4 + 3] == 0 && pixels[(250 * 512 + 300) * 4 + 3] == 255,
-            "The high-resolution logo preserves clean outside edges and its transparent diagonal notch");
+        int arrowPixel = (160 * 512 + 256) * 4;
+        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(384 * 512 + 256) * 4 + 3] == 0 &&
+            pixels[(464 * 512 + 256) * 4 + 3] == 255 && pixels[arrowPixel + 3] == 255 &&
+            pixels[arrowPixel] == 0x4D && pixels[arrowPixel + 1] == 0x3D && pixels[arrowPixel + 2] == 0xE6,
+            "The high-resolution red download logo retains transparent edges and the clear arrow-to-tray gap");
         model.Audio = false;
         model.Url = "";
         await Task.Delay(200);

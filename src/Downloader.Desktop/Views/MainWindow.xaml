@@ -1,6 +1,6 @@
 <Window x:Class="YouTubeDownloader.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YouTubeDownloader"
- Title="ViFree" Icon="pack://application:,,,/ViFree;component/Assets/app.ico"
+ Title="Vydrop" Icon="pack://application:,,,/Vydrop;component/Assets/app.ico"
  Width="740" Height="800" MinWidth="660" MinHeight="500" WindowStartupLocation="CenterScreen"
  Background="{DynamicResource Page}" Foreground="{DynamicResource Ink}" FontFamily="{StaticResource LatinFont}" FontSize="14"
  UseLayoutRounding="True" SnapsToDevicePixels="True" FlowDirection="LeftToRight"

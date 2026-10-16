@@ -22,7 +22,7 @@ public sealed class VerifiedDownloads : IDisposable
         {
             Timeout = Timeout.InfiniteTimeSpan
         };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("ViFree/3.0");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Vydrop/3.0");
     }
 
     internal static bool SafeRedirect(Uri uri) => uri.Scheme == "https" && uri.IsDefaultPort && string.IsNullOrEmpty(uri.UserInfo) && AssetHosts.Contains(uri.IdnHost, StringComparer.OrdinalIgnoreCase);
