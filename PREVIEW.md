@@ -2,11 +2,13 @@
 
 ## Stable promotion
 
-Preview 30 is the accepted baseline for stable **v4.1.0**. Source, releases, Windows downloads, support and future app-update checks now use [ZiadHassanein/ViFree](https://github.com/ZiadHassanein/ViFree). The promotion changes version/channel identity and the release destination, preserving the accepted interface and download behavior. Older versions that check the separate downloads repository require one manual ZIP upgrade; preview preferences remain separate from stable preferences.
+Preview 30 was promoted to stable **v4.1.0** on 16 October 2026. Source, [releases and Windows downloads](https://github.com/ZiadHassanein/ViFree/releases/tag/v4.1.0), support and future app-update checks use [ZiadHassanein/ViFree](https://github.com/ZiadHassanein/ViFree). The promotion changes version/channel identity and the release destination, preserving the accepted interface and download behavior. Older versions that check the separate downloads repository require one manual ZIP upgrade; preview preferences remain separate from stable preferences.
+
+The [tagged release workflow](https://github.com/ZiadHassanein/ViFree/actions/runs/38933637137) passed full regression, package, bundled-runtime startup and native-host checks before publishing. The public 61,902,718-byte ZIP was independently downloaded and passed package validation; SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`. Its source tag points to `8f3a272849142bbb4554c147ef626c37feccb48f`. Clean Windows VM compatibility remains unverified.
 
 ## Preview acceptance and validation history
 
-Preview 30 was accepted for merge into main on 16 October 2026. This acceptance includes browser companion 1.2.1, the direct-media metadata correction and the Settings correction. The public stable release remains 4.0.0; this source merge does not publish a release.
+Preview 30 was accepted for merge into main on 16 October 2026. This acceptance included browser companion 1.2.1, the direct-media metadata correction and the Settings correction. At that acceptance, the public stable release was 4.0.0 and the source merge did not publish a release.
 
 - The playing-video tab reads **Download by ViFree** and stays outside the picture, above its physical top-right corner or in clear space immediately to the right. Its explicit click copies the selected video's resolved public link and opens ViFree. Website access does not guarantee every player or protected video is supported.
 - Incomplete Generic direct-file metadata is enriched by a bounded FFprobe check of the same resource. Quality choices use measured codecs, dimensions and source audio bitrate. The W3Schools sample passed inspection, an actual 788,493-byte download and saved-file validation at 320 × 176 with H.264/AAC.
