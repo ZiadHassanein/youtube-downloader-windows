@@ -255,7 +255,7 @@ The header's fixed-left logo is an actual new-download button with an accessible
 
 Use the same symbol and custom vector wordmark as a unified lockup in desktop and companion. BrandFill paints the mark and custom V; theme Ink paints the remaining letters. Asset regeneration must read the canonical geometry; do not hand-edit PNG/ICO exports into a separate identity.
 
-**The Stable Focus Rule.** The dedicated BrandButtonStyle has a fixed 42-DIP height and four-DIP horizontal padding. Its two-DIP Accent focus border is an overlay inside those fixed bounds, never part of measurement. Clicking, pressing or focusing the brand must not alter header height or move the content below it. Preserve the tonal hover, Selected press, disabled opacity and finite symbol feedback within that stable frame.
+**The Stable Focus Rule.** The dedicated BrandButtonStyle has a fixed 42-DIP height and four-DIP horizontal padding. Its two-DIP Accent focus border is an overlay inside those fixed bounds, never part of measurement. Clicking, pressing or focusing the brand must not alter header height or move the content below it. Keep its background transparent in every pointer state, preserve disabled opacity and use the finite whole-wordmark shine for hover feedback.
 
 ## Do's and Don'ts
 
@@ -280,3 +280,5 @@ Source authority: `src/Downloader.Desktop/Themes/ThemeResources.cs`, `Controls.x
 
 
 Contact menu refinement authority: The footer contact popup uses a 208-DIP Surface/Divider frame with four-DIP padding and three 40-DIP Field rows separated by four DIP. Each row has a seven-DIP radius, a leading red line icon and a clear text label. GitHub uses a repository-branch icon, LinkedIn a profile monogram and email an envelope. Icons retain physical LTR orientation in Arabic; row order and label alignment follow the active language. Hover uses Hover, keyboard focus is a painted two-DIP Accent ring, and the Contact trigger uses Selected while its menu is open. Preserve the three existing commands, above-footer placement and native dismissal/focus behavior.
+
+Header interaction refinement authority: Brand hover keeps the header transparent and plays one 600-ms shine across the full V, arrow and lettering. The effect is clipped to the glyphs, cancels on pointer exit or motion-preference changes and does not loop. Keep the native click action and keyboard focus overlay. ThemeButtonStyle is a fixed 42-by-42-DIP target with its 22-DIP icon centered; its two-DIP focus ring is paint over the fixed face, never measured border thickness. Focusing or switching themes must not move the header or content below it.

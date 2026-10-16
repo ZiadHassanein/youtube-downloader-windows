@@ -27,7 +27,7 @@ The new executable is `Vydrop.exe`. Stable preferences, history and media-tool s
 
 Screenshots and logo rasters carry embedded origin metadata; [capture notes](images/capture-notes.json) distinguish current Vydrop renders, historical ViFree 4.1.0 native screenshots and labeled setup illustrations. No pointer is shown in the published image assets.
 
-Local app ZIP SHA-256: `B50149521A716743765339B541493DD5C7CF1F84E6152726DC07A2DE45C35FEA`.
+Local app ZIP SHA-256: `DA2B7C18FA2EAC988256282B7C53974925C90D52C957192AE8A05E00D11EC9CA`.
 
 The previously published ViFree 4.1.0 ZIP remains byte-identical: SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`.
 
@@ -46,3 +46,5 @@ Wider outline refinement: the user's follow-up increases the white arrow stroke 
 Solid arrow refinement supersedes the outline variants: the user's final direction fills the arrow white with no stroke. The same closed shape is shared by WPF, both theme exports, the V-only ICO/PNG, companion popup/tab and setup images. Browser checks passed 54/54; the WPF test project compiled, package/reference checks passed, and both offline theme exports were reviewed. A timing-sensitive completion assertion now observes animation attachment at the state transition, instead of requiring a delayed timer to sample within a 240 ms animation. No local desktop controls were used.
 
 Contact menu refinement: the native popup now follows the rounded button-row pattern, with matching line icons, locale-aware label alignment, unmirrored icon artwork, a calmer frame and overlay keyboard focus. Its actual XAML template was rendered offline at 192 DPI in English/Arabic and light/dark, without opening or capturing a desktop window. All four variants were inspected; these are isolated fixture renders, not full application screenshots. The existing ICO pixel assertion now expects the requested solid white arrow rather than transparency at its center.
+
+Header interaction refinement: brand hover has no background plate and runs one glyph-clipped 600 ms shine across the V, white arrow and every letter, with pointer-exit and reduced-motion cancellation. ThemeButtonStyle fixes the target at 42 by 42 DIP and paints focus over its centered 22-DIP glyph, preserving content position. Both source templates were rendered offline in light/dark; the actual shine mask covers all glyphs and the focused sun/moon remain clear. The app/test projects compile and the rebuilt portable package validates. The preceding solid-arrow/contact-menu commit 818b7db passed the complete GitHub Windows workflow, including native WPF, browser, packaging, embedded-runtime and native-host checks. Fresh header regression checks are included in the next run.

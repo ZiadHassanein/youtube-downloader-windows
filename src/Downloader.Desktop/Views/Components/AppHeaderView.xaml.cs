@@ -20,15 +20,20 @@ public partial class AppHeaderView : UserControl
         IsVisibleChanged += (_, _) => { if (!IsVisible) ResetLogo(); };
     }
 
-    private void LogoClicked(object sender, RoutedEventArgs args) => PlayLogo();
+    private void LogoClicked(object sender, RoutedEventArgs args) => PlayLogo(pulse: true);
+    private void LogoHovered(object sender, MouseEventArgs args) => PlayLogo();
+    private void LogoLeft(object sender, MouseEventArgs args) => ResetLogo();
 
-    private void PlayLogo()
+    private void PlayLogo(bool pulse = false)
     {
         ResetLogo();
-        if (!IsLoaded || !IsVisible || !MotionPreferences.Enabled) return;
-        LogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.94, 1, TimeSpan.FromMilliseconds(360)) { EasingFunction = MotionPreferences.EaseOut, FillBehavior = FillBehavior.Stop });
-        LogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(.94, 1, TimeSpan.FromMilliseconds(360)) { EasingFunction = MotionPreferences.EaseOut, FillBehavior = FillBehavior.Stop });
-        LightOffset.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-1.2, 1.2, TimeSpan.FromMilliseconds(600)) { EasingFunction = MotionPreferences.EaseOut, FillBehavior = FillBehavior.Stop });
+        if (!IsLoaded || !IsVisible || !BrandButton.IsEnabled || !MotionPreferences.Enabled) return;
+        if (pulse)
+        {
+            LogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.94, 1, TimeSpan.FromMilliseconds(360)) { EasingFunction = MotionPreferences.EaseOut, FillBehavior = FillBehavior.Stop });
+            LogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(.94, 1, TimeSpan.FromMilliseconds(360)) { EasingFunction = MotionPreferences.EaseOut, FillBehavior = FillBehavior.Stop });
+        }
+        LightOffset.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-1.2, 1.2, TimeSpan.FromMilliseconds(600)) { FillBehavior = FillBehavior.Stop });
         var light = new DoubleAnimationUsingKeyFrames { FillBehavior = FillBehavior.Stop };
         light.KeyFrames.Add(new LinearDoubleKeyFrame(0, TimeSpan.Zero));
         light.KeyFrames.Add(new LinearDoubleKeyFrame(.5, TimeSpan.FromMilliseconds(100)));

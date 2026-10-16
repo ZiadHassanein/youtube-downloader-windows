@@ -40,6 +40,26 @@ internal static partial class Program
                     window.UpdateLayout();
                     Check(Math.Abs(header.ActualHeight - headerHeight) < .1 && Math.Abs(Bounds(heading).Top - headingTop) < .1,
                         $"Focusing the logo preserves header height and form position (header={headerHeight}->{header.ActualHeight}, heading={headingTop}->{Bounds(heading).Top})");
+                    var theme = (Button)WpfTree.Find(window, "ThemeButton");
+                    theme.Focus();
+                    window.UpdateLayout();
+                    var themeBounds = Bounds(theme);
+                    var glyphBounds = Bounds((FrameworkElement)WpfTree.Find(theme, "ThemeGlyph"));
+                    Check(Math.Abs(theme.ActualWidth - 42) < .1 && Math.Abs(theme.ActualHeight - 42) < .1 &&
+                        Math.Abs(header.ActualHeight - headerHeight) < .1 && Math.Abs(Bounds(heading).Top - headingTop) < .1 &&
+                        glyphBounds.Left >= themeBounds.Left + 8 && glyphBounds.Right <= themeBounds.Right - 8 &&
+                        glyphBounds.Top >= themeBounds.Top + 8 && glyphBounds.Bottom <= themeBounds.Bottom - 8,
+                        "The focused theme button keeps its icon clear and does not move the header or form");
+                    if (width == startupWidth)
+                    {
+                        theme.Command.Execute(null);
+                        await Task.Delay(320);
+                        window.UpdateLayout();
+                        Check(Math.Abs(header.ActualHeight - headerHeight) < .1 && Math.Abs(Bounds(heading).Top - headingTop) < .1,
+                            "Switching the theme while its button is focused preserves content position");
+                        theme.Command.Execute(null);
+                        await Task.Delay(320);
+                    }
                     var brandBounds = Bounds(brand);
                     var actionBounds = Bounds(actions);
                     Check(brandBounds.Left < 100 && brandBounds.Right < actionBounds.Left && actionBounds.Right <= window.ActualWidth &&

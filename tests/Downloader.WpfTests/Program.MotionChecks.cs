@@ -89,6 +89,15 @@ internal static partial class Program
                     await Task.Delay(580);
                     Check(light.Opacity == 0 && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
                         "The logo settles without a decorative loop in " + variant);
+                    brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseEnterEvent });
+                    await Until(() => light.Opacity > 0, "Hover starts the whole-wordmark shine in " + variant);
+                    var brandFace = (Border)brand.Template.FindName("Face", brand);
+                    var lettering = (System.Windows.Shapes.Path)WpfTree.Find(header, "BrandLetters");
+                    Check(light.Data.Bounds.Right >= lettering.Data.Bounds.Right &&
+                        brandFace.Background is SolidColorBrush { Color.A: 0 } && logoScale.ScaleX == 1 && logoScale.ScaleY == 1,
+                        "Hover shines through the lettering without a background plate or logo movement in " + variant);
+                    brand.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = Mouse.MouseLeaveEvent });
+                    Check(light.Opacity == 0, "Pointer exit clears the logo shine in " + variant);
                     await Input();
                     action.BringIntoView();
                     await Task.Delay(50);
