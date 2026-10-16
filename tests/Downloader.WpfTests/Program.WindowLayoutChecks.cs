@@ -90,9 +90,21 @@ internal static partial class Program
                         "Form rows keep their vertical positions after repeated language changes: " + language + variant);
                     CompactFormFits("empty " + language + variant);
                     Capture(window, System.IO.Path.Combine(captures, "layout-empty-" + language + variant + ".png"));
-                    Check(viewport.ScrollableHeight <= 1 && download.TranslatePoint(new Point(0, download.ActualHeight), viewport).Y <= viewport.ActualHeight + 1,
-                        "The complete idle form and Download action fit at the default height: " + language + variant +
-                        $" (height={window.ActualHeight}, viewport={viewport.ActualHeight}, extent={viewport.ExtentHeight}, form={form.ActualHeight}, downloadBottom={download.TranslatePoint(new Point(0, download.ActualHeight), viewport).Y})");
+                    if (normalHeight >= 799)
+                        Check(viewport.ScrollableHeight <= 1 && download.TranslatePoint(new Point(0, download.ActualHeight), viewport).Y <= viewport.ActualHeight + 1,
+                            "The complete idle form and Download action fit at the default height: " + language + variant +
+                            $" (height={window.ActualHeight}, viewport={viewport.ActualHeight}, extent={viewport.ExtentHeight}, form={form.ActualHeight}, downloadBottom={download.TranslatePoint(new Point(0, download.ActualHeight), viewport).Y})");
+                    else
+                    {
+                        viewport.ScrollToEnd();
+                        window.UpdateLayout();
+                        var actionBounds = download.TransformToAncestor(viewport).TransformBounds(new Rect(download.RenderSize));
+                        Check(actionBounds.Top >= 0 && actionBounds.Bottom <= viewport.ActualHeight + 1 &&
+                            window.ActualHeight <= window.CurrentWorkArea().Height,
+                            "A work-area-constrained idle window keeps Download reachable by scrolling: " + language + variant);
+                        viewport.ScrollToTop();
+                        window.UpdateLayout();
+                    }
                     FooterAnchored();
                 }
 

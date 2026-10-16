@@ -20,8 +20,8 @@ public sealed class PackageManifest
 
 public static class AppUpdates
 {
-    public const string Repository = "https://github.com/ZiadHassanein/ViFree-Downloads";
-    private const string Api = "https://api.github.com/repos/ZiadHassanein/ViFree-Downloads/releases/latest";
+    public const string Repository = "https://github.com/ZiadHassanein/ViFree";
+    private const string Api = "https://api.github.com/repos/ZiadHassanein/ViFree/releases/latest";
     internal static readonly string[] PackageFiles =
     {
         "ViFree.exe",
