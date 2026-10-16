@@ -150,7 +150,7 @@ components:
 
 **Creative North Star: "The Red Download Mark"**
 
-Vydrop makes the next download decision clear. Its approved identity pairs a rounded red arrow and receiving tray with a compact vector wordmark: a larger bespoke red V with an angled right terminal, followed by slim Inter Regular outlines in theme Ink. Light rose neutrals or charcoal working surfaces keep links, real media details and controls readable. The red family connects identity, primary actions and selection without replacing the separate success, information and error roles.
+Vydrop makes the next download decision clear. Its approved identity pairs a rounded red arrow and receiving tray with a compact vector wordmark: a larger bespoke red V with an angled right terminal, followed by original monoline “ydrop” lettering in theme Ink. Softly squared bowls, a hooked y, an open r shoulder and oblique terminal cuts give the letters a distinct shared character. Light rose neutrals or charcoal working surfaces keep links, real media details and controls readable. The red family connects identity, primary actions and selection without replacing the separate success, information and error roles.
 
 The established interface is restrained, compact and bilingual. Preserve its native Windows controls, embedded lettering, visible keyboard focus and quiet separators. This document records the user-approved Vydrop rebrand of 16 October 2026; it supersedes historical ViFree lettering, play marks and teal/amber/blue brand directions. It describes implemented source, not a certification of every workflow or machine.
 
@@ -203,7 +203,7 @@ The hierarchy is compact, with semibold task headings and ordinary body copy. Bo
 - **Download-label:** the main action's distinct, slightly larger label.
 - **Queue-heading / queue-body:** the queue's local compact density; do not shrink other screens to match it.
 
-**The Lettering Rule.** The Vydrop wordmark uses `BrandInitialGeometry` for its larger bespoke red V with an angled right terminal and `BrandLettersGeometry` for the licensed Inter Regular “ydrop” outlines in theme Ink. The V is 28 source units tall, deliberately larger than the remaining letters' approximately 21.8-unit ascender height, while their baseline stays aligned. It is not a live text label and must not be recreated by choosing another font or weight. Keep the Inter license with distributed assets.
+**The Lettering Rule.** The Vydrop wordmark uses `BrandInitialGeometry` for its larger bespoke red V with an angled right terminal and `BrandLettersGeometry` for original custom monoline “ydrop” lettering in theme Ink. The 28-unit V and the established baseline remain. `scripts/draw-brand-lettering.ps1` authors the remaining letters from a 2.3-unit pen skeleton, softly squared bowls, a hooked y, an open r shoulder and oblique stem cuts. A subtle approximately 3.4-degree forward lean is baked into the final points; their source bounds run from x=25 to 103.5 and y=6.1 to 34.1 within the existing canvas. These are original vector shapes, with no font outlines used for the logo body. Reuse the canonical geometry rather than substituting live text or another typeface. Inter remains the Latin interface font; retain its existing license for that use.
 
 ## Layout
 
