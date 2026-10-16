@@ -9,7 +9,7 @@
       ],
       "kind": "Lossless WPF client-area captures",
       "source": "build/vydrop-lettering-captures/layout-empty-{en-dark,ar-light}-default.png",
-      "state": "Cursor-free WPF client rendering of Vydrop with larger red custom V and original geometric monoline ydrop lettering; empty UI, no media fixture"
+      "state": "Earlier native render before the selected integrated angular V wordmark; retained as historical UI-layout evidence. Current appearance is verified using user screenshots."
     },
     {
       "files": [
@@ -36,26 +36,46 @@
     {
       "files": [
         "extension/01-folders.svg",
+        "extension/02-enable-connection.svg",
         "extension/03-chromium-setup.svg",
-        "extension/04-send-video.svg",
-        "extension/02-enable-connection.svg"
+        "extension/04-edge-setup.svg",
+        "extension/05-firefox-setup.svg",
+        "extension/04-send-video.svg"
       ],
       "kind": "Original resolution-independent setup illustrations",
-      "state": "Labeled diagrams, not browser screenshots or installation proof"
+      "state": "Current Vydrop setup illustrations for connection, individual Chrome/Edge/Firefox loading and video handoff. Official browser instructions checked. Cursor-free diagrams, not browser screenshots."
     },
     {
       "files": [
         "../../assets/header-logo.png",
         "../../assets/brand-logo-light.png",
-        "../../assets/brand-logo-dark.png"
+        "../../assets/brand-logo-dark.png",
+        "../../assets/brand-preview-light.png",
+        "../../assets/brand-preview-dark.png"
       ],
       "kind": "Original transparent WPF vector raster exports",
       "source": "scripts/render-brand.ps1 from Themes/Symbols.xaml",
-      "state": "Original logo geometry: slim red download mark, larger red V, softly squared ydrop bowls, angled terminals and subtle lean. Authored in scripts/draw-brand-lettering.ps1; no cursor, font-derived body outlines or generated scenery."
+      "state": "Current approved integrated angular V/down-arrow and geometric ydrop, rendered from shared vector contours. V-only app/browser icon. White/dark preview backgrounds; no cursor or application capture. The arrow inside the V has a thin white outline that is open at the top, with no horizontal cap. Its wordmark stroke is 4.5 source units and the V-only icon uses the proportional 1.004-unit stroke."
+    },
+    {
+      "files": [
+        "../../assets/brand/approved-reference.png"
+      ],
+      "kind": "User-selected AI-generated logo concept reference",
+      "state": "Approved integrated angular Vydrop concept supplied by the user; source for vector contours, not an application screenshot."
+    },
+    {
+      "files": [
+        "app-overview-dark.svg",
+        "app-overview-light.svg"
+      ],
+      "kind": "Original SVG interface illustrations",
+      "source": "scripts/render-setup-guide.py",
+      "state": "Labelled simplified current-source interface diagrams, not native screenshots. They replace older screenshots at the start of README to show the selected V logo honestly without desktop controls."
     }
   ],
   "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",
   "product": "Vydrop",
-  "publicationStatus": "Local unpublished branding candidate; published ViFree v4.1.0 assets remain unchanged",
+  "publicationStatus": "Approved Vydrop 4.2 source artwork and documentation; published ViFree v4.1.0 binary remains unchanged",
   "sourceBaseCommit": "a0809c85577c66560bf119286b6d43cc765cd646"
 }

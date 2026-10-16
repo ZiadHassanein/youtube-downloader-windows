@@ -172,11 +172,11 @@ internal static partial class Program
         var logo = new FormatConvertedBitmap(BitmapFrame.Create(logoStream), PixelFormats.Bgra32, null, 0);
         byte[] pixels = new byte[logo.PixelWidth * logo.PixelHeight * 4];
         logo.CopyPixels(pixels, logo.PixelWidth * 4, 0);
-        int arrowPixel = (160 * 512 + 256) * 4;
-        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(384 * 512 + 256) * 4 + 3] == 0 &&
-            pixels[(464 * 512 + 256) * 4 + 3] == 255 && pixels[arrowPixel + 3] == 255 &&
+        int arrowPixel = (128 * 512 + 128) * 4;
+        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(256 * 512 + 256) * 4 + 3] == 0 &&
+            pixels[(384 * 512 + 256) * 4 + 3] == 255 && pixels[arrowPixel + 3] == 255 &&
             pixels[arrowPixel] == 0x4D && pixels[arrowPixel + 1] == 0x3D && pixels[arrowPixel + 2] == 0xE6,
-            "The high-resolution red download logo retains transparent edges and the clear arrow-to-tray gap");
+            "The V-only icon retains transparent edges, the negative-space download arrow and its red lower point");
         model.Audio = false;
         model.Url = "";
         await Task.Delay(200);

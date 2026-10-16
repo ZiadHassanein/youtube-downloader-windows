@@ -52,8 +52,15 @@
   icon.setAttribute("aria-hidden", "true");
   const mark = document.createElementNS("http://www.w3.org/2000/svg", "path");
   mark.setAttribute("fill-rule", "evenodd");
-  mark.setAttribute("d", "M29.25,5 Q29.25,3 31.25,3 H33 L34.75,4.75 V33.5 L45,23.25 Q47,21.25 49,23.25 Q51,25.25 49,27.25 L34,42.25 Q32,44.25 30,42.25 L15,27.25 Q13,25.25 15,23.25 Q17,21.25 19,23.25 L29.25,33.5 Z M9,40.25 Q11.75,40.25 11.75,43 V48 Q11.75,55.25 19,55.25 H45 Q52.25,55.25 52.25,48 V43 Q52.25,40.25 55,40.25 Q57.75,40.25 57.75,43 V48 Q57.75,60.75 45,60.75 H19 Q6.25,60.75 6.25,48 V43 Q6.25,40.25 9,40.25 Z");
-  icon.append(mark);
+  mark.setAttribute("d", "M4,8.016L21.625,8.016 27.873,18.056 27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056 42.375,8.016 60,8.016 60,11.586 32,55.984 4,11.586Z");
+  const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  arrow.setAttribute("fill", "none");
+  arrow.setAttribute("stroke", "#FFFFFF");
+  arrow.setAttribute("stroke-width", "1.004");
+  arrow.setAttribute("stroke-linejoin", "miter");
+  arrow.setAttribute("stroke-miterlimit", "2");
+  arrow.setAttribute("d", "M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056");
+  icon.append(mark, arrow);
   const label = document.createElement("span");
   label.textContent = text.open;
   button.append(icon, label);

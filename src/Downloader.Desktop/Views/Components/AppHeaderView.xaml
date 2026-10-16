@@ -30,24 +30,23 @@
   <Grid>
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <Button x:Name="BrandButton" Command="{Binding NewDownloadCommand}" Click="LogoClicked" Style="{StaticResource BrandButtonStyle}" HorizontalAlignment="Left" AutomationProperties.Name="{Binding NewDownloadLabel}">
-    <StackPanel Orientation="Horizontal">
-     <Grid x:Name="BrandArtwork" Width="30" Height="34" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
-      <Grid.RenderTransform><ScaleTransform x:Name="LogoScale"/></Grid.RenderTransform>
-      <Path x:Name="BrandMark" Data="{StaticResource BrandMarkGeometry}" Fill="{StaticResource BrandFill}" Width="30" Height="34" Stretch="Uniform" AutomationProperties.Name="Vydrop logo"/>
-      <Path x:Name="LogoLight" Data="{StaticResource BrandMarkGeometry}" Width="30" Height="34" Stretch="Uniform" IsHitTestVisible="False" Opacity="0">
+    <Grid x:Name="BrandArtwork" Width="128" Height="38">
+     <Viewbox x:Name="BrandWordmark" Width="128" Height="38" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
+      <Canvas Width="966" Height="284">
+       <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}">
+        <Path.RenderTransform><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/></Path.RenderTransform>
+       </Path>
+       <Path Data="{StaticResource BrandArrowGeometry}" Stroke="White" StrokeThickness="4.5" StrokeLineJoin="Miter" StrokeMiterLimit="2" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False"/>
+       <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
+       <Path x:Name="LogoLight" Data="{StaticResource BrandInitialGeometry}" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False" Opacity="0">
        <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.4">
         <LinearGradientBrush.RelativeTransform><TranslateTransform x:Name="LightOffset" X="1.2"/></LinearGradientBrush.RelativeTransform>
         <GradientStop Color="#00FFFFFF" Offset="0.2"/><GradientStop Color="#CFFFFFFF" Offset="0.5"/><GradientStop Color="#00FFFFFF" Offset="0.8"/>
        </LinearGradientBrush></Path.Fill>
-      </Path>
-     </Grid>
-     <Viewbox x:Name="BrandWordmark" Width="90" Height="30" Stretch="Uniform" VerticalAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.Name="Vydrop">
-      <Canvas Width="104.066" Height="34.104">
-       <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}"/>
-       <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
+       </Path>
       </Canvas>
      </Viewbox>
-    </StackPanel>
+    </Grid>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
     <Button x:Name="RecentDownloadsButton" Command="{Binding HistoryCommand}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding HistoryAccessibleName}">

@@ -1,20 +1,29 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-dark.svg"><img src="assets/brand-logo-light.svg" width="238" alt="Vydrop video downloader logo"></picture></p>
 
+<a id="theme-previews"></a>
+
+<p align="center">
+  <a href="docs/images/app-overview-dark.svg"><img src="docs/images/app-overview-dark.svg" width="48%" alt="Illustrated Vydrop dark interface with integrated red V logo, video and audio controls, subtitles and Download"></a>
+  <a href="docs/images/app-overview-light.svg"><img src="docs/images/app-overview-light.svg" width="48%" alt="Illustrated Vydrop white interface with the same logo and download controls"></a>
+</p>
+
+<p align="center"><em>Current Vydrop 4.2 source interface — labelled illustrations, not screenshots. Click to view at full size.</em></p>
+
 # Vydrop — Free Video & Audio Downloader for Windows
 
 **Vydrop (formerly ViFree)** is a free, open-source Windows desktop app by **Ziad Hassanein** for downloading YouTube videos, Shorts and playlists, saving audio, and organizing multiple downloads. It supports English and Arabic interfaces, light and dark themes, subtitles, and an optional browser extension. Other public websites depend on yt-dlp support and access.
 
 **[Download the latest published Windows release — ViFree v4.1.0 (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.1.0/ViFree-v4.1.0-win-x64.zip)**
 
-[Setup guide](#getting-started) · [App screenshots](#screenshots) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
+[Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
 
 ## Releases and current source
 
-The current source builds **Vydrop 4.2.0**, with a red download logo, matching light/dark colors and companion **1.3.0**. This branding build is prepared locally for review; it has not been published as a GitHub release yet. The download above remains the previously published ViFree 4.1.0.
+The current source builds **Vydrop 4.2.0**, with a red download logo, matching light/dark colors and companion **1.3.0**. This is the current source version; a Vydrop binary release has not been published yet. The download above remains the previously published ViFree 4.1.0.
 
 | Channel | Version | What to use |
 | --- | --- | --- |
-| Current source | Vydrop 4.2.0 | Red branding build; not yet a published release. |
+| Current source | Vydrop 4.2.0 | Approved Vydrop identity; build from source until its binary release is published. |
 | Latest published release | ViFree 4.1.0 | The Windows ZIP linked above. |
 | Accepted preview baseline | 4.1.0 Preview 30 | Promoted to stable 4.1.0; see [Preview 30 validation](PREVIEW.md). |
 
@@ -38,11 +47,28 @@ Quality depends on the source. A higher output bitrate or a lossless file does n
 
 ## Browser extension: Download by Vydrop
 
-The optional **Chrome, Microsoft Edge and Firefox** companion is included in the app ZIP's `Browser` folder. Companion **1.3.0**, included with the Vydrop build, shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
+The optional **Chrome, Microsoft Edge and Firefox** companion is in the app ZIP's `Browser` folder. The Vydrop 4.2 source build packages companion **1.3.0**. The currently published ViFree 4.1.0 ZIP packages **ViFree 1.2.1**, with the same setup paths and older name. The companion shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
 
 Facebook, TikTok and YouTube detection uses the selected player's public permalink. Other HTML5 players may provide a direct media URL or a single-video page link. Available space, custom players and site restrictions can limit detection. Use the toolbar popup when the tab cannot be placed safely.
 
 Follow the **[illustrated extension setup guide](docs/browser-extension-setup.md)** for Chrome, Edge and Firefox, including [Arabic instructions](docs/browser-extension-setup.md#arabic). See [permissions and limitations](browser/README.md) for more detail. The extension does not import accounts or cookies and does not start hidden downloads. Reload an older unpacked companion after updating its folder, or load the new ZIP's `Browser` companion.
+
+
+Start in the app with **Settings → Browser integration → Enable connection**, then choose your browser:
+
+| Browser | Open this address | Install from the extracted folder |
+| --- | --- | --- |
+| [Chrome guide](docs/browser-extension-setup.md#chrome) | `chrome://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
+| [Edge guide](docs/browser-extension-setup.md#edge) | `edge://extensions` | Developer mode → Load unpacked → `Browser/chromium` |
+| [Firefox guide](docs/browser-extension-setup.md#firefox) | `about:debugging#/runtime/this-firefox` | Load Temporary Add-on → `Browser/firefox/manifest.json` |
+
+<p align="center">
+  <a href="docs/browser-extension-setup.md#chrome"><img src="docs/images/extension/03-chromium-setup.svg" width="32%" alt="Chrome setup illustration: Developer mode, Load unpacked and Browser/chromium"></a>
+  <a href="docs/browser-extension-setup.md#edge"><img src="docs/images/extension/04-edge-setup.svg" width="32%" alt="Edge setup illustration with its Developer mode control and Browser/chromium folder"></a>
+  <a href="docs/browser-extension-setup.md#firefox"><img src="docs/images/extension/05-firefox-setup.svg" width="32%" alt="Firefox temporary add-on illustration showing the manifest.json file to select"></a>
+</p>
+
+Keep the extracted folder, allow access to the desired websites and refresh open video pages. **Firefox's local add-on must be loaded again after a browser restart.** These packages are not browser-store listings. The [full illustrated guide](docs/browser-extension-setup.md) covers every step, updates and troubleshooting.
 
 ## Getting started
 
@@ -91,20 +117,10 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل فيديوهات يوتيوب والمقاطع القصيرة وقوائم التشغيل وحفظ الصوت. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-اسم البرنامج الجديد هو **Vydrop**، وإصدار إعادة الهوية **4.2.0** جاهز للمراجعة المحلية. آخر إصدار منشور متاح للتنزيل هو **ViFree 4.1.0**، المبني على **Preview 30** المقبول. هذا المستودع هو المكان الرسمي للشيفرة والتنزيلات والدعم. فكّ ضغط ZIP وافتح **Vydrop.exe** في الإصدار الجديد، أو **ViFree.exe** في الإصدار المنشور 4.1.0. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. إضافة المتصفح اختيارية، وتختلف الميزات المتاحة حسب الإصدار والموقع وجودة المصدر.
+اسم البرنامج الجديد هو **Vydrop**، وإصدار إعادة الهوية **4.2.0** متاح في الشيفرة الحالية ولم يُنشر ملفه التنفيذي بعد. آخر إصدار منشور متاح للتنزيل هو **ViFree 4.1.0**، المبني على **Preview 30** المقبول. هذا المستودع هو المكان الرسمي للشيفرة والتنزيلات والدعم. فكّ ضغط ZIP وافتح **Vydrop.exe** في الإصدار الجديد، أو **ViFree.exe** في الإصدار المنشور 4.1.0. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. إضافة المتصفح اختيارية، وتختلف الميزات المتاحة حسب الإصدار والموقع وجودة المصدر.
 
 </div>
 
-## Screenshots
-
-**Vydrop 4.2.0 — English / dark and العربية / light.** Click an image for its full-resolution lossless PNG. The app uses the approved red download logo and matching accent colors.
-
-<p align="center">
-  <a href="assets/screenshot-en-dark.png"><img src="assets/screenshot-en-dark.png" width="48%" alt="Vydrop 4.2.0 English dark interface with a red download logo, red controls and centered Download button"></a>
-  <a href="assets/screenshot-ar-light.png"><img src="assets/screenshot-ar-light.png" width="48%" alt="واجهة Vydrop 4.2.0 العربية بالمظهر الفاتح والشعار الأحمر وألوان التنزيل الجديدة"></a>
-</p>
-
-These are cursor-free client-area captures from the current WPF app. The [extension setup guide](docs/browser-extension-setup.md) includes labeled folder/browser illustrations and the app connection steps.
 
 ## Author and support
 

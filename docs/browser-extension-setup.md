@@ -1,101 +1,110 @@
 # Set up the Vydrop browser extension
 
-Send the video you are watching to **stable Vydrop v4.2.0** with the optional **Vydrop 1.3.0** companion. This guide describes the Vydrop 4.2.0 branding build; the latest published older release remains ViFree 4.1.0. Setup is free and needs no account or API key. You can also paste links into the app without installing an extension.
+Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-[Published releases](https://github.com/ZiadHassanein/ViFree/releases) · [Chrome and Edge](#chrome-and-edge) · [Firefox](#firefox) · [Help](#troubleshooting) · [العربية](#arabic)
+**Choose the matching package:** the current Vydrop 4.2 source build includes **Vydrop 1.3.0**. The latest published download is still **ViFree 4.1.0**, with **ViFree 1.2.1**. For that package, open **ViFree.exe** and look for **ViFree** in the browser. The folder paths and setup steps below are the same. A Vydrop binary release is still being prepared.
+
+[Published downloads](https://github.com/ZiadHassanein/ViFree/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
+
+The images are cursor-free **setup illustrations**, not browser screenshots; control positions can vary by browser version.
 
 ## 1. Extract and keep the app folder
 
-Extract the ZIP into a permanent, writable folder, such as **Documents\Vydrop**, then open **Vydrop.exe**. Keep the **Browser** folder beside the app. Open the extracted files, rather than running the app from inside the ZIP.
+Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop**. Open **Vydrop.exe** from that folder and keep **Browser** beside it. For the published 4.1.0 package, open **ViFree.exe** instead. Keep the extracted files after setup.
 
-![Folder illustration: Vydrop.exe and Browser are kept together; Chrome and Edge load Browser/chromium, while Firefox loads Browser/firefox/manifest.json](images/extension/01-folders.svg)
+![Folder illustration: the executable stays beside Browser; Chromium browsers select Browser/chromium and Firefox selects Browser/firefox/manifest.json](images/extension/01-folders.svg)
 
-*Folder illustration. Your chosen location can differ.*
+## 2. Enable the desktop connection
 
-## 2. Enable the connection in the stable app
+In the app, choose **Settings → Browser integration → Enable connection**. Wait for **Browser connection enabled**, then close the connection dialog. This registers the app location for your Windows account. Browser installation is the next step.
 
-In Vydrop, click **Settings** at the bottom left, then **Browser integration**. Click **Enable connection** in the dialog below. A confirmation says **Browser connection enabled**. Close the dialog when finished.
+![Connection illustration: Settings, Browser integration and Enable connection](images/extension/02-enable-connection.svg)
 
-![Vydrop connection steps: Settings, Browser integration, then Enable connection](images/extension/02-enable-connection.svg)
+<a id="chrome-and-edge"></a>
 
-*Connection illustration. This connects the app for your Windows account; the browser companion is loaded separately in the next step.*
+## Chrome
 
-## Chrome and Edge
+1. Enter `chrome://extensions` in Chrome's address bar.
+2. Switch **Developer mode** on.
+3. Choose **Load unpacked**, then select **Browser\chromium** inside the extracted app folder.
+4. Check that the Vydrop/ViFree card is enabled. In **Details → Site access**, allow your desired websites; **On all sites** enables detection across supported sites.
+5. Refresh any already-open video page. Optionally pin the companion from Chrome's Extensions menu.
 
-### 3. Load the companion
+![Chrome setup illustration showing Developer mode, Load unpacked, Browser/chromium and website access](images/extension/03-chromium-setup.svg)
 
-1. In your browser's address bar, type **`chrome://extensions`** for Chrome, or **`edge://extensions`** for Edge, and press Enter.
-2. Turn on **Developer mode** on that page.
-3. Click **Load unpacked**.
-4. Select the extracted app's **Browser\chromium** folder, then click **Select Folder**. Choose the folder containing `manifest.json`, rather than the ZIP or the outer `Browser` folder.
-5. Check that the loaded extension is named **Vydrop**, version **1.3.0**, and is enabled.
+Choose the folder containing `manifest.json`, rather than selecting the ZIP or outer Browser folder. These loading steps follow the [official Chrome instructions](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
 
-![Numbered setup illustration for Chrome and Edge: open the extensions page, enable Developer mode, choose Load unpacked and select Browser/chromium](images/extension/03-chromium-setup.svg)
+## Edge
 
-*Setup illustration; Chrome and Edge arrange these controls differently. The names above identify the controls to use.*
+1. Enter `edge://extensions` in Microsoft Edge's address bar.
+2. Turn on **Developer mode** in the extensions page.
+3. Choose **Load unpacked** and select **Browser\chromium**. Edge uses the same folder as Chrome.
+4. Enable the companion. Open its **Details** and allow the websites where you want detection to run.
+5. Refresh the video page. Use Edge's Extensions menu to show the companion on the toolbar if desired.
 
-### 4. Allow website access and refresh the video page
+![Edge setup illustration showing its Developer mode control, Load unpacked and the shared chromium folder](images/extension/04-edge-setup.svg)
 
-Open **Details** on Vydrop's extension card. Under **Site access**, allow the sites where you want the video button to appear; choose **On all sites** to use it across supported websites. Browser wording can vary. Refresh any video pages that were already open before installation.
-
-You can pin **Vydrop** from the browser's Extensions menu for easy access to its toolbar popup. Pinning is optional.
+See Microsoft's [official Edge sideloading instructions](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading). Browser wording and control positions may differ.
 
 ## Firefox
 
-After completing steps 1 and 2 in the app:
+1. Enter `about:debugging#/runtime/this-firefox` in Firefox's address bar.
+2. Select **This Firefox** if it is not already selected.
+3. Choose **Load Temporary Add-on…** and open **Browser\firefox\manifest.json** from the extracted app folder.
+4. Refresh the page and play the video.
 
-1. Type **`about:debugging#/runtime/this-firefox`** into Firefox's address bar and press Enter.
-2. Click **Load Temporary Add-on**.
-3. Select **Browser\firefox\manifest.json** from the extracted app folder.
-4. Refresh the video page, then play the video.
+![Firefox illustration showing This Firefox, Load Temporary Add-on and Browser/firefox/manifest.json, with the restart limitation](images/extension/05-firefox-setup.svg)
 
-Firefox removes this temporary add-on when the browser closes; load it again next time. These companion packages are loaded locally and are not browser-store listings. See Mozilla's [temporary installation instructions](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
+**This is a temporary installation:** Firefox removes the locally loaded companion when it restarts. Load it again next session. A permanent normal Firefox installation requires a Mozilla-signed add-on; this ZIP is not a signed store package. See Mozilla's [temporary installation documentation](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
 
-## 5. Play a video and click Download by Vydrop
+## 5. Send the playing video
 
-Start the video. When space permits, **Download by Vydrop** appears just above its top-right corner, outside the picture. If the upper position is blocked, it can appear immediately to the right instead. Click the tab to copy the resolved video link and send it to Vydrop.
+Play a video, then click **Download by Vydrop** just outside its top-right border. The older published companion says **Download by ViFree**. The button can use clear space immediately to the right when the upper position is blocked. If neither placement is available, use the companion's toolbar popup.
 
-![Playback illustration: the Download by Vydrop tab sits outside the video's top-right border; the app opens for review before downloading](images/extension/04-send-video.svg)
+![Playback illustration with the V-only icon and Download by Vydrop above the video's right border](images/extension/04-send-video.svg)
 
-*Playback illustration. The button stays visible while the video plays. When there is no free space outside the picture, use Vydrop's toolbar popup.*
+The click copies the detected link and opens it in the app. It does not start saving automatically.
 
 ## 6. Review the video in Vydrop
 
-Check that the link and media details match the video you chose. Select **Video** or **Audio**, an available quality and a save folder, then click **Download**. Sending a link from the extension does not start the download automatically.
+Check the link and media details. Choose **Video** or **Audio**, an available quality and a save folder, then click **Download**. Public-link detection does not guarantee that every website or video can be downloaded.
+
+## Updating or removing the companion
+
+When you update files in the same folder, use **Reload** on Chrome/Edge's extensions page or Firefox's debugging page, then refresh video tabs. If you move the folder, load the new location. If you move the desktop app, enable its connection again.
+
+To disconnect, choose **Disable connection** in the app and remove the browser companion. An extension named **Vydrop Preview** or **ViFree Preview** connects to its preview app; use the regular companion for the regular app.
 
 ## Troubleshooting
 
-| What you see | What to do |
+| What happens | What to try |
 | --- | --- |
-| The extension opens Preview | Close the preview app. Load **Vydrop** from the stable ZIP's `Browser` folder, then enable the connection from the stable app's Settings. A companion named **Vydrop Preview** is for preview builds. |
-| The app does not open | Open stable Vydrop and choose **Settings → Browser integration → Enable connection** again. Keep its folder in the same location. |
-| The video tab does not appear | Check the extension is enabled and has access to that site, refresh the page, and play the visible video. Exit native fullscreen or picture-in-picture, or use the toolbar popup. |
-| A homepage is selected, or several videos are present | Open the specific video's public page, or use the site's **Share → Copy link** and paste it into Vydrop. |
-| The extension opens the right link, but downloading fails | Site access and downloader support still apply. DRM, private/sign-in-only media and some custom players are unsupported. Report the public link and app version in [GitHub issues](https://github.com/ZiadHassanein/ViFree/issues). |
-| The app or companion folder moved | Enable the app connection again. If the companion moved too, load its new folder in the browser. |
-| You updated the companion files | Reload the unpacked extension on the extensions page, then refresh the video page. |
+| The app does not open | Open it manually, then use Settings → Browser integration → Enable connection again. Keep its folder in place. |
+| No tab appears beside the video | Check the companion is enabled and allowed on that site, refresh the page and play the visible video. Try its toolbar popup outside native fullscreen or picture-in-picture. |
+| Several videos are present, or the wrong link appears | Open the specific video's public page, or paste the site's Share → Copy link into the app. |
+| The right video opens, but downloading fails | DRM, private/sign-in-only media, custom players and site restrictions can prevent downloading. Report the public link and app version in [GitHub issues](https://github.com/ZiadHassanein/ViFree/issues). |
+| Firefox loses the companion after restarting | Expected for a temporary add-on; load Browser\firefox\manifest.json again. |
+| The app opens Preview | Load the regular companion from the matching desktop package and enable the connection from that app. |
+| The icon or name looks old after an update | Reload the companion, then refresh the video page. The current Vydrop icon is the red V alone. |
 
-The extension uses website access to locate visible players. A click copies the resolved link and sends it to the local app. It does not import accounts or cookies. See [permissions and limitations](../browser/README.md).
-
-Browser loading steps follow the official [Chrome](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked) and [Edge](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading) instructions. All setup diagrams are labeled illustrations and contain no mouse pointer.
+The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](../browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 <a id="arabic"></a>
 
-## تفعيل إضافة Vydrop بالعربية
+## تفعيل الإضافة بالعربية
 
 <div dir="rtl">
 
-الإضافة اختيارية ومجانية. استخدم إضافة **Vydrop 1.3.0** الموجودة مع بناء **Vydrop 4.2.0**. يمكنك أيضًا لصق الرابط مباشرة في البرنامج دون إضافة.
+الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. بناء الشيفرة الحالي **Vydrop 4.2** يتضمن إضافة **Vydrop 1.3.0**، بينما آخر ملف منشور هو **ViFree 4.1.0** مع إضافة **ViFree 1.2.1**. إذا حمّلت الإصدار المنشور، افتح **ViFree.exe**؛ مسارات المجلدات والخطوات نفسها.
 
-1. **فك الضغط:** حمّل الإصدار المستقر، وفك ملف ZIP في مجلد دائم مثل «المستندات\Vydrop». افتح **Vydrop.exe** واحتفظ بمجلد **Browser** بجواره.
-2. **فعّل الاتصال:** من البرنامج اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال**. تظهر رسالة تؤكد تفعيل الاتصال.
-3. **Chrome أو Edge:** اكتب `chrome://extensions` أو `edge://extensions` في شريط العنوان. فعّل **وضع المطوّر (Developer mode)**، ثم اختر **تحميل إضافة غير مضغوطة (Load unpacked)**، وحدد المجلد **Browser\chromium**. تأكد أن اسم الإضافة **Vydrop** وأنها مفعّلة.
-4. **السماح للمواقع:** من تفاصيل الإضافة اسمح لها بالعمل على المواقع المطلوبة، أو اختر **على جميع المواقع (On all sites)** لظهور الزر عبر المواقع المدعومة. حدّث صفحة الفيديو بعد تثبيت الإضافة.
-5. **شغّل الفيديو:** اضغط زر **تنزيل بواسطة Vydrop** الذي يظهر خارج إطار الفيديو عند الزاوية العلوية اليمنى، أو بجانبه إذا لم توجد مساحة فوقه. يمكنك استخدام زر الإضافة من شريط المتصفح إذا لم يظهر الزر بجانب الفيديو.
-6. **راجع ثم نزّل:** يفتح البرنامج الرابط الصحيح لتراجع الفيديو وتختار الصيغة والجودة ومجلد الحفظ. اضغط **تنزيل** لبدء الحفظ؛ إرسال الرابط وحده لا يبدأ التنزيل.
+1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
+2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.
+3. **Chrome:** افتح `chrome://extensions`، فعّل **Developer mode**، ثم اختر **Load unpacked** وحدد **Browser\chromium**. [صورة Chrome](images/extension/03-chromium-setup.svg).
+4. **Edge:** افتح `edge://extensions` وفعّل **Developer mode**، ثم اختر **Load unpacked** وحدد **Browser\chromium** نفسه. [صورة Edge](images/extension/04-edge-setup.svg).
+5. **Firefox:** افتح `about:debugging#/runtime/this-firefox`، واختر **Load Temporary Add-on**، ثم ملف **Browser\firefox\manifest.json**. [صورة Firefox](images/extension/05-firefox-setup.svg). هذه إضافة مؤقتة وتحتاج إلى تحميلها مجددًا بعد إعادة تشغيل Firefox؛ الحزمة الحالية ليست إضافة موقعة للتثبيت الدائم.
+6. **السماح للمواقع:** فعّل الإضافة واسمح لها بالعمل على المواقع المطلوبة، ثم حدّث صفحات الفيديو المفتوحة.
+7. **شغّل ثم راجع:** اضغط **تنزيل بواسطة Vydrop** خارج إطار الفيديو، أو استخدم زر الإضافة من شريط المتصفح. في الإصدار المنشور سيظهر اسم **ViFree**. راجع الرابط والصيغة والجودة ومجلد الحفظ داخل البرنامج، ثم اضغط **تنزيل**.
 
-**Firefox:** بعد تفعيل الاتصال في البرنامج، افتح `about:debugging#/runtime/this-firefox`، واختر **Load Temporary Add-on** ثم الملف **Browser\firefox\manifest.json**. هذه إضافة مؤقتة وتحتاج إلى تحميلها مجددًا بعد إغلاق Firefox.
-
-إذا فتحت الإضافة نسخة Preview، حمّل إضافة **Vydrop** من مجلد الإصدار المستقر وفعّل الاتصال من إعدادات هذا الإصدار. لا يلزم حساب أو مفتاح API. يظل تنزيل الفيديو خاضعًا لدعم الموقع وإتاحة المحتوى.
+إذا نقلت مجلد البرنامج، فعّل الاتصال مجددًا. عند تحديث الإضافة، أعد تحميلها وحدّث صفحة الفيديو. تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو؛ لا تستورد الإضافة حساباتك أو ملفات تعريف الارتباط.
 
 </div>
