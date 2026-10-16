@@ -64,19 +64,26 @@ internal static partial class Program
             await Task.Delay(220);
             window.UpdateLayout();
             var settings = (FrameworkElement)WpfTree.Find(window, "SettingsPane");
-            var active = (FrameworkElement)WpfTree.Find(settings, "ActiveDownload");
+            Check(model.IsBusy && settings.IsVisible && WpfTree.Find(settings, "StatusHeading") == null,
+                "Settings stays focused on preferences while a download runs at width " + width);
+            Check(width >= 1000 || !form.IsVisible, "Compact Settings replaces the form rather than appending it");
+            Capture(window, System.IO.Path.Combine(captures, width >= 1000 ? "settings-active-wide.png" : "settings-active-compact.png"));
+            model.NewDownloadCommand.Execute(null);
+            await Task.Delay(100);
+            window.UpdateLayout();
+            var active = (FrameworkElement)WpfTree.Find(window, model.ShowInlineActivity ? "InlineActivity" : "Activity");
+            active.BringIntoView();
+            await Task.Delay(100);
+            window.UpdateLayout();
             var cancel = (Button)WpfTree.Find(active, "CancelDownload");
             var progress = (ProgressBar)WpfTree.Find(active, "JobProgress");
             var cancelBounds = cancel.TransformToAncestor(root).TransformBounds(new Rect(cancel.RenderSize));
             Check(model.IsBusy && active.IsVisible && cancel.IsVisible && cancel.IsEnabled && progress.IsVisible && progress.Value == 20 &&
                 cancelBounds.Top >= 0 && cancelBounds.Bottom <= root.ActualHeight,
-                "Settings keeps active progress and cancellation visible at width " + width);
-            Check(width >= 1000 || !form.IsVisible, "Compact Settings replaces the form rather than appending it");
-            Capture(window, System.IO.Path.Combine(captures, width >= 1000 ? "settings-active-wide.png" : "settings-active-compact.png"));
+                $"Returning from Settings restores active progress and cancellation at width {width} (busy={model.IsBusy}, active={active.IsVisible}, cancel={cancel.IsVisible}/{cancel.IsEnabled}, progress={progress.IsVisible}/{progress.Value}, bounds={cancelBounds})");
             cancel.Command.Execute(null);
             await download;
-            Check(model.IsIdle, "The Cancel action inside Settings actually stops the active download");
-            model.NewDownloadCommand.Execute(null);
+            Check(model.IsIdle, "The restored media Cancel action actually stops the active download");
         }
         string originalFolder = model.Folder;
         model.SettingsVisible = true;

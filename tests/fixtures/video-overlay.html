@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ViFree — synthetic player test</title>
+<style>
+body{margin:0;background:#171d1f;color:#f0f5f3;font:15px/1.6 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:24px}h1{font-size:24px;margin:0 0 8px}p{color:#b8c9c4;margin:0 0 48px}.player{position:relative;background:#252d33}video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain}button{background:#252d33;color:#f0f5f3;border:1px solid #748d86;border-radius:8px;padding:8px 14px;margin:16px 8px 16px 0;font:inherit;cursor:pointer}button:focus-visible{outline:2px solid #62d8bc;outline-offset:3px}output{display:block;overflow-wrap:anywhere}body.portrait .player{max-width:360px;margin:auto}body.portrait video{aspect-ratio:9/16}body.crowded p{margin-bottom:0}
+</style>
+<style>
+body.reel main{padding-top:16px}body.reel h1,body.reel main>p{display:none}body.reel .player{width:300px;max-width:100%;margin:auto}body.reel video{aspect-ratio:9/16}body.reel #result::before{content:'Synthetic edge-to-edge player fixture — '}
+</style>
+<main><h1>Synthetic video player</h1><p>Local UI fixture. The media and app connection are simulated; no download runs.</p>
+<div class="player"><video muted autoplay playsinline></video></div>
+<button id="toggle">Pause video</button><button id="portrait">Portrait / landscape</button><button id="failure">Simulate app unavailable</button><button id="crowded">Toggle caption collision</button>
+<output id="result">No link sent</output></main>
+<script>
+const video=document.querySelector('video'),result=document.querySelector('#result');let fail=false;
+const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;const ctx=canvas.getContext('2d');
+function draw(){ctx.fillStyle='#263633';ctx.fillRect(0,0,960,540);ctx.fillStyle='#62d8bc';ctx.beginPath();ctx.arc(480,240,64,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0f5f3';ctx.font='26px system-ui';ctx.textAlign='center';ctx.fillText('Synthetic playback',480,360);requestAnimationFrame(draw)}draw();
+const fixtureParams=new URLSearchParams(location.search);
+if(fixtureParams.has('reel'))document.body.classList.add('reel');
+video.srcObject=canvas.captureStream(10);if(!fixtureParams.has('blank-source'))Object.defineProperty(video,'currentSrc',{get:()=> 'blob:synthetic-overlay-fixture'});
+globalThis.browser={runtime:{sendMessage:async message=>{result.textContent=JSON.stringify(message);if(fixtureParams.has('pause-on-open'))video.pause();return fail?{ok:false,message:'Synthetic app unavailable. Open ViFree and enable Browser integration.'}:{ok:true}}}};
+Object.defineProperty(navigator,'clipboard',{value:{writeText:async url=>{document.querySelector('#result').dataset.copied=url}},configurable:true});
+globalThis.ViFreeVideoDetection={inspectVideoPage:async (source,warm,selected)=>({url:selected===video?'https://example.com/synthetic-video.mp4':''})};
+document.querySelector('#toggle').onclick=()=>{if(video.paused){video.play();document.querySelector('#toggle').textContent='Pause video'}else{video.pause();document.querySelector('#toggle').textContent='Play video'}};
+document.querySelector('#portrait').onclick=()=>{document.body.classList.toggle('portrait');dispatchEvent(new Event('resize'))};
+document.querySelector('#failure').onclick=()=>{fail=!fail;document.querySelector('#failure').textContent=fail?'Simulate success':'Simulate app unavailable'};
+document.querySelector('#crowded').onclick=()=>{document.body.classList.toggle('crowded');dispatchEvent(new Event('resize'))};
+if(new URLSearchParams(location.search).has('ar'))document.documentElement.lang='ar';
+</script><script src="/video-overlay.js"></script></html>

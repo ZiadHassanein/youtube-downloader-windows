@@ -9,7 +9,7 @@ const root = path.join(__dirname, '..');
 for (const channel of ['ViFree', 'ViFree Preview']) test(`${channel} companion sends only explicit public links to its own channel`, async () => {
   const sent = [], menus = [], listeners = {};
   const api = {
-    runtime: { getManifest: () => ({ name: channel }), onInstalled: { addListener: fn => { listeners.install = fn; } }, sendNativeMessage: async (...args) => { sent.push(args); return { ok: true }; } },
+    runtime: { id: 'test-extension', onMessage: { addListener: fn => { listeners.message = fn; } }, getManifest: () => ({ name: channel }), onInstalled: { addListener: fn => { listeners.install = fn; } }, sendNativeMessage: async (...args) => { sent.push(args); return { ok: true }; } },
     contextMenus: { removeAll: async () => {}, create: item => menus.push(item), onClicked: { addListener: fn => { listeners.click = fn; } } },
     action: { setBadgeText: async () => {}, setBadgeBackgroundColor: async () => {}, setTitle: async () => {} }
   };
@@ -28,6 +28,21 @@ for (const channel of ['ViFree', 'ViFree Preview']) test(`${channel} companion s
   await listeners.click({ linkUrl: 'file:///C:/private.txt' }, { id: 1 });
   await listeners.click({ linkUrl: 'https://user:secret@example.com/video' }, { id: 1 });
   assert.equal(sent.length, 1);
+  const message = { version: 1, type: 'vifree-open-video', url: 'https://example.com/watched.mp4' };
+  const sender = { id: 'test-extension', tab: { id: 42 }, frameId: 3, url: 'https://player.example.org/embed' };
+  for (const invalid of [{ ...sender, id: 'another-extension' }, { ...sender, url: 'file:///local.html' }, { ...sender, tab: undefined }, { ...sender, frameId: -1 }]) {
+    let response;
+    assert.equal(listeners.message(message, invalid, value => { response = value; }), false);
+    assert.equal(response.ok, false);
+  }
+  const response = await new Promise(resolve => assert.equal(listeners.message(message, sender, resolve), true));
+  assert.equal(response.ok, true);
+  assert.equal(sent.length, 2);
+  assert.equal(sent[1][1].url, message.url);
+  const rejected = await new Promise(resolve => listeners.message({ ...message, url: 'javascript:alert(1)' }, sender, resolve));
+  assert.equal(rejected.ok, false);
+  assert.equal(sent.length, 2);
+  assert.equal(listeners.message({ ...message, type: 'something-else' }, sender, () => assert.fail()), false);
 });
 
 test('popup waits for user action and reports failure without opening hidden pages', async () => {
@@ -77,13 +92,14 @@ test('missing native host has actionable guidance instead of a browser API error
   await assert.rejects(context.ViFreeConnection.sendLink('https://example.com/video'), /enable Browser integration/u);
 });
 
-if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and request only click-scoped inspection', () => {
+if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and enable on-video actions across web frames', () => {
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
-    assert.equal(manifest.version, '1.1.0'); assert.equal(manifest.name, 'ViFree Preview');
-    assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
-    assert.equal(manifest.host_permissions, undefined); assert.equal(manifest.content_scripts, undefined);
-    for (const name of ['connection.js', 'video-detection.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
+    assert.equal(manifest.version, '1.2.1'); assert.equal(manifest.name, 'ViFree Preview');
+    assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
+    assert.equal(manifest.host_permissions, undefined);
+    assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
+    for (const name of ['connection.js', 'video-detection.js', 'video-overlay.js', 'popup.js', 'background.js']) assert.equal(fs.readFileSync(path.join(folder, name), 'utf8'), fs.readFileSync(path.join(root, 'Browser/common', name), 'utf8'));
     assert.match(fs.readFileSync(path.join(folder, 'popup.html'), 'utf8'), /video-detection\.js/u);
     if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());
     else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, 'vifree-preview@ziadhassanein.github.io'); }

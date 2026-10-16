@@ -1,4 +1,16 @@
-# ViFree 4.1.0 Preview 27
+# ViFree 4.1.0 Preview 30
+
+Preview 30 was accepted for merge into main on 16 October 2026. This acceptance includes browser companion 1.2.1, the direct-media metadata correction and the Settings correction. The public stable release remains 4.0.0; this source merge does not publish a release.
+
+- The playing-video tab reads **Download by ViFree** and stays outside the picture, above its physical top-right corner or in clear space immediately to the right. Its explicit click copies the selected video's resolved public link and opens ViFree. Website access does not guarantee every player or protected video is supported.
+- Incomplete Generic direct-file metadata is enriched by a bounded FFprobe check of the same resource. Quality choices use measured codecs, dimensions and source audio bitrate. The W3Schools sample passed inspection, an actual 788,493-byte download and saved-file validation at 320 × 176 with H.264/AAC.
+- Settings excludes media errors, progress and completion results while retaining its own update and downloader-support notices. Returning to the download screen preserves its status and cancellation controls. Selected-menu checkmarks stay physically left in both languages.
+
+Validation: 52 browser/package checks; 51 core, 36 boundary, 116 media-workflow, 27 output-profile and 45 automatic-tool checks, plus service/reliability checks; 77 focused WPF redesign and 63 maintenance checks. Real installed companion handoffs passed for Facebook and W3Schools. Installed Preview 30 was opened and its video-error exclusion was verified in English and Arabic with light and dark themes. Package validation and EXE-only startup passed. These are current-host checks; clean Windows VM compatibility and universal website support are not certified.
+
+Accepted desktop ZIP: `ViFree-v4.1.0-preview.30-win-x64.zip`, SHA-256 `EE3ED9FBF7C6FE9206473FB0FB223B06536EEE3004537F713808C4347E07C777`. Included companion version: 1.2.1. Rebuild with `./scripts/package.ps1 -Version 4.1.0-preview.30 -Preview`.
+
+## Preview 27 validation history
 
 Preview 27 was accepted and merged into main. The desktop ZIP is unchanged. A separate browser companion 1.1.0 candidate adds click-triggered Facebook/TikTok player detection; its source remains on `fix/browser-active-video` for review. Extract the companion into a permanent folder, reload/load its `chromium` folder, and keep Preview 27's Browser integration enabled. Detection needs no account import or paid service. TikTok's actual feed was checked across two videos; Facebook returned a login wall, so signed-in feed detection remains unverified.
 

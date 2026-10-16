@@ -1,15 +1,27 @@
 globalThis.ViFreeVideoDetection = (() => {
   // Self-contained: Chrome/Firefox serialize this function into the active tab's isolated world.
-  function inspectVideoPage(sourceHint = "") {
+  function inspectVideoPage(sourceHint = "", materializeLinks = false, selectedVideo = null) {
+    let warmedLink = false;
     function platform(value) {
       const host = new URL(value).hostname.toLowerCase();
-      return /(^|\.)tiktok\.com$/u.test(host) ? "tiktok" : /(^|\.)(facebook\.com|fb\.watch)$/u.test(host) ? "facebook" : "";
+      return /(^|\.)tiktok\.com$/u.test(host) ? "tiktok" : /(^|\.)(facebook\.com|fb\.watch)$/u.test(host) ? "facebook" : /(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/u.test(host) ? "youtube" : "";
+    }
+    function publicUrl(value) {
+      try {
+        const url = new URL(value);
+        return /^https?:$/u.test(url.protocol) && !url.username && !url.password && !url.port ? url.href : "";
+      } catch { return ""; }
     }
     function permalink(value) {
       if (typeof value !== "string" || !value.trim()) return "";
       try {
         const url = new URL(value, location.href);
         if (!/^https?:$/u.test(url.protocol) || url.username || url.password || url.port || platform(url.href) !== platform(location.href)) return "";
+        if (platform(location.href) === "youtube") {
+          const id = url.hostname === "youtu.be" ? url.pathname.slice(1) : url.pathname.match(/^\/(?:shorts|embed)\/([\w-]+)/u)?.[1] ?? (url.pathname === "/watch" ? url.searchParams.get("v") : "");
+          return /^[\w-]{11}$/u.test(id ?? "") ? `https://www.youtube.com/watch?v=${id}` : "";
+        }
+        if (!platform(location.href)) return "";
         if (platform(url.href) === "tiktok") {
           const match = url.pathname.match(/^\/@([\w.-]+)\/video\/(\d+)\/?$/u);
           if (match) return `https://www.tiktok.com/@${match[1]}/video/${match[2]}`;
@@ -35,7 +47,7 @@ globalThis.ViFreeVideoDetection = (() => {
     function visible(video) {
       let box = video.getBoundingClientRect(), style = getComputedStyle(video);
       if (style.display === "none" || style.visibility === "hidden") return null;
-      for (let parent = video.parentElement, depth = 0; parent && parent !== document.body && depth < 10; parent = parent.parentElement, depth++) {
+      for (let parent = video.parentElement, depth = 0; parent && parent !== document.body && depth < 40; parent = parent.parentElement, depth++) {
         const paint = getComputedStyle(parent);
         if (paint.display === "none" || paint.visibility === "hidden" || Number(paint.opacity) === 0) return null;
       }
@@ -59,7 +71,7 @@ globalThis.ViFreeVideoDetection = (() => {
       const wrapped = permalink(video.closest("a[href]")?.href ?? "");
       if (wrapped) return wrapped;
       let scope = video, mediaId = "";
-      for (let level = 0; scope && scope !== document.body && level < 10; level++, scope = scope.parentElement) {
+      for (let level = 0; scope && scope !== document.body && level < 40; level++, scope = scope.parentElement) {
         // Never borrow a permalink from a different visible feed item or a sidebar.
         if (visibleVideos.some(other => other !== video && scope.contains(other))) break;
         const id = scope.getAttribute("data-video-id") ?? scope.getAttribute("data-item-id") ?? (platform(location.href) === "tiktok" ? scope.id?.match(/^xgwrapper-\d+-(\d{15,25})$/u)?.[1] : "");
@@ -69,24 +81,60 @@ globalThis.ViFreeVideoDetection = (() => {
           const author = Array.from(scope.querySelectorAll('a[href]')).map(link => { try { return platform(link.href) === "tiktok" ? new URL(link.href).pathname.match(/^\/@([\w.-]+)\/?$/u)?.[1] : null; } catch { return null; } }).find(Boolean);
           if (author) return `https://www.tiktok.com/@${author}/video/${mediaId}`;
         }
-        const links = new Set(Array.from(scope.querySelectorAll("a[href]")).slice(0, 200).map(link => permalink(link.href)).filter(Boolean));
+        const anchors = Array.from(scope.querySelectorAll("a[href]")).slice(0, 200);
+        const links = new Set(anchors.map(link => permalink(link.href)).filter(Boolean));
         if (links.size === 1) return [...links][0];
         if (links.size > 1) return "";
-        if (scope.matches('article,[role="article"],[role="dialog"],[data-e2e="feed-item"],[data-e2e="recommend-list-item-container"],[data-pagelet^="FeedUnit"]')) break;
+        // Facebook lazily assigns the public timestamp URL on pointer entry. Never click it.
+        if (materializeLinks && !warmedLink && platform(location.href) === "facebook") {
+          const timestamps = anchors.filter(link => {
+            try {
+              const url = new URL(link.href, location.href);
+              return url.origin === new URL(location.href).origin && url.pathname === "/" &&
+                (url.searchParams.get("__tn__") ?? "").split(",").includes("O");
+            } catch { return false; }
+          });
+          if (timestamps.length === 1) {
+            warmedLink = true;
+            timestamps[0].dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+            timestamps[0].dispatchEvent(new MouseEvent("mouseenter"));
+          }
+        }
+        if (scope.matches('article,[role="article"],[role="dialog"],[data-e2e="feed-item"],[data-e2e="recommend-list-item-container"],[data-pagelet^="FeedUnit"],ytd-rich-item-renderer,ytd-video-renderer,ytd-reel-video-renderer,yt-lockup-view-model') ||
+          platform(location.href) === "facebook" && scope.querySelectorAll('h2,h3,h4,[role="heading"]').length) break;
       }
       return "";
     }
-    if (!platform(location.href)) return { url: "", reason: "unsupported" };
-    const videos = Array.from(document.querySelectorAll("video")).slice(0, 100).map(visible).filter(Boolean).sort((a, b) => b.score - a.score);
-    const hinted = sourceHint && videos.find(item => item.video.currentSrc === sourceHint || item.video.src === sourceHint);
+    if (!publicUrl(location.href)) return { url: "", reason: "unsupported" };
+    const allVideos = Array.from(document.querySelectorAll("video")).slice(0, 100);
+    const videos = allVideos.map(visible).filter(Boolean).sort((a, b) => b.score - a.score);
+    const hinted = selectedVideo ? videos.find(item => item.video === selectedVideo) : sourceHint && videos.find(item => item.video.currentSrc === sourceHint || item.video.src === sourceHint);
+    if ((selectedVideo || sourceHint) && !hinted) return { url: "", reason: "no-video" };
     const ranked = hinted ? [hinted] : videos;
     if (ranked.length > 1 && Math.abs(ranked[0].score - ranked[1].score) < 30) return { url: "", reason: "ambiguous" };
     if (ranked.length) {
       const local = localLink(ranked[0].video, videos.map(item => item.video));
       if (local) return { url: local, reason: "player" };
+      if (!platform(location.href)) {
+        const video = ranked[0].video;
+        const source = publicUrl(video.currentSrc || video.src);
+        if (source) return { url: source, reason: "source" };
+        const wrapped = publicUrl(video.closest("a[href]")?.href);
+        if (wrapped && wrapped !== publicUrl(location.href) && new URL(wrapped).pathname !== "/") return { url: wrapped, reason: "player" };
+        if (allVideos.length === 1) return { url: publicUrl(location.href), reason: "page" };
+      }
     }
     const current = permalink(location.href);
     if (current) return { url: current, reason: "page" };
+    if (warmedLink) return new Promise(resolve => {
+      let attempts = 0;
+      const recheck = () => {
+        const found = inspectVideoPage(sourceHint, false, selectedVideo);
+        if (found.url || found.reason !== "missing-link" || ++attempts >= 8) resolve(found);
+        else setTimeout(recheck, 125);
+      };
+      setTimeout(recheck, 125);
+    });
     return { url: "", reason: ranked.length ? "missing-link" : "no-video" };
   }
 
@@ -102,7 +150,13 @@ globalThis.ViFreeVideoDetection = (() => {
     let results;
     try { results = await globalThis.ViFreeConnection.api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? ""] }); }
     catch { throw new Error("Could not inspect this page. Reload the extension and page, then try again."); }
-    const found = results?.find(result => result.frameId === 0)?.result;
+    let found = results?.find(result => result.frameId === 0)?.result;
+    if (platform === "facebook" && found?.reason === "missing-link") {
+      try {
+        results = await globalThis.ViFreeConnection.api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? "", true] });
+        found = results?.find(result => result.frameId === 0)?.result;
+      } catch { throw new Error("Could not inspect this page. Reload the extension and page, then try again."); }
+    }
     if (found?.url && socialPlatform(found.url) === platform) return found.url;
     throw new Error(found?.reason === "ambiguous" ? "More than one video is visible. Open the video you want, then try again." : "Could not find this video's link. Open the video itself or use Share → Copy link.");
   }

@@ -18,6 +18,7 @@ class Element {
   }
   get href() { return this.attrs.href; }
   getAttribute(name) { return this.attrs[name] ?? null; }
+  dispatchEvent(event) { this.attrs.onEvent?.(event, this); return true; }
   getBoundingClientRect() { return { ...this.box, right: this.box.left + this.box.width, bottom: this.box.top + this.box.height }; }
   contains(node) { return this === node || this.children.some(child => child.contains(node)); }
   matches(selector) {
@@ -32,9 +33,9 @@ const el = (tag, attrs, ...children) => new Element(tag, attrs, children);
 const link = href => el('a', { href });
 function fixture(url, ...children) {
   const body = el('body', {}, ...children);
-  const context = vm.createContext({ URL, location: { href: url }, document: { body, querySelectorAll: selector => body.querySelectorAll(selector) }, getComputedStyle: node => node.style, innerWidth: 1200, innerHeight: 800 });
+  const context = vm.createContext({ URL, setTimeout, MouseEvent: class { constructor(type) { this.type = type; } }, location: { href: url }, document: { body, querySelectorAll: selector => body.querySelectorAll(selector) }, getComputedStyle: node => node.style, innerWidth: 1200, innerHeight: 800 });
   vm.runInContext(scripts('video-detection.js'), context);
-  return { context, body, detect: hint => context.ViFreeVideoDetection.inspectVideoPage(hint) };
+  return { context, body, detect: (hint, warm) => context.ViFreeVideoDetection.inspectVideoPage(hint, warm) };
 }
 const tiktok = (id, author, attrs = {}) => el('article', { 'data-e2e': 'recommend-list-item-container' },
   el('section', { 'data-e2e': 'feed-video' }, el('div', { id: `xgwrapper-0-${id}` }, el('video', attrs)), link(`https://www.tiktok.com/@${author}`)));
@@ -135,4 +136,64 @@ test('a cross-site result cannot be sent in place of the selected Facebook video
   const { context } = fixture('https://www.facebook.com/');
   context.ViFreeConnection = { api: { scripting: { executeScript: async () => [{ frameId: 0, result: { url: 'https://www.tiktok.com/@unrelated/video/7000000000000000001' } }] } } };
   await assert.rejects(context.ViFreeVideoDetection.resolve({ id: 42, url: 'https://www.facebook.com/' }), /Copy link/u);
+});
+
+const nest = (node, count) => { while (count--) node = el('div', {}, node); return node; };
+test('Facebook permalink survives the deeply nested player used by the live feed', () => {
+  const post = el('div', {}, el('h3'), nest(el('video'), 25), link('https://www.facebook.com/reel/1038496899213671/'));
+  assert.equal(fixture('https://www.facebook.com/', post).detect().url, 'https://www.facebook.com/reel/1038496899213671/');
+});
+test('a post heading bounds traversal before a neighboring video permalink', () => {
+  const own = el('div', {}, el('h3'), nest(el('video'), 15));
+  assert.equal(fixture('https://www.facebook.com/', own, link('https://www.facebook.com/reel/22222222222/')).detect().url, '');
+});
+test('Facebook public timestamps materialize after pointer entry without clicking or navigating', async () => {
+  const events = [];
+  const timestamp = el('a', { href: 'https://www.facebook.com/?__tn__=%2CO%2CP-R', onEvent: (event, node) => {
+    events.push(event.type);
+    if (event.type === 'mouseover') node.attrs.href = 'https://www.facebook.com/reel/1038496899213671/?tracking=discard';
+  } });
+  const { detect } = fixture('https://www.facebook.com/', el('div', {}, el('h3'), nest(el('video'), 15), timestamp));
+  assert.equal(detect().reason, 'missing-link');
+  assert.equal((await detect('', true)).url, 'https://www.facebook.com/reel/1038496899213671/');
+  assert.deepEqual(events, ['mouseover', 'mouseenter']);
+});
+test('a lazy-link retry never enters a neighboring post', async () => {
+  let touched = false;
+  const other = el('a', { href: 'https://www.facebook.com/?__tn__=%2CO%2CP-R', onEvent: () => { touched = true; } });
+  const found = await fixture('https://www.facebook.com/', el('article', {}, nest(el('video'), 15)), other).detect('', true);
+  assert.equal(found.url, ''); assert.equal(touched, false);
+});
+test('a stale source hint cannot select another visible video', () => {
+  assert.equal(fixture('https://www.facebook.com/', facebook('11111111111')).detect('blob:gone').reason, 'no-video');
+});
+test('the overlay identifies its exact player even when media is attached without a source URL', () => {
+  const first = facebook('11111111111', { src: '' }), second = facebook('22222222222', { src: '' });
+  const { context } = fixture('https://www.facebook.com/', first, second);
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, second.querySelectorAll('video')[0]).url, 'https://www.facebook.com/watch/?v=22222222222');
+  assert.equal(context.ViFreeVideoDetection.inspectVideoPage('', false, el('video')).reason, 'no-video');
+});
+test('deeply hidden containers are excluded', () => {
+  const hidden = nest(facebook('11111111111'), 20); hidden.style.display = 'none';
+  assert.equal(fixture('https://www.facebook.com/', hidden, facebook('22222222222', { paused: true })).detect().url, 'https://www.facebook.com/watch/?v=22222222222');
+});
+for (const url of ['https://www.youtube.com/watch?v=jNQXAC9IVRw&list=ignored', 'https://www.youtube.com/shorts/jNQXAC9IVRw', 'https://www.youtube-nocookie.com/embed/jNQXAC9IVRw', 'https://youtu.be/jNQXAC9IVRw']) {
+  test(`YouTube player has a canonical video link: ${url}`, () => assert.equal(fixture(url, el('video')).detect().url, 'https://www.youtube.com/watch?v=jNQXAC9IVRw'));
+}
+test('a YouTube feed player uses its own card instead of the homepage', () => {
+  assert.equal(fixture('https://www.youtube.com/', el('ytd-rich-item-renderer', {}, el('video'), link('/watch?v=jNQXAC9IVRw'))).detect().url, 'https://www.youtube.com/watch?v=jNQXAC9IVRw');
+});
+test('a generic HTML5 player sends its direct HTTPS media URL', () => {
+  assert.equal(fixture('https://example.com/', el('video', { src: 'https://cdn.example.com/movie.mp4?token=sample' })).detect().url, 'https://cdn.example.com/movie.mp4?token=sample');
+});
+test('a single blob-backed player sends its own page and a wrapped player prefers its permalink', () => {
+  assert.equal(fixture('https://example.com/film', el('video')).detect().url, 'https://example.com/film');
+  assert.equal(fixture('https://example.com/feed', el('a', { href: 'https://example.com/film/42' }, el('video')), el('video', { paused: true })).detect().url, 'https://example.com/film/42');
+});
+test('multiple blob-backed generic players cannot cause homepage forwarding', () => {
+  assert.equal(fixture('https://example.com/', el('video'), el('video', { paused: true })).detect('blob:synthetic').url, '');
+});
+test('non-web pages and credential-bearing sources are never returned', () => {
+  assert.equal(fixture('file:///C:/private.html', el('video')).detect().url, '');
+  assert.equal(fixture('https://example.com/film', el('video', { src: 'https://user:secret@example.com/private.mp4' })).detect().url, 'https://example.com/film');
 });
