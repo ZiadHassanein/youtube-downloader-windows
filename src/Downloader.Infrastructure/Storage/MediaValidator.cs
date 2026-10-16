@@ -18,7 +18,7 @@ public static class MediaValidator
     {
         if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("format", out var format) || format.ValueKind != JsonValueKind.Object || !format.TryGetProperty("format_name", out var container) || !format.TryGetProperty("duration", out var duration) ||
             !root.TryGetProperty("streams", out var streams) || streams.ValueKind != JsonValueKind.Array) return false;
-        string expected = options.Audio ? options.AudioEncoding switch { AudioEncoding.M4a => "m4a", AudioEncoding.Opus => "ogg", _ => OutputProfiles.AudioExtension(options.AudioEncoding) } : "mp4";
+        string expected = options.Audio ? options.AudioEncoding switch { AudioEncoding.M4a => "m4a", AudioEncoding.Opus => "ogg", _ => OutputProfiles.AudioExtension(options.AudioEncoding) } : options.VideoContainer == VideoContainer.Mkv ? "matroska" : OutputProfiles.VideoExtension(options.VideoContainer);
         return container.ValueKind == JsonValueKind.String && container.GetString().Split(',').Contains(expected) &&
             double.TryParse(duration.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double seconds) && seconds > 0 && double.IsFinite(seconds) &&
             streams.EnumerateArray().Any(s => s.ValueKind == JsonValueKind.Object && s.TryGetProperty("codec_type", out var type) && type.ValueKind == JsonValueKind.String && type.GetString() == (options.Audio ? "audio" : "video"));

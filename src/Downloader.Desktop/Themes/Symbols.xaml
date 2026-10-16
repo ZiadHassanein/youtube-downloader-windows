@@ -3,6 +3,7 @@
   <Geometry x:Key="ClipboardIcon">M6,4 L6,2 12,2 12,4 M6,3 L3,3 3,18 15,18 15,3 12,3 M6,2 L6,5 12,5 12,2 Z</Geometry>
   <Geometry x:Key="VideoIcon">M1,4 L12,4 12,15 1,15 Z M12,7 L18,4 18,15 12,12</Geometry>
   <Geometry x:Key="AudioIcon">M2,7 L2,13 M6,3 L6,17 M10,1 L10,19 M14,4 L14,16 M18,8 L18,12</Geometry>
+  <Geometry x:Key="SubtitlesIcon">M1,3 L21,3 21,17 1,17 Z M9,7 L6,7 6,13 9,13 M17,7 L14,7 14,13 17,13</Geometry>
   <Geometry x:Key="DownloadIcon">M10,1 L10,13 M5,8 L10,13 15,8 M2,14 L2,19 18,19 18,14</Geometry>
   <Geometry x:Key="SettingsIcon">M8,1 L12,1 13,4 16,5 19,5 20,9 18,11 17,14 18,17 14,20 11,18 8,18 5,20 1,17 2,14 1,11 0,9 1,5 4,5 7,4 Z M14,10 A4,4 0 1 1 6,10 A4,4 0 1 1 14,10</Geometry>
   <Geometry x:Key="GlobeIcon">M19,10 A9,9 0 1 1 1,10 A9,9 0 1 1 19,10 M1,10 L19,10 M3,5 L17,5 M3,15 L17,15 M10,1 C4,5 4,15 10,19 C16,15 16,5 10,1</Geometry>

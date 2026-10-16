@@ -11,8 +11,10 @@ public partial class DownloadFormView : UserControl
     {
         InitializeComponent();
         AudioFormatMenu.PlacementTarget = AudioChoice;
-        AudioFormatMenu.CustomPopupPlacementCallback = PlaceAudioMenu;
-        Unloaded += (_, _) => AudioFormatMenu.IsOpen = false;
+        VideoFormatMenu.PlacementTarget = VideoChoice;
+        AudioFormatMenu.CustomPopupPlacementCallback = (popup, _, _) => ContextMenuPlacement.CenterWithinClient(AudioChoice, popup);
+        VideoFormatMenu.CustomPopupPlacementCallback = (popup, _, _) => ContextMenuPlacement.CenterWithinClient(VideoChoice, popup);
+        Unloaded += (_, _) => { AudioFormatMenu.IsOpen = false; VideoFormatMenu.IsOpen = false; };
     }
 
     private void AudioClicked(object sender, RoutedEventArgs args) => OpenAudioMenu();
@@ -24,7 +26,19 @@ public partial class DownloadFormView : UserControl
         args.Handled = true;
     }
 
-    private void AudioMenuOpening(object sender, ContextMenuEventArgs args) => PrepareAudioMenu();
+    private void AudioMenuOpening(object sender, ContextMenuEventArgs args) => args.Handled = !PrepareAudioMenu();
+    private void VideoMenuOpening(object sender, ContextMenuEventArgs args) => args.Handled = !PrepareVideoMenu();
+    private void VideoClicked(object sender, RoutedEventArgs args) => OpenVideoMenu();
+    private void VideoKeyDown(object sender, KeyEventArgs args)
+    {
+        if (args.Key is not (Key.Down or Key.Up)) return;
+        OpenVideoMenu();
+        args.Handled = true;
+    }
+    private void OpenVideoMenu()
+    {
+        if (PrepareVideoMenu()) VideoFormatMenu.IsOpen = true;
+    }
 
     private void OpenAudioMenu()
     {
@@ -37,30 +51,33 @@ public partial class DownloadFormView : UserControl
     {
         if (DataContext is not MainViewModel { IsIdle: true } model) return false;
         model.Audio = true;
-        // A reused native popup can retain its previous language while it is detached.
-        AudioFormatMenu.SetCurrentValue(FlowDirectionProperty, model.ContentDirection);
-        AudioFormatMenu.SetCurrentValue(FontFamilyProperty, model.ContentFont);
-        AudioFormatMenu.Items.Clear();
-        foreach (var choice in model.Encodings)
-        {
-            var item = new MenuItem
-            {
-                Header = choice.Label, Tag = choice, IsCheckable = true, IsChecked = choice == model.SelectedEncoding,
-                Style = (Style)FindResource("SelectionMenuItem")
-            };
-            item.Click += EncodingChosen;
-            AudioFormatMenu.Items.Add(item);
-        }
+        PrepareMenu(AudioFormatMenu, model, model.Encodings, model.SelectedEncoding, choice => model.SelectedEncoding = choice);
         return true;
     }
 
-    private void EncodingChosen(object sender, RoutedEventArgs args)
+    private bool PrepareVideoMenu()
     {
-        if (DataContext is MainViewModel { IsIdle: true } model && sender is MenuItem { Tag: EncodingChoice choice })
-            model.SelectedEncoding = choice;
-        AudioFormatMenu.IsOpen = false;
+        if (DataContext is not MainViewModel { IsIdle: true } model) return false;
+        model.Audio = false;
+        PrepareMenu(VideoFormatMenu, model, model.VideoFormats, model.SelectedVideoFormat, choice => model.SelectedVideoFormat = choice);
+        return VideoFormatMenu.Items.Count > 0;
     }
 
-    private CustomPopupPlacement[] PlaceAudioMenu(Size popup, Size target, Point offset) =>
-        ContextMenuPlacement.CenterWithinClient(AudioChoice, popup);
+    private void PrepareMenu<T>(ContextMenu menu, MainViewModel model, IEnumerable<T> choices, T selected, Action<T> choose)
+    {
+        // Native popups are detached and must refresh direction/font before reuse.
+        menu.SetCurrentValue(FlowDirectionProperty, model.ContentDirection);
+        menu.SetCurrentValue(FontFamilyProperty, model.ContentFont);
+        menu.Items.Clear();
+        foreach (var choice in choices)
+        {
+            var item = new MenuItem
+            {
+                Header = choice.ToString(), Tag = choice, IsCheckable = true, IsChecked = Equals(choice, selected),
+                Style = (Style)FindResource("SelectionMenuItem")
+            };
+            item.Click += (_, _) => { if (model.IsIdle) choose(choice); menu.IsOpen = false; };
+            menu.Items.Add(item);
+        }
+    }
 }

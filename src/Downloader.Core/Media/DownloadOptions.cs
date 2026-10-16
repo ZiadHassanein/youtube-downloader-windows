@@ -7,8 +7,10 @@ namespace YouTubeDownloader
         internal string FormatSelector;
         public bool Audio;
         public int Height = 1080;
-        public int AudioBitrate = 320;
+        public int AudioBitrate;
         public AudioEncoding AudioEncoding = AudioEncoding.Mp3;
+        public VideoContainer VideoContainer;
+        public AudioSourceInfo AudioSource;
         public CaptionRequest Captions;
         public MediaSelection Selection;
         public PlaylistInfo Playlist;
@@ -18,7 +20,7 @@ namespace YouTubeDownloader
         public DownloadOptions Snapshot() => new()
         {
             Url = Url, Folder = Folder, QualityKey = QualityKey, FormatSelector = FormatSelector,
-            Audio = Audio, AudioBitrate = AudioBitrate, AudioEncoding = AudioEncoding,
+            Audio = Audio, AudioBitrate = AudioBitrate, AudioEncoding = AudioEncoding, VideoContainer = VideoContainer, AudioSource = AudioSource,
             Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem,
             ResumeDirectory = ResumeDirectory,
             Playlist = Playlist == null ? null : new PlaylistInfo

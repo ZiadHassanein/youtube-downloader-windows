@@ -30,15 +30,14 @@
   </StackPanel>
   <TextBlock Text="{Binding FormatLabel}" Style="{StaticResource SectionLabel}"/>
   <UniformGrid Columns="2" Margin="0,0,0,16">
-   <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/></StackPanel>
+   <RadioButton x:Name="VideoChoice" IsChecked="{Binding Video}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="0,0,5,0" AutomationProperties.Name="{Binding VideoLabel}" AutomationProperties.HelpText="{Binding VideoFormatLabel}" Click="VideoClicked" PreviewKeyDown="VideoKeyDown" ContextMenuOpening="VideoMenuOpening">
+    <RadioButton.ContextMenu><ContextMenu x:Name="VideoFormatMenu" Style="{StaticResource OutputFormatMenu}" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14"/></RadioButton.ContextMenu>
+    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource VideoIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding VideoLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
    <RadioButton x:Name="AudioChoice" IsChecked="{Binding Audio}" IsEnabled="{Binding IsIdle}" GroupName="MediaKind" Style="{StaticResource FormatSegment}" Margin="5,0,0,0" AutomationProperties.Name="{Binding AudioLabel}" AutomationProperties.HelpText="{Binding AudioFormatLabel}"
                 Click="AudioClicked" PreviewKeyDown="AudioKeyDown" ContextMenuOpening="AudioMenuOpening">
     <RadioButton.ContextMenu>
-     <ContextMenu x:Name="AudioFormatMenu" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14" MinWidth="216" StaysOpen="False" Placement="Custom">
-      <ContextMenu.Template><ControlTemplate TargetType="ContextMenu"><Border Background="{DynamicResource Field}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="6"><ItemsPresenter/></Border></ControlTemplate></ContextMenu.Template>
-     </ContextMenu>
+     <ContextMenu x:Name="AudioFormatMenu" Style="{StaticResource OutputFormatMenu}" DataContext="{Binding PlacementTarget.DataContext,RelativeSource={RelativeSource Self}}" FlowDirection="{Binding ContentDirection}" FontFamily="{Binding ContentFont}" FontSize="14"/>
     </RadioButton.ContextMenu>
     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource AudioIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Margin="0,0,8,0"/><TextBlock Text="{Binding AudioLabel}"/><Path Data="{StaticResource ChevronIcon}" Style="{StaticResource LineIcon}" Width="10" Height="7" Margin="10,0,0,0"/></StackPanel>
    </RadioButton>
@@ -47,10 +46,15 @@
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
    <StackPanel>
     <TextBlock Text="{Binding QualityLabel}" Style="{StaticResource SectionLabel}"/>
-    <ComboBox x:Name="QualityInput" ItemsSource="{Binding Qualities}" SelectedItem="{Binding SelectedQuality}" DisplayMemberPath="Label" IsEnabled="{Binding CanChooseQuality}" AutomationProperties.Name="{Binding QualityLabel}"/>
+    <ComboBox x:Name="QualityInput" ItemsSource="{Binding Qualities}" SelectedItem="{Binding SelectedQuality}" DisplayMemberPath="Label" IsEnabled="{Binding CanChooseQuality}" AutomationProperties.Name="{Binding QualityLabel}">
+     <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}"><Style.Triggers><DataTrigger Binding="{Binding Audio}" Value="True"><Setter Property="ToolTip" Value="{Binding AudioSourceHint}"/></DataTrigger></Style.Triggers></Style></ComboBox.Style>
+    </ComboBox>
    </StackPanel>
-   <Button x:Name="MoreOptionsButton" Grid.Column="2" Command="{Binding OptionsCommand}" Style="{StaticResource QuietButton}" VerticalAlignment="Bottom" Padding="12,8" ToolTip="{Binding OptionsHint}" AutomationProperties.Name="{Binding OptionsLabel}">
-    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource OptionsIcon}" Style="{StaticResource LineIcon}" Width="18" Margin="0,0,10,0"/><TextBlock Text="{Binding OptionsLabel}"/></StackPanel>
+   <Button x:Name="MoreOptionsButton" Grid.Column="2" Command="{Binding OptionsCommand}" VerticalAlignment="Bottom" Padding="12,8" MinWidth="116" Height="44" ToolTip="{Binding OptionsHint}" AutomationProperties.Name="{Binding OptionsLabel}" AutomationProperties.HelpText="{Binding OptionsHint}">
+    <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Style.Triggers>
+     <DataTrigger Binding="{Binding SubtitlesEnabled}" Value="True"><Setter Property="Background" Value="{DynamicResource Selected}"/><Setter Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="Foreground" Value="{DynamicResource Accent}"/></DataTrigger>
+    </Style.Triggers></Style></Button.Style>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Path x:Name="SubtitleButtonIcon" Data="{StaticResource SubtitlesIcon}" Style="{StaticResource LineIcon}" Stroke="{DynamicResource Accent}" Width="18" Height="18" Margin="0,0,8,0" FlowDirection="LeftToRight"/><TextBlock Text="{Binding OptionsLabel}" VerticalAlignment="Center"/></StackPanel>
    </Button>
   </Grid>
   <TextBlock Text="{Binding FolderLabel}" Style="{StaticResource SectionLabel}"/>

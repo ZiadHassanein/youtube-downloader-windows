@@ -27,14 +27,15 @@ public sealed partial class MainViewModel
     private void RefreshQualities()
     {
         var previous = SelectedQuality;
+        if (VideoFormats.Count > 0 && !VideoFormats.Contains(SelectedVideoFormat)) state.VideoContainer = VideoFormats[0].Container;
         Qualities.Clear();
         if (Audio && OutputProfiles.IsLossless(SelectedEncoding.Encoding))
-            Qualities.Add(new QualityChoice(T("Source quality"), Bitrate: state.AudioBitrate));
+            Qualities.Add(new QualityChoice(T("No bitrate setting")));
         else if (Audio)
         {
             state.AudioBitrate = OutputProfiles.NormalizeAudioBitrate(SelectedEncoding.Encoding, state.AudioBitrate);
-            Qualities.Add(new QualityChoice(T("Best available")));
-            foreach (int bitrate in OutputProfiles.AudioBitrates(SelectedEncoding.Encoding).Reverse())
+            Qualities.Add(new QualityChoice(T("Automatic")));
+            foreach (int bitrate in AvailableAudioBitrates.Reverse())
                 Qualities.Add(new QualityChoice(bitrate + " kbps", Bitrate: bitrate));
         }
         else if (WholePlaylist && playlistInfo != null)
@@ -52,11 +53,14 @@ public sealed partial class MainViewModel
             )
                 Qualities.Add(new QualityChoice(cap == 0 ? T("Best available") : F("Up to {0}p", cap), Height: cap));
         else if (videoInfo != null)
-            foreach (var choice in videoInfo.Qualities)
+            foreach (var choice in videoInfo.QualitiesFor(SelectedVideoFormat.Container))
                 Qualities.Add(new QualityChoice(choice.Resolution + "p", choice.SelectionKey, choice.Resolution, Selection: choice.Selection));
         if (Qualities.Count == 0)
             Qualities.Add(new QualityChoice(T("Quality")));
-        SelectedQuality = Audio ? Qualities.First(q => q.Bitrate == state.AudioBitrate) : Qualities.FirstOrDefault(q => previous != null && q.Key == previous.Key && q.Height == previous.Height) ?? (WholePlaylist && playlistInfo != null ? Qualities.First(q => q.Height == 1080) : videoInfo?.Qualities.Count > 0 ? Qualities[videoInfo.RecommendedIndex] : Qualities[0]);
+        SelectedQuality = Audio ? Qualities.FirstOrDefault(q => q.Bitrate == state.AudioBitrate) ?? Qualities[0] :
+            Qualities.FirstOrDefault(q => previous != null && q.Key == previous.Key && q.Height == previous.Height) ??
+            (WholePlaylist && playlistInfo != null ? Qualities.First(q => q.Height == 1080) : Qualities.FirstOrDefault(q => q.Height is > 0 and <= 1080) ?? Qualities[0]);
+        foreach (string property in new[] { nameof(VideoLabel), nameof(VideoFormats), nameof(SelectedVideoFormat), nameof(QualityLabel), nameof(AvailableAudioBitrates), nameof(AudioSourceHint), nameof(HasAudioSource) }) OnPropertyChanged(property);
         RefreshAvailability();
     }
 
@@ -153,7 +157,7 @@ public sealed partial class MainViewModel
                 {
                 if (result.Live)
                     throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
-                if (result.Qualities.Count == 0 && !result.HasAudio)
+                if (!Enum.GetValues<VideoContainer>().Any(container => result.QualitiesFor(container).Count > 0) && !result.HasAudio)
                     throw new InvalidOperationException("The site did not return downloadable formats for this video.");
                 videoInfo = result;
                 playlistInfo = null;
@@ -221,16 +225,8 @@ public sealed partial class MainViewModel
                 ClearLink();
             }
 
-            foreach (string file in result.Files)
-            {
-                state.Recent.RemoveAll(p => string.Equals(p, file, StringComparison.OrdinalIgnoreCase));
-                state.Recent.Insert(0, file);
-            }
-
-            state.Recent = state.Recent.Take(5).ToList();
-            lastFile = result.FilePath;
-            Save();
-            OnPropertyChanged(nameof(HasFile));
+            quietCompletion = !result.Cancelled && result.Failed == 0 && result.Remaining == 0 && result.StopReason == null && result.Warning == null;
+            RememberFiles(result);
             if (!result.Cancelled)
             {
                 ShowProgress = true;
@@ -275,6 +271,7 @@ public sealed partial class MainViewModel
 
     private void SetStatus(string heading, string detail, bool error, bool progress = false)
     {
+        quietCompletion = false;
         statusHeading = heading;
         statusDetail = detail;
         statusError = error;
@@ -347,11 +344,7 @@ public sealed partial class MainViewModel
     {
         try
         {
-            if (!File.Exists(lastFile) || !new[]
-            {
-                ".mp4",
-                ".mp3", ".m4a", ".opus", ".wav", ".flac"
-            }.Contains(Path.GetExtension(lastFile), StringComparer.OrdinalIgnoreCase))
+            if (!File.Exists(lastFile) || !OutputProfiles.IsMediaExtension(Path.GetExtension(lastFile)))
                 throw new IOException();
             actions.OpenMedia(lastFile, reveal);
         }

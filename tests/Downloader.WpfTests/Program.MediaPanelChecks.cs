@@ -82,11 +82,10 @@ internal static partial class Program
                 "Cancellation keeps the link and context available for retry");
             provider.DownloadHandler = (_, _, _) => new DownloadResult { FilePath = file, Files = new() { file }, Total = 1, Completed = 1 };
             await model.DownloadCommand.ExecuteAsync(null); await Settle();
-            Check(model.Url == "" && Math.Abs(window.Width - 740) <= 1 && !context.IsVisible && inline.IsVisible && model.HasFile,
-                "Successful download collapses the pane and retains completion actions below Download");
+            Check(model.Url == "" && Math.Abs(window.Width - 740) <= 1 && !context.IsVisible && !inline.IsVisible && model.HasFile && model.HasRecentDownloadsBadge,
+                "Successful download collapses the pane and signals completion in recent downloads");
             HeadingFirst("completed");
-            Check(Bounds(inline).Top > Bounds((FrameworkElement)WpfTree.Find(form, "DownloadButton")).Bottom,
-                "Completion feedback stays below the main action");
+            Check(!inline.IsVisible, "Routine completion does not add a block below the main action");
             Capture(window, Path.Combine(captures, "media-completed-en-dark.png"));
             model.Url = "invalid next link"; await Task.Delay(700);
             Check(!model.HasFile, "A new invalid link cannot expose the previous download's file actions");

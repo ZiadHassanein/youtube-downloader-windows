@@ -42,6 +42,12 @@ internal static partial class Program
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--output-details"))
+                {
+                    await CheckOutputDetails(window, model, provider, captures);
+                    Console.WriteLine(count + " WPF output-detail checks passed.");
+                    return;
+                }
                 if (args.Contains("--media-panel"))
                 {
                     await CheckMediaPanel(window, model, provider, captures);
@@ -139,6 +145,8 @@ internal static partial class Program
                 {
                     window.Width = 820;
                     model.Audio = true;
+                    model.Url = "https://youtu.be/jNQXAC9IVRw";
+                    await Task.Delay(850);
                     await QualityPopupChecks.Run(window, model, captures, Check);
                     Console.WriteLine(count + " WPF audio-popup checks passed.");
                     return;
@@ -207,6 +215,7 @@ internal static partial class Program
                 await CheckOutputOptionsModal(window, model, provider, captures);
                 await CheckRedesign(window, model, provider, thumbnailLoader, captures);
                 await CheckMediaPanel(window, model, provider, captures);
+                await CheckOutputDetails(window, model, provider, captures);
                 await CheckMotion(window, model, provider, captures);
                 await MaximizeChecks(window, model, captures);
                 window.Width = 820;
@@ -422,6 +431,9 @@ internal static partial class Program
         public bool IsReady => true;
         public string ThumbnailAddress = "https://example.test/thumbnail.png";
         public string VideoTitle = "Local UI fixture";
+        public AudioSourceInfo SourceAudio = new("pcm_s16le", 1536, true);
+        public bool WebMSupported = true;
+        public DownloadOptions LastRequest;
         public int DownloadDelayMilliseconds = 10000;
         public Func<DownloadOptions, CancellationToken, IProgress<DownloadProgress>, DownloadResult> DownloadHandler;
         public int DownloadCalls;
@@ -449,6 +461,12 @@ internal static partial class Program
                 ThumbnailUrl = ThumbnailAddress,
                 Captions = CaptionTracks,
                 HasAudio = true,
+                AudioSource = SourceAudio,
+                AlternativeQualities = new()
+                {
+                    [VideoContainer.Mkv] = new() { new() { Resolution = 720, SelectionKey = "mkv-hd" } },
+                    [VideoContainer.WebM] = WebMSupported ? new() { new() { Resolution = 720, SelectionKey = "webm-hd" } } : new()
+                },
                 Qualities = new()
                 {
                     new()
@@ -484,6 +502,7 @@ internal static partial class Program
         public DownloadResult DownloadItem(DownloadOptions options, CancellationToken token, IProgress<DownloadProgress> progress = null)
         {
             DownloadCalls++;
+            LastRequest = options.Snapshot();
             if (DownloadHandler != null) return DownloadHandler(options, token, progress);
             progress?.Report(new DownloadProgress { Stage = "Downloading", Detail = "Local fixture only", Percent = 20 });
             token.WaitHandle.WaitOne(DownloadDelayMilliseconds);

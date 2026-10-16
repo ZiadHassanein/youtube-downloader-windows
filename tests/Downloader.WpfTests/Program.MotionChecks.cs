@@ -59,7 +59,9 @@ internal static partial class Program
             model.Folder = fixtureFolder;
             model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
             model.Audio = true;
+            await Input();
             model.SelectedQuality = model.Qualities.First(q => q.Bitrate == 320);
+            model.Url = "";
             foreach (string locale in new[] { "en", "ar" })
                 foreach (bool dark in new[] { true, false })
                 {

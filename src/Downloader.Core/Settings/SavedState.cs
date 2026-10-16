@@ -8,8 +8,10 @@ namespace YouTubeDownloader
         public bool ThemeSelected;
         public string Language = "en";
         public int Format, Quality;
-        public int AudioBitrate = 320;
+        public int AudioBitrate;
         public AudioEncoding AudioEncoding = AudioEncoding.Mp3;
+        public VideoContainer VideoContainer;
+        public int UnseenDownloads;
         public List<string> Recent = new List<string>();
     }
 }

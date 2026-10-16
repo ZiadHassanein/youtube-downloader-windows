@@ -6,6 +6,8 @@ settings.json
 *.pdb
 *.zip
 *.mp4
+*.mkv
+*.webm
 *.mp3
 *.m4a
 *.opus

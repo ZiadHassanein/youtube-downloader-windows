@@ -78,7 +78,7 @@ internal static partial class Program
                             await Task.Delay(65);
                             Check(!menu.IsOpen && model.SelectedEncoding == encoding && model.AudioLabel.Contains(encoding.Label) &&
                                 (OutputProfiles.IsLossless(encoding.Encoding) ? model.Qualities.Count == 1 && !quality.IsEnabled :
-                                    model.Qualities.Count == OutputProfiles.AudioBitrates(encoding.Encoding).Count + 1 && quality.IsEnabled),
+                                    model.Qualities.Count == model.AvailableAudioBitrates.Count + 1 && quality.IsEnabled == (model.AvailableAudioBitrates.Count > 0)),
                                 $"Choosing {encoding.Label} closes the picker and supplies its valid quality choices in {variant}");
                         }
                         audio.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
@@ -100,6 +100,7 @@ internal static partial class Program
                             "Outside-click routing dismisses the picker and retains its format in " + variant);
                         Check(window.RenderSize == sizeBefore, "Picking audio formats does not resize the main window in " + variant);
                         model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
+                        if (!loaded) { model.Url = "https://youtu.be/jNQXAC9IVRw"; await Task.Delay(850); }
                         model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
                         model.LanguageCommand.Execute(null);
                         Check(model.SelectedQuality.Bitrate == 128, "Expanded quality selections survive language changes in " + variant);
@@ -121,6 +122,8 @@ internal static partial class Program
             window.Width = 960;
             model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
             model.Audio = true;
+            model.Url = "https://youtu.be/jNQXAC9IVRw";
+            await Task.Delay(850);
             model.SelectedQuality = model.Qualities.First(choice => choice.Bitrate == 128);
             foreach (bool dark in new[] { false, true })
             {

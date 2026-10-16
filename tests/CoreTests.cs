@@ -72,6 +72,7 @@ public static class CoreTests
             Check(args.Last() == expected && args[args.Count - 2] == "--", "Safe final URL argument");
             options.Audio = true;
             Check(Arguments.ForDownload(tools, options).Contains("--extract-audio"), "MP3 extraction");
+            options.AudioBitrate = 320;
             Check(Arguments.ForDownload(tools, options).Contains("320K") && Arguments.ForDownload(tools, options).Contains("%(title).100B [%(id)s] - 320kbps.%(ext)s"), "320 kbps MP3 uses the chosen encoding and a distinct filename");
             options.AudioBitrate = 192;
             Check(Arguments.ForDownload(tools, options).Contains("192K"), "192 kbps MP3 remains available");

@@ -15,6 +15,7 @@ internal static class Program
             await BoundaryChecks.Run(args[0]);
             await ServiceChecks.Run();
             await WorkflowChecks.Run(args[0]);
+            OutputProfileChecks.Run(args[0]);
             await AutomaticToolChecks.Run(args[0]);
             return 0;
         }

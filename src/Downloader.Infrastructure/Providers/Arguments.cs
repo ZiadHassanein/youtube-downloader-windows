@@ -73,7 +73,7 @@ namespace YouTubeDownloader
                 throw new ArgumentException("Choose a folder on this computer.");
             if (options.Height < 0 || options.Height > 10000)
                 throw new ArgumentException("Choose a supported video quality.");
-            if (!Enum.IsDefined(options.AudioEncoding) || !Enum.IsDefined(options.Captions?.Format ?? CaptionFormat.Srt))
+            if (!Enum.IsDefined(options.AudioEncoding) || !Enum.IsDefined(options.VideoContainer) || !Enum.IsDefined(options.Captions?.Format ?? CaptionFormat.Srt))
                 throw new ArgumentException("Choose a supported output format.");
             if (options.Audio && !OutputProfiles.SupportsAudioBitrate(options.AudioEncoding, options.AudioBitrate))
                 throw new ArgumentException("Choose a supported audio quality.");
@@ -92,7 +92,11 @@ namespace YouTubeDownloader
             if (options.Audio)
             {
                 args.AddRange(new[] { "--format", "bestaudio/best", "--extract-audio", "--audio-format", OutputProfiles.AudioExtension(options.AudioEncoding) });
-                if (!OutputProfiles.IsLossless(options.AudioEncoding)) args.AddRange(new[] { "--audio-quality", options.AudioBitrate == 0 ? "0" : options.AudioBitrate + "K" });
+                if (!OutputProfiles.IsLossless(options.AudioEncoding))
+                {
+                    int target = OutputProfiles.EffectiveAudioBitrate(options);
+                    args.AddRange(new[] { "--audio-quality", target == 0 ? "0" : target + "K" });
+                }
             }
             else
             {
@@ -100,7 +104,8 @@ namespace YouTubeDownloader
                 string selector = playlist && options.Height > 0 ? "(bv*[height<=" + options.Height + "]/bv*[width<=" + options.Height + "])+ba/(b[height<=" + options.Height + "]/b[width<=" + options.Height + "])" : String.IsNullOrEmpty(options.FormatSelector) ? "bv*" + limit + "+ba/b" + limit : options.FormatSelector;
                 if (selector.Length > 18000 || selector.Any(Char.IsControl))
                     throw new ArgumentException("The video's format information is invalid. Check the video again.");
-                args.AddRange(new[] { "--format", selector, "--format-sort", "res,vcodec:h264,acodec:aac", "--merge-output-format", "mp4", "--remux-video", "mp4" });
+                string container = OutputProfiles.VideoExtension(options.VideoContainer);
+                args.AddRange(new[] { "--format", selector, "--format-sort", "res,vcodec:h264,acodec:aac", "--merge-output-format", container, "--remux-video", container });
             }
 
             if (options.Captions != null)

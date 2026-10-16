@@ -10,7 +10,7 @@ namespace YouTubeDownloader
         private readonly AutomaticToolUpdates automaticUpdates;
         private readonly MediaLinkRouter links;
         private readonly WindowsProcessRunner runner = new WindowsProcessRunner();
-        private readonly Dictionary<string, Tuple<string, string>> choices = new Dictionary<string, Tuple<string, string>>();
+        private readonly Dictionary<string, MediaSelection> choices = new();
         private readonly object gate = new object ();
         private volatile bool cancelled;
         public YtDlpProvider(DependencyManager dependencies, MediaLinkRouter links = null)
@@ -130,7 +130,7 @@ namespace YouTubeDownloader
         {
             url = Normalize(url, false);
             var args = Arguments.Common(tools);
-            args.AddRange(new[] { "--flat-playlist", "--playlist-end", "1001", "--skip-download", "--dump-single-json", "--", url });
+            args.AddRange(new[] { "--flat-playlist", "--playlist-end", "1001", "--format", "bestaudio/best/bestvideo", "--skip-download", "--dump-single-json", "--", url });
             Emit(progress, "Checking video", "Getting the title and available formats…", 0, true);
             var data = Json().Deserialize<Dictionary<string, object>>(Execute(args, null, token));
             if (data.ContainsKey("entries"))
@@ -144,14 +144,19 @@ namespace YouTubeDownloader
                 Live = Value(data, "is_live") == "True",
                 Qualities = AvailableFormats.Read(data),
                 HasAudio = AvailableFormats.HasAudio(data),
+                AudioSource = AudioMetadata.Read(data),
                 Captions = CaptionMetadata.Read(data)
             };
             choices.Clear();
-            foreach (var quality in info.Qualities)
+            foreach (var container in Enum.GetValues<VideoContainer>())
             {
-                quality.SelectionKey = Guid.NewGuid().ToString("N");
-                quality.Selection = new MediaSelection(url, quality.Resolution, quality.Selector);
-                choices[quality.SelectionKey] = Tuple.Create(url, quality.Selector);
+                if (container != VideoContainer.Mp4) info.AlternativeQualities[container] = AvailableFormats.Read(data, container);
+                foreach (var quality in info.QualitiesFor(container))
+                {
+                    quality.SelectionKey = Guid.NewGuid().ToString("N");
+                    quality.Selection = new MediaSelection(url, quality.Resolution, quality.Selector, container);
+                    choices[quality.SelectionKey] = quality.Selection;
+                }
             }
 
             return info;
@@ -182,30 +187,40 @@ namespace YouTubeDownloader
             if (options.Playlist != null)
                 throw new ArgumentException("Use the application playlist queue.");
             VideoInfo fresh = null;
-            if (!options.PlaylistItem && ((!options.Audio && options.Selection != null) || options.Captions?.Required == true))
+            if (options.Audio || !options.PlaylistItem && (options.Selection != null || options.Captions?.Required == true) || options.VideoContainer != VideoContainer.Mp4)
             {
                 fresh = InspectCore(options.Url, token, progress);
                 if (fresh.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
                 if (options.Captions?.Required == true && !fresh.Captions.Any(c => c.Language == options.Captions.Language && c.Automatic == options.Captions.Automatic))
                     throw new InvalidOperationException("The selected subtitles are no longer available. Refresh output options or choose no subtitles.");
             }
+            if (options.Audio)
+            {
+                if (!fresh.HasAudio) throw new InvalidOperationException("This video has no downloadable audio stream.");
+                options.AudioSource = fresh.AudioSource ?? new AudioSourceInfo("", null);
+                _ = OutputProfiles.EffectiveAudioBitrate(options);
+            }
             if (!options.PlaylistItem && options.Selection != null && !options.Audio)
             {
                 var selected = options.Selection;
-                if (selected.MediaUrl != Normalize(options.Url, false))
+                if (selected.MediaUrl != Normalize(options.Url, false) || selected.Container != options.VideoContainer)
                     throw new ArgumentException("Check this video again to refresh its quality choices.");
-                var available = fresh.Qualities.FirstOrDefault(q => q.Resolution == selected.Resolution);
+                var available = fresh.QualitiesFor(options.VideoContainer).FirstOrDefault(q => q.Resolution == selected.Resolution);
                 var alternatives = available?.Selector.Split('/').ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>();
                 options.FormatSelector = string.Join('/', selected.Selector.Split('/').Where(alternatives.Contains));
                 if (options.FormatSelector.Length == 0)
                     throw new InvalidOperationException("The selected quality is no longer available. Check the link again and choose a new quality.");
             }
+            else if (!options.Audio && options.VideoContainer != VideoContainer.Mp4)
+            {
+                options.FormatSelector = fresh.QualitiesFor(options.VideoContainer).FirstOrDefault(q => options.Height == 0 || q.Resolution <= options.Height)?.Selector
+                    ?? throw new InvalidOperationException("This video has no compatible streams for this format. Choose another video format.");
+            }
             else if (!options.Audio && !options.PlaylistItem && !String.IsNullOrEmpty(options.QualityKey))
             {
-                Tuple<string, string> selected;
-                if (!choices.TryGetValue(options.QualityKey, out selected) || selected.Item1 != Normalize(options.Url, false))
+                if (!choices.TryGetValue(options.QualityKey, out var selected) || selected.MediaUrl != Normalize(options.Url, false) || selected.Container != options.VideoContainer)
                     throw new ArgumentException("Check the video again to refresh its quality choices.");
-                options.FormatSelector = selected.Item2;
+                options.FormatSelector = selected.Selector;
             }
 
             var args = Arguments.ForDownload(tools, options);
@@ -240,7 +255,7 @@ namespace YouTubeDownloader
                         }
                     }
                     else if (line.StartsWith("YTDL_POST:"))
-                        Emit(progress, options.Audio ? "Preparing audio" : "Preparing MP4", "Finishing your file. This can take a moment…", 100, true);
+                        Emit(progress, options.Audio ? "Preparing audio" : "Preparing video", "Finishing your file. This can take a moment…", 100, true);
                 }, token);
             }
             catch (OperationCanceledException)
@@ -256,6 +271,7 @@ namespace YouTubeDownloader
             string root = Path.GetFullPath(options.Folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             if (!Path.GetFullPath(saved).StartsWith(root, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("The downloaded file is outside the selected folder.");
+            AudioBitrateConversion.Apply(saved, options, tools, token);
             MediaValidator.Validate(saved, options, tools, token);
             Emit(progress, "Download complete", Path.GetFileName(saved), 100, false);
             return new DownloadResult

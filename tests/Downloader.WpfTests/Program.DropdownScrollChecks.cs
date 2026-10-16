@@ -12,6 +12,8 @@ internal static partial class Program
     {
         var quality = (ComboBox)WpfTree.Find(window, "QualityInput");
         model.Audio = true;
+        model.Url = "https://youtu.be/jNQXAC9IVRw";
+        await Task.Delay(850);
         model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
         foreach (bool arabic in new[] { false, true })
             foreach (bool dark in new[] { false, true })
@@ -94,6 +96,7 @@ internal static partial class Program
                 finally { dialog.Close(); }
             }
         window.Activate();
+        model.Url = "";
     }
 
     private static void CheckDropdownLane(ScrollViewer viewer, bool arabic, string variant)

@@ -18,10 +18,28 @@ public static class OutputProfiles
         bitrate >= 0 && bitrate <= 512 && SupportsAudioBitrate(encoding, bitrate) ? bitrate : 320;
     public static string AudioQualityKey(int bitrate) => bitrate == 0 ? "best" : bitrate.ToString(System.Globalization.CultureInfo.InvariantCulture);
     public static string AudioExtension(AudioEncoding encoding) => encoding.ToString().ToLowerInvariant();
+    public static string VideoExtension(VideoContainer container) => container.ToString().ToLowerInvariant();
+    public static string Extension(DownloadOptions options) => options.Audio ? AudioExtension(options.AudioEncoding) : VideoExtension(options.VideoContainer);
+    public static bool IsVideoExtension(string extension) => new[] { "mp4", "mkv", "webm" }.Contains(extension.TrimStart('.'), StringComparer.OrdinalIgnoreCase);
+    public static bool IsMediaExtension(string extension) => IsVideoExtension(extension) || new[] { "mp3", "m4a", "opus", "wav", "flac" }.Contains(extension.TrimStart('.'), StringComparer.OrdinalIgnoreCase);
+    public static IReadOnlyList<int> AudioBitrates(AudioEncoding encoding, AudioSourceInfo source) =>
+        source == null || (!source.Lossless && !source.HasBitrate) ? Array.Empty<int>() :
+        AudioBitrates(encoding).Where(rate => source.Lossless || rate <= source.BitrateKbps.Value).ToArray();
+    public static int EffectiveAudioBitrate(DownloadOptions options)
+    {
+        if (IsLossless(options.AudioEncoding)) return 0;
+        if (options.AudioBitrate > 0)
+        {
+            if (options.AudioSource != null && !AudioBitrates(options.AudioEncoding, options.AudioSource).Contains(options.AudioBitrate))
+                throw new InvalidOperationException("The source audio has changed. Check the link again and choose an available bitrate.");
+            return options.AudioBitrate;
+        }
+        return 0; // Automatic conversion has no claimed numeric bitrate; matching codecs retain the source.
+    }
     public static bool IsLossless(AudioEncoding encoding) => encoding is AudioEncoding.Wav or AudioEncoding.Flac;
     public static string Key(DownloadOptions options)
     {
-        string profile = options.Audio ? AudioExtension(options.AudioEncoding) + "-" + (IsLossless(options.AudioEncoding) ? "source" : AudioQualityKey(options.AudioBitrate)) : "mp4-" + options.Height;
+        string profile = options.Audio ? AudioExtension(options.AudioEncoding) + "-" + (IsLossless(options.AudioEncoding) ? "source" : AudioQualityKey(options.AudioBitrate)) : VideoExtension(options.VideoContainer) + "-" + options.Height;
         if (options.Captions != null)
             profile += "-subs-" + options.Captions.Language + "-" + options.Captions.Automatic + "-" + options.Captions.Format;
         return profile;

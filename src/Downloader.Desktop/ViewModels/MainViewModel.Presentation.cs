@@ -13,6 +13,7 @@ public sealed partial class MainViewModel
     private bool settingsVisible;
     private bool notifiedHasMediaPreview;
     private bool inlineMediaPreview;
+    private bool quietCompletion;
     public bool HasMediaContext => HasMediaPreview || QueueRunning;
     public bool InlineMediaPreview
     {
@@ -44,14 +45,14 @@ public sealed partial class MainViewModel
     public string SettingsLabel => T("Settings");
     public string ContactLabel => T("Contact");
     public string EmailLabel => T("Email");
-    public string OptionsHint => T("Subtitles and file options");
+    public string OptionsHint => T("Choose a subtitle language and file format.");
     public string ChangeFolderLabel => T("Change");
     public string BrowserSettingsHint => T("Send a video link from your browser to ViFree.");
     public string UpdateSectionLabel => T("App updates");
     public string DownloaderSectionLabel => T("Download support");
     public string PreviewLabel => T("Video preview");
     public bool HasMediaPreview => videoInfo != null || playlistInfo != null;
-    public bool ShowInlineActivity => HasStatus && (!HasMediaContext || InlineMediaPreview) && !SettingsVisible;
+    public bool ShowInlineActivity => HasStatus && !quietCompletion && (!HasMediaContext || InlineMediaPreview) && !SettingsVisible;
     public bool ShowDownloadActivity => HasStatus && !IsRefreshingTools;
     public string FolderDisplay => string.IsNullOrWhiteSpace(Folder) ? T("Choose a folder") :
         Path.GetFileName(Path.TrimEndingDirectorySeparator(Folder)) is { Length: > 0 } name ? name : Folder;
@@ -61,11 +62,15 @@ public sealed partial class MainViewModel
         ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
     public string PreviewSubtitle => QueueRunning ? T("Download queue") : videoInfo?.Uploader ?? (playlistInfo == null ? T("Paste a link to see its details.") : playlistInfo.IsMix ? F("YouTube Mix · {0} videos from this changing mix", playlistInfo.Entries.Count) : T("Playlist"));
     public bool HasPreviewDuration => (!QueueRunning || QueueMatchesPreview) && videoInfo?.Duration is > 0 and < 8640000;
+    public bool PreviewIsAudio => QueueRunning && ActiveQueueEntry is { } entry ? entry.Options.Audio : Audio;
     public string PreviewDuration => !HasPreviewDuration ? "" : videoInfo.Duration >= 3600
         ? TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"h\:mm\:ss")
         : TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"m\:ss");
-    public string PreviewOutput => Audio ? SelectedEncoding.Label + " · " + SelectedQuality?.Label
-        : "MP4 · " + (SelectedQuality?.Key != null || playlistInfo != null ? SelectedQuality?.Label : T("Quality"));
+    public string PreviewOutput => QueueRunning && ActiveQueueEntry is { } active ? QueueOutput(active.Options) : Audio ? SelectedEncoding.Label + " · " + SelectedQuality?.Label
+        : SelectedVideoFormat.Label + " · " + (SelectedQuality?.Key != null || playlistInfo != null ? SelectedQuality?.Label : T("Quality"));
+    private string QueueOutput(DownloadOptions request) => request.Audio
+        ? OutputProfiles.AudioExtension(request.AudioEncoding).ToUpperInvariant() + " · " + (OutputProfiles.IsLossless(request.AudioEncoding) ? T("No bitrate setting") : request.AudioBitrate == 0 ? T("Automatic") : request.AudioBitrate + " kbps")
+        : OutputProfiles.VideoExtension(request.VideoContainer).ToUpperInvariant() + " · " + (request.Height == 0 ? T("Best available") : request.Height + "p");
     public string PreviewStatus => HasStatus ? StatusHeading : CanDownload ? T("Ready to download") : T("Paste a video or playlist link");
 
     private void InitializePresentation()
@@ -93,7 +98,7 @@ public sealed partial class MainViewModel
         }
         foreach (string property in new[]
         {
-            nameof(HasMediaContext), nameof(PlaylistLabel), nameof(PreviewImage),
+            nameof(HasMediaContext), nameof(PlaylistLabel), nameof(PreviewImage), nameof(HasPreviewCaptions), nameof(PreviewCaptions), nameof(AudioSourceHint), nameof(PreviewIsAudio),
             nameof(PreviewTitle), nameof(PreviewSubtitle), nameof(PreviewTitleDirection),
             nameof(PreviewDuration), nameof(HasPreviewDuration), nameof(PreviewOutput),
             nameof(PreviewStatus), nameof(ShowInlineActivity), nameof(ShowDownloadActivity)

@@ -73,16 +73,16 @@ internal static partial class Program
         {
             await model.DownloadCommand.ExecuteAsync(null);
             await Task.Delay(100);
-            Check(model.Url == "" && !pane.IsVisible && inline.IsVisible && model.HasFile &&
+            Check(model.Url == "" && !pane.IsVisible && !inline.IsVisible && model.HasFile && model.HasRecentDownloadsBadge &&
                 ((ProgressBar)WpfTree.Find(inline, "JobProgress")).Value == 100,
-                "Successful downloads close the preview while retaining completion and file actions inline");
+                "Successful downloads close the preview and signal completion through the recent badge");
             await Task.Delay(250);
             window.UpdateLayout();
             var fileAction = (Button)WpfTree.Find(inline, "RevealFile");
             var viewport = (FrameworkElement)WpfTree.Find(window, "Viewport");
             var fileBounds = fileAction.TransformToAncestor(viewport).TransformBounds(new Rect(fileAction.RenderSize));
-            Check(fileAction.IsVisible && fileBounds.Top >= 0 && fileBounds.Bottom <= viewport.ActualHeight,
-                "Completion automatically reveals the file actions inside the viewport");
+            Check(!fileAction.IsVisible && ((Button)WpfTree.Find(window, "DownloadButton")).IsVisible,
+                "Routine success removes the redundant completion block while retaining the main action");
             Capture(window, System.IO.Path.Combine(captures, "preview-inline-complete.png"));
             model.SettingsVisible = true;
             await Task.Delay(100);

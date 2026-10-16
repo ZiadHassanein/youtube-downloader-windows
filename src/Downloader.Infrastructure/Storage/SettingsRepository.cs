@@ -165,6 +165,8 @@ public sealed class SettingsRepository
         state.Format = state.Format == 1 ? 1 : 0;
         state.Quality = Math.Clamp(state.Quality, 0, 100);
         if (!Enum.IsDefined(state.AudioEncoding)) state.AudioEncoding = AudioEncoding.Mp3;
+        if (!Enum.IsDefined(state.VideoContainer)) state.VideoContainer = VideoContainer.Mp4;
+        state.UnseenDownloads = Math.Clamp(state.UnseenDownloads, 0, 9999);
         state.AudioBitrate = OutputProfiles.NormalizeAudioBitrate(state.AudioEncoding, state.AudioBitrate);
         state.FolderVersion = state.FolderVersion == 1 ? 1 : 0;
         if (!ValidPath(state.Folder))

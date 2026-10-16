@@ -13,7 +13,7 @@ public static class MediaFiles
         => IsCompleted(folder, file, audio ? "mp3" : "mp4");
 
     public static bool IsCompleted(string folder, string file, DownloadOptions options)
-        => IsCompleted(folder, file, options.Audio ? OutputProfiles.AudioExtension(options.AudioEncoding) : "mp4");
+        => IsCompleted(folder, file, OutputProfiles.Extension(options));
 
     public static bool IsCompleted(string folder, string file, string extension)
     {
@@ -23,7 +23,7 @@ public static class MediaFiles
         {
             string root = Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             string full = Path.GetFullPath(file);
-            if (!new[] { "mp4", "mp3", "m4a", "opus", "wav", "flac" }.Contains(extension) || !full.StartsWith(root, StringComparison.OrdinalIgnoreCase) || !File.Exists(full) || new FileInfo(full).Length == 0 || !string.Equals(Path.GetExtension(full), "." + extension, StringComparison.OrdinalIgnoreCase))
+            if (!OutputProfiles.IsMediaExtension(extension) || !full.StartsWith(root, StringComparison.OrdinalIgnoreCase) || !File.Exists(full) || new FileInfo(full).Length == 0 || !string.Equals(Path.GetExtension(full), "." + extension, StringComparison.OrdinalIgnoreCase))
                 return false;
             for (string parent = full; parent != null && parent.Length >= root.TrimEnd('\\').Length; parent = Path.GetDirectoryName(parent))
                 if ((File.GetAttributes(parent) & FileAttributes.ReparsePoint) != 0)

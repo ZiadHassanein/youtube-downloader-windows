@@ -8,6 +8,7 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--bootstrap") return await BootstrapLiveChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--cached-tools") return await BootstrapLiveChecks.Run(args[1], false);
         if (args.Length == 2 && args[0] == "--audio-profiles") return await AudioProfileLiveChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--output-media") return await OutputMediaLiveChecks.Run(args[1]);
         try
         {
             string root = Path.GetFullPath(args[0]);
@@ -33,8 +34,8 @@ internal static class Program
             )
                 foreach (int bitrate in audio ? new[]
                 {
-                    192,
-                    320
+                    OutputProfiles.AudioBitrates(AudioEncoding.Mp3, info.AudioSource).LastOrDefault(),
+                    0
                 }
 
                 : new[]

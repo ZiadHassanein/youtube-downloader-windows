@@ -72,7 +72,13 @@ public sealed partial class MainViewModel : ObservableObject
         OpenFileCommand = new RelayCommand(() => OpenMedia(false), () => HasFile && IsIdle);
         RevealCommand = new RelayCommand(() => OpenMedia(true), () => HasFile && IsIdle);
         InitializeDownloadAction();
-        HistoryCommand = new RelayCommand(() => actions.ShowHistory(state.Recent, T), () => IsIdle);
+        HistoryCommand = new RelayCommand(() =>
+        {
+            state.UnseenDownloads = 0;
+            RefreshRecentBadge();
+            Save();
+            actions.ShowHistory(state.Recent, T);
+        }, () => IsIdle);
         SocialCommand = new RelayCommand<string>(kind =>
         {
             try
@@ -235,7 +241,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    public bool CanChooseQuality => IsIdle && (Audio ? !OutputProfiles.IsLossless(SelectedEncoding.Encoding) : playlistInfo != null || videoInfo?.Qualities.Count > 0);
+    public bool CanChooseQuality => IsIdle && (Audio ? Qualities.Count > 1 : playlistInfo != null || videoInfo?.QualitiesFor(SelectedVideoFormat.Container).Count > 0);
     public bool CanDownload => IsIdle && checkedUrl == Url.Trim() && (WholePlaylist ? playlistInfo != null : videoInfo != null && (Audio ? videoInfo.HasAudio : SelectedQuality?.Key != null));
     public string LinkLabel => T("Video link");
     public string LinkPlaceholder => T("Videos, Shorts, and playlists");
@@ -243,9 +249,9 @@ public sealed partial class MainViewModel : ObservableObject
     public string SingleLabel => T("This video");
     public string PlaylistLabel => T(playlistInfo?.IsMix == true ? "YouTube Mix (up to 50 videos)" : "Whole playlist");
     public string FormatLabel => T("Save as");
-    public string VideoLabel => T("Video · MP4");
+    public string VideoLabel => T("Video") + " · " + SelectedVideoFormat.Label;
     public string AudioLabel => T("Audio") + " · " + SelectedEncoding.Label;
-    public string QualityLabel => T("Quality");
+    public string QualityLabel => T(Audio ? "Audio bitrate" : "Quality");
     public string FolderLabel => T("Save to");
     public string BrowseLabel => T("Browse…");
     public string OpenFolderLabel => T("Open folder");

@@ -59,9 +59,9 @@ public sealed partial class MainViewModel
         get => encoding ?? Encodings[0];
         set { if (value != null && SetProperty(ref encoding, value)) { state.AudioEncoding = value.Encoding; RefreshQualities(); OnPropertyChanged(nameof(AudioLabel)); Save(); } }
     }
-    public CaptionChoice SelectedCaption { get => caption; set => SetProperty(ref caption, value); }
-    public bool SrtCaptions { get => captionFormat == CaptionFormat.Srt; set { if (value) { captionFormat = CaptionFormat.Srt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); } } }
-    public bool VttCaptions { get => captionFormat == CaptionFormat.Vtt; set { if (value) { captionFormat = CaptionFormat.Vtt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); } } }
+    public CaptionChoice SelectedCaption { get => caption; set { if (SetProperty(ref caption, value)) RefreshCaptionSummary(); } }
+    public bool SrtCaptions { get => captionFormat == CaptionFormat.Srt; set { if (value) { captionFormat = CaptionFormat.Srt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); RefreshCaptionSummary(); } } }
+    public bool VttCaptions { get => captionFormat == CaptionFormat.Vtt; set { if (value) { captionFormat = CaptionFormat.Vtt; OnPropertyChanged(nameof(SrtCaptions)); OnPropertyChanged(nameof(VttCaptions)); RefreshCaptionSummary(); } } }
     public bool OptionsNoticeVisible => NoticeVisible && noticeAnchor == "options";
     public bool MainNoticeVisible => NoticeVisible && noticeAnchor != "options";
     public bool CanSelectPlaylist => IsIdle && playlistInfo != null;
@@ -70,7 +70,7 @@ public sealed partial class MainViewModel
     public bool QueueRunning => Queue.IsRunning;
     public string QueueLabel => F("Queue ({0})", QueueItems.Count);
     public string PlaylistSelectionLabel => playlistInfo == null ? T("Choose videos") : F("Choose videos ({0}/{1})", selectedPlaylistIds?.Count ?? playlistInfo.Entries.Count, playlistInfo.Entries.Count);
-    public string OptionsLabel => T("More options");
+    public string OptionsLabel => T("Subtitles");
     public string DoneLabel => T("Done");
     public string CaptionFormatLabel => T("Subtitle file format");
     public string AudioFormatLabel => T("Audio format");
@@ -88,7 +88,7 @@ public sealed partial class MainViewModel
     public string BrowserLabel => T("Browser integration");
     public string ToolRefreshLabel => T(IsRefreshingTools ? "Updating downloader…" : "Update downloader");
     public string ToolRefreshHint => T("ViFree checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.");
-    public string OutputHint => T("Audio conversion cannot improve the source quality. Subtitles are saved beside the media when available.");
+    public string OutputHint => T("Subtitles are saved as a separate file beside the video or audio.");
     public string QueueMessage { get; private set; } = "";
     public IRelayCommand QueueCommand { get; private set; }
     public IRelayCommand OptionsCommand { get; private set; }
@@ -193,9 +193,10 @@ public sealed partial class MainViewModel
         {
             Folder = Folder?.Trim(), Audio = Audio,
             AudioBitrate = state.AudioBitrate, AudioEncoding = SelectedEncoding.Encoding,
+            VideoContainer = SelectedVideoFormat.Container, AudioSource = videoInfo?.AudioSource,
             Height = SelectedQuality?.Height ?? 1080, QualityKey = SelectedQuality?.Key,
             Selection = SelectedQuality?.Selection,
-            Captions = string.IsNullOrEmpty(SelectedCaption?.Language) ? null : new CaptionRequest(SelectedCaption.Language, SelectedCaption.Automatic, captionFormat)
+            Captions = CurrentCaption()
         };
     internal void ClearQueueMessage()
     {
@@ -234,12 +235,16 @@ public sealed partial class MainViewModel
         });
         bool pending = Queue.Entries.Any(e => e.State == QueueState.Pending);
         SetStatus(pending ? "Queue paused" : "Queue finished", pending ? "Review failed items before starting the remaining downloads." : "Open the queue to review completed or failed downloads.", false);
+        quietCompletion = Queue.Entries.All(entry => entry.State == QueueState.Completed && entry.Result?.Warning == null);
         SyncQueue();
     }
     private void RememberFiles(DownloadResult result)
     {
-        foreach (string file in result.Files) { state.Recent.RemoveAll(p => string.Equals(p, file, StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0, file); }
+        var files = result.Files.Append(result.FilePath).Where(file => !string.IsNullOrWhiteSpace(file)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        foreach (string file in files) { state.Recent.RemoveAll(p => string.Equals(p, file, StringComparison.OrdinalIgnoreCase)); state.Recent.Insert(0, file); }
         state.Recent = state.Recent.Take(5).ToList();
+        state.UnseenDownloads = Math.Min(9999, state.UnseenDownloads + Math.Max(0, files.Length - result.Skipped));
+        RefreshRecentBadge();
         lastFile = result.FilePath ?? lastFile;
         OnPropertyChanged(nameof(HasFile));
         Save();

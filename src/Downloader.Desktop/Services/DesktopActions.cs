@@ -49,11 +49,7 @@ public sealed partial class DesktopActions
     public void OpenFolder(string folder) => Process.Start(new ProcessStartInfo(Path.GetFullPath(folder)) { UseShellExecute = true });
     public void OpenMedia(string file, bool reveal)
     {
-        if (!File.Exists(file) || !new[]
-        {
-            ".mp4",
-            ".mp3", ".m4a", ".opus", ".wav", ".flac"
-        }.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
+        if (!File.Exists(file) || !OutputProfiles.IsMediaExtension(Path.GetExtension(file)))
             throw new IOException("File is not available.");
         if (!reveal)
         {

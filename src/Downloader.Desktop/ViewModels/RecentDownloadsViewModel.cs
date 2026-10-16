@@ -50,7 +50,7 @@ public sealed class RecentDownloadView
         Title = Path.GetFileNameWithoutExtension(path);
         Folder = Path.GetDirectoryName(path);
         string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
-        IsAudio = extension != "MP4";
+        IsAudio = !OutputProfiles.IsVideoExtension(extension);
         try
         {
             var file = new FileInfo(path);

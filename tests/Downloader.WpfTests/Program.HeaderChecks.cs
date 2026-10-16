@@ -19,6 +19,8 @@ internal static partial class Program
         var language = (Button)WpfTree.Find(window, "LanguageButton");
         var settings = (Button)WpfTree.Find(window, "SettingsButton");
         double startupWidth = window.Width;
+        model.Url = "https://youtu.be/jNQXAC9IVRw";
+        await Task.Delay(850);
         model.Audio = true;
         model.SelectedQuality = model.Qualities.First(q => q.Bitrate == 320);
         foreach (bool arabic in new[] { false, true })
@@ -167,6 +169,7 @@ internal static partial class Program
             pixels[(350 * 512 + 120) * 4 + 3] == 0 && pixels[(250 * 512 + 300) * 4 + 3] == 255,
             "The high-resolution logo preserves clean outside edges and its transparent diagonal notch");
         model.Audio = false;
+        model.Url = "";
         await Task.Delay(200);
         window.UpdateLayout();
         Capture(window, System.IO.Path.Combine(captures, "header-workspace.png"));

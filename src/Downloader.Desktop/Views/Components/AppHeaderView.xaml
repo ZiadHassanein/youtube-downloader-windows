@@ -20,10 +20,13 @@
     </StackPanel>
    </Button>
    <StackPanel x:Name="HeaderActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-    <Button x:Name="RecentDownloadsButton" Command="{Binding HistoryCommand}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding HistoryLabel}">
+    <Button x:Name="RecentDownloadsButton" Command="{Binding HistoryCommand}" Style="{StaticResource ToolbarButton}" Padding="10,6" AutomationProperties.Name="{Binding HistoryAccessibleName}">
      <StackPanel Orientation="Horizontal" FlowDirection="{Binding ContentDirection}">
       <Path Data="{StaticResource HistoryIcon}" Style="{StaticResource LineIcon}" Width="20" Height="20" Margin="0,0,10,0"/>
       <TextBlock Text="{Binding HistoryLabel}" VerticalAlignment="Center" FontSize="13"/>
+      <Border x:Name="RecentDownloadsBadge" Background="{DynamicResource Selected}" CornerRadius="10" MinWidth="20" Height="20" Padding="5,0" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasRecentDownloadsBadge,Converter={StaticResource BoolVisibility}}">
+       <TextBlock Text="{Binding RecentDownloadsBadge}" Foreground="{DynamicResource Accent}" FontSize="11" FontFamily="{StaticResource LatinFont}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FlowDirection="LeftToRight" AutomationProperties.LiveSetting="Polite" AutomationProperties.Name="{Binding HistoryAccessibleName}"/>
+      </Border>
      </StackPanel>
     </Button>
     <Border Width="1" Height="28" Background="{DynamicResource Divider}" Margin="12,0"/>

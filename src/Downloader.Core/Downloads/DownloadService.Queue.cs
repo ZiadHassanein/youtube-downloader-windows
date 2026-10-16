@@ -21,7 +21,7 @@ public sealed partial class DownloadService
                     else if (options.Audio && !metadata.HasAudio) throw new InvalidOperationException("This video has no downloadable audio stream.");
                     else if (!options.Audio)
                     {
-                        var quality = metadata.Qualities.FirstOrDefault(q => options.Height == 0 || q.Resolution <= options.Height) ?? throw new InvalidOperationException("The selected quality is no longer available.");
+                        var quality = metadata.QualitiesFor(options.VideoContainer).FirstOrDefault(q => options.Height == 0 || q.Resolution <= options.Height) ?? throw new InvalidOperationException("The selected quality is no longer available.");
                         options.Selection = quality.Selection;
                         options.QualityKey = quality.SelectionKey;
                     }

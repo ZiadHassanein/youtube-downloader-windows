@@ -14,7 +14,7 @@ namespace YouTubeDownloader
             public double Fps, Bitrate;
         }
 
-        public static List<VideoQuality> Read(Dictionary<string, object> info)
+        public static List<VideoQuality> Read(Dictionary<string, object> info, VideoContainer container = VideoContainer.Mp4)
         {
             object formats;
             var sources = new List<Source>();
@@ -28,6 +28,7 @@ namespace YouTubeDownloader
                 string codec = Text(f, "vcodec"), id = Text(f, "format_id");
                 if (codec == "" || codec == "none" || codec == "images" || Text(f, "protocol") == "mhtml" || Text(f, "has_drm") == "True" || !Regex.IsMatch(id, "^[A-Za-z0-9_.-]+$"))
                     continue;
+                if (!CompatibleVideo(codec, container) || (Text(f, "acodec") is not ("" or "none") && !CompatibleAudio(Text(f, "acodec"), container))) continue;
                 int height = (int)Number(f, "height"), width = (int)Number(f, "width");
                 int resolution = width > 0 ? Math.Min(width, height) : height;
                 if (resolution <= 0)
@@ -37,6 +38,7 @@ namespace YouTubeDownloader
 
             var qualities = new List<VideoQuality>();
             bool hasAudio = HasAudio(info);
+            bool compatibleAudio = ((IEnumerable)formats).OfType<Dictionary<string, object>>().Any(f => Text(f, "has_drm") != "True" && Text(f, "vcodec") == "none" && CompatibleAudio(Text(f, "acodec"), container));
             foreach (var group in sources.GroupBy(f => f.Resolution).OrderByDescending(g => g.Key))
             {
                 var alternatives = new List<string>();
@@ -46,16 +48,43 @@ namespace YouTubeDownloader
                         alternatives.Add(source.Id);
                     else
                     {
-                        alternatives.Add(source.Id + "+bestaudio[ext=m4a]");
-                        alternatives.Add(source.Id + "+bestaudio");
+                        if (!compatibleAudio) continue;
+                        if (container == VideoContainer.WebM)
+                        {
+                            alternatives.Add(source.Id + "+bestaudio[acodec^=opus]");
+                            alternatives.Add(source.Id + "+bestaudio[acodec^=vorbis]");
+                        }
+                        else
+                        {
+                            if (container == VideoContainer.Mp4)
+                            {
+                                alternatives.Add(source.Id + "+bestaudio[ext=m4a]");
+                                foreach (string codec in new[] { "aac", "mp4a", "mp3", "ac3", "eac3", "alac", "opus" })
+                                    alternatives.Add(source.Id + "+bestaudio[acodec^=" + codec + "]");
+                            }
+                            else alternatives.Add(source.Id + "+bestaudio");
+                        }
                     }
                 }
 
-                qualities.Add(new VideoQuality { Resolution = group.Key, Selector = String.Join("/", alternatives.Distinct()) });
+                if (alternatives.Count > 0) qualities.Add(new VideoQuality { Resolution = group.Key, Selector = String.Join("/", alternatives.Distinct()) });
             }
 
             return qualities;
         }
+
+        private static bool CompatibleVideo(string codec, VideoContainer container) => container switch
+        {
+            VideoContainer.Mkv => true,
+            VideoContainer.WebM => new[] { "vp8", "vp9", "vp09", "av1", "av01" }.Any(prefix => codec.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)),
+            _ => new[] { "avc", "h264", "hevc", "h265", "hev1", "hvc1", "av1", "av01", "vp9", "vp09", "mpeg4", "mp4v" }.Any(prefix => codec.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        };
+        private static bool CompatibleAudio(string codec, VideoContainer container) => codec is not ("" or "none") && (container switch
+        {
+            VideoContainer.Mkv => true,
+            VideoContainer.WebM => codec.StartsWith("opus", StringComparison.OrdinalIgnoreCase) || codec.StartsWith("vorbis", StringComparison.OrdinalIgnoreCase),
+            _ => new[] { "aac", "mp4a", "mp3", "ac3", "eac3", "alac", "opus" }.Any(prefix => codec.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        });
 
         public static int RecommendedIndex(List<VideoQuality> qualities)
         {
