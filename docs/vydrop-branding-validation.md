@@ -27,7 +27,7 @@ The new executable is `Vydrop.exe`. Stable preferences, history and media-tool s
 
 Screenshots and logo rasters carry embedded origin metadata; [capture notes](images/capture-notes.json) distinguish current Vydrop renders, historical ViFree 4.1.0 native screenshots and labeled setup illustrations. No pointer is shown in the published image assets.
 
-Local app ZIP SHA-256: `458FF4A1406B37FD9B2350E0746F18BA5DA7A7D09C77EBA8104D58940D15BA12`.
+Local app ZIP SHA-256: `B50149521A716743765339B541493DD5C7CF1F84E6152726DC07A2DE45C35FEA`.
 
 The previously published ViFree 4.1.0 ZIP remains byte-identical: SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`.
 
@@ -44,3 +44,5 @@ GitHub verification follow-up: the initial main-branch run passed the core/infra
 Wider outline refinement: the user's follow-up increases the white arrow stroke from 4.5 to 7 source units (1.004 to 1.562 in the 64-unit icon), retaining the open top, sharp symmetric V and existing wordmark spacing. Both theme exports were reviewed together; browser checks passed 54/54, the changed companion design scan returned no findings, and the rebuilt app ZIP and documentation references passed validation.
 
 Solid arrow refinement supersedes the outline variants: the user's final direction fills the arrow white with no stroke. The same closed shape is shared by WPF, both theme exports, the V-only ICO/PNG, companion popup/tab and setup images. Browser checks passed 54/54; the WPF test project compiled, package/reference checks passed, and both offline theme exports were reviewed. A timing-sensitive completion assertion now observes animation attachment at the state transition, instead of requiring a delayed timer to sample within a 240 ms animation. No local desktop controls were used.
+
+Contact menu refinement: the native popup now follows the rounded button-row pattern, with matching line icons, locale-aware label alignment, unmirrored icon artwork, a calmer frame and overlay keyboard focus. Its actual XAML template was rendered offline at 192 DPI in English/Arabic and light/dark, without opening or capturing a desktop window. All four variants were inspected; these are isolated fixture renders, not full application screenshots. The existing ICO pixel assertion now expects the requested solid white arrow rather than transparency at its center.

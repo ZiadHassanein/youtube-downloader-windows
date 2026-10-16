@@ -277,3 +277,6 @@ Use the same symbol and custom vector wordmark as a unified lockup in desktop an
 - **Don't** change persisted compatibility identifiers merely to make internal names match the visible rebrand.
 
 Source authority: `src/Downloader.Desktop/Themes/ThemeResources.cs`, `Controls.xaml`, `Workspace.xaml`, `Symbols.xaml`, the native component XAML/code-behind, and `browser/common/popup.css`. The companion sidecar contains metadata and illustrative HTML/CSS translations of these WPF components; native source remains authoritative for behavior and rendering.
+
+
+Contact menu refinement authority: The footer contact popup uses a 208-DIP Surface/Divider frame with four-DIP padding and three 40-DIP Field rows separated by four DIP. Each row has a seven-DIP radius, a leading red line icon and a clear text label. GitHub uses a repository-branch icon, LinkedIn a profile monogram and email an envelope. Icons retain physical LTR orientation in Arabic; row order and label alignment follow the active language. Hover uses Hover, keyboard focus is a painted two-DIP Accent ring, and the Contact trigger uses Selected while its menu is open. Preserve the three existing commands, above-footer placement and native dismissal/focus behavior.

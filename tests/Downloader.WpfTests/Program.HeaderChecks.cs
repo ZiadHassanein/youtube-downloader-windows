@@ -172,11 +172,14 @@ internal static partial class Program
         var logo = new FormatConvertedBitmap(BitmapFrame.Create(logoStream), PixelFormats.Bgra32, null, 0);
         byte[] pixels = new byte[logo.PixelWidth * logo.PixelHeight * 4];
         logo.CopyPixels(pixels, logo.PixelWidth * 4, 0);
-        int arrowPixel = (128 * 512 + 128) * 4;
-        Check(logo.PixelWidth == 512 && pixels[3] == 0 && pixels[(256 * 512 + 256) * 4 + 3] == 0 &&
-            pixels[(384 * 512 + 256) * 4 + 3] == 255 && pixels[arrowPixel + 3] == 255 &&
-            pixels[arrowPixel] == 0x4D && pixels[arrowPixel + 1] == 0x3D && pixels[arrowPixel + 2] == 0xE6,
-            "The V-only icon retains transparent edges, the negative-space download arrow and its red lower point");
+        int armPixel = (128 * 512 + 128) * 4;
+        int arrowPixel = (256 * 512 + 256) * 4;
+        int pointPixel = (384 * 512 + 256) * 4;
+        Check(logo.PixelWidth == 512 && pixels[3] == 0 &&
+            pixels[arrowPixel] == 255 && pixels[arrowPixel + 1] == 255 && pixels[arrowPixel + 2] == 255 && pixels[arrowPixel + 3] == 255 &&
+            pixels[pointPixel + 3] == 255 && pixels[pointPixel] == 0x4D && pixels[pointPixel + 1] == 0x3D && pixels[pointPixel + 2] == 0xE6 &&
+            pixels[armPixel + 3] == 255 && pixels[armPixel] == 0x4D && pixels[armPixel + 1] == 0x3D && pixels[armPixel + 2] == 0xE6,
+            "The V-only icon retains transparent edges, a solid white download arrow and its red lower point");
         model.Audio = false;
         model.Url = "";
         await Task.Delay(200);
