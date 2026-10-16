@@ -27,7 +27,7 @@ The new executable is `Vydrop.exe`. Stable preferences, history and media-tool s
 
 Screenshots and logo rasters carry embedded origin metadata; [capture notes](images/capture-notes.json) distinguish current Vydrop renders, historical ViFree 4.1.0 native screenshots and labeled setup illustrations. No pointer is shown in the published image assets.
 
-Local app ZIP SHA-256: `18AE4A680286EEE559F23D8AE8AE4E0AF44A1F67ECAAA2BD438B150949B8ED4D`.
+Local app ZIP SHA-256: `75A75F5D1BACD7AAF3AA1D40B61933770F08561453DF4A996A03DF6398FD9EFC`.
 
 The previously published ViFree 4.1.0 ZIP remains byte-identical: SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`.
 
@@ -35,8 +35,10 @@ Current selected angular wordmark: approved reference faithfully converted to sh
 
 Selected-logo validation: 54 browser source checks passed; the app and updated WPF test project compile with zero errors; package artifact validation passed. Existing icon assertions now cover the V-only silhouette and negative-space arrow. Native WPF interaction suites were not rerun, honoring the user request for screenshot-based visual checking without computer controls. Both cursor-free theme previews were inspected from the offline vector exports.
 
-GitHub documentation refinement: The arrow inside the V has a thin white outline that is open at the top, with no horizontal cap. Its wordmark stroke is 4.5 source units and the V-only icon uses the proportional 1.004-unit stroke. README opens with labelled current-theme illustrations; separate Chrome, Edge and Firefox setup images accompany the guide, with temporary Firefox installation clearly documented. Official browser sources were checked; GitHub latest-release API confirms v4.1.0, so public links remain on that published package while 4.2 source branding is presented separately. No new native screenshots are claimed.
+GitHub documentation refinement: The arrow inside the V has a white outline that is open at the top, with no horizontal cap. Its wordmark stroke is 7 source units and the V-only icon uses the proportional 1.562-unit stroke. README opens with labelled current-theme illustrations; separate Chrome, Edge and Firefox setup images accompany the guide, with temporary Firefox installation clearly documented. Official browser sources were checked; GitHub latest-release API confirms v4.1.0, so public links remain on that published package while 4.2 source branding is presented separately. No new native screenshots are claimed.
 
 Approved GitHub update: final open-top thin-outline source passed 54 browser checks, local-reference/image validation, portable app build and package artifact validation. The public v4.1.0 ZIP returned HTTP 200. Both theme exports and all three browser setup illustrations received a bounded offline visual review. New native screenshots and full local WPF interaction reruns are not claimed.
 
 GitHub verification follow-up: the initial main-branch run passed the core/infrastructure suites and reached the motion checks, where an obsolete test cast the fixed BrandArtwork container to ScaleTransform. The test now reads the actual animated BrandInitial transform and checks that both axes settle to 1. The application artwork and animation are unchanged. Local verification compiles the test project without opening or controlling the user's desktop; the full native run executes on the GitHub Windows runner.
+
+Wider outline refinement: the user's follow-up increases the white arrow stroke from 4.5 to 7 source units (1.004 to 1.562 in the 64-unit icon), retaining the open top, sharp symmetric V and existing wordmark spacing. Both theme exports were reviewed together; browser checks passed 54/54, the changed companion design scan returned no findings, and the rebuilt app ZIP and documentation references passed validation.

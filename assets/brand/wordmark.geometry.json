@@ -13,7 +13,7 @@
   "letterContourCount": 8,
   "arrow": "M107,72L107,114 77,114 125.5,168 174,114 144,114 144,72",
   "iconArrow": "M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056",
-  "arrowStroke": 4.5,
-  "iconArrowStroke": 1.004,
-  "arrowOutline": "Thin white open-top stroke; no horizontal cap across the arrow shaft."
+  "arrowStroke": 7,
+  "iconArrowStroke": 1.562,
+  "arrowOutline": "Wider white open-top stroke; no horizontal cap across the arrow shaft."
 }
