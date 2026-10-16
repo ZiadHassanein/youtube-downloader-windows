@@ -9,6 +9,18 @@ internal static class OutputProfileChecks
         void Check(bool condition, string label) { if (!condition) throw new Exception(label); count++; Console.WriteLine("PASS: " + label); }
         bool Reject(Action action) { try { action(); return false; } catch (Exception error) when (error is ArgumentException or InvalidOperationException or InvalidDataException) { return true; } }
         var json = new JsonCodec();
+        const string directUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+        Dictionary<string, object> Direct() => json.Deserialize<Dictionary<string, object>>("{\"extractor_key\":\"Generic\",\"formats\":[{\"format_id\":\"mp4\",\"url\":\"" + directUrl + "\",\"protocol\":\"https\",\"vcodec\":null}]}");
+        var direct = Direct();
+        Check(DirectMediaMetadata.NeedsProbe(direct, directUrl), "Generic direct MP4 metadata is probed instead of rejected or guessed");
+        Check(!DirectMediaMetadata.NeedsProbe(direct, "https://example.com/other.mp4") && !DirectMediaMetadata.NeedsProbe(direct, "file:///C:/private.mp4"), "Direct-media probing is restricted to the same HTTP resource");
+        var measured = json.Deserialize<Dictionary<string, object>>("{\"streams\":[{\"codec_type\":\"video\",\"codec_name\":\"h264\",\"width\":320,\"height\":176},{\"codec_type\":\"audio\",\"codec_name\":\"aac\",\"bit_rate\":\"160545\"}],\"format\":{\"duration\":\"10.026667\",\"size\":\"788493\",\"bit_rate\":\"629116\"}}");
+        DirectMediaMetadata.Apply(direct, measured);
+        Check(AvailableFormats.Read(direct).Single().Resolution == 176 && AvailableFormats.HasAudio(direct), "Direct file uses measured 176p H264/AAC streams without fictional qualities");
+        Check(AudioMetadata.Read(direct).BitrateKbps == 160.545 && OutputProfiles.AudioBitrates(AudioEncoding.Mp3, AudioMetadata.Read(direct)).Max() == 160, "Measured direct-file audio bounds conversion targets independently of combined bitrate");
+        Check(!DirectMediaMetadata.NeedsProbe(direct, directUrl) && AvailableFormats.Read(direct, VideoContainer.WebM).Count == 0, "Known direct media avoids redundant probing and incompatible WebM output");
+        Check(Reject(() => DirectMediaMetadata.Apply(Direct(), json.Deserialize<Dictionary<string, object>>("{\"streams\":[{\"codec_type\":\"video\",\"codec_tag_string\":\"encv\"}]}"))), "Encrypted direct streams are not offered as ordinary video");
+        Check(DirectMediaMetadata.ProbeArguments(directUrl).Contains("http,https,tcp,tls") && DirectMediaMetadata.ProbeArguments(directUrl).Contains("-tls_verify"), "Direct-media probing keeps bounded HTTP protocols and peer verification");
         var source = AudioMetadata.Read(json.Deserialize<Dictionary<string, object>>("{\"acodec\":\"opus\",\"vcodec\":\"none\",\"abr\":126.2,\"tbr\":140}"));
         Check(source.Codec == "opus" && source.BitrateKbps == 126.2 && !source.Lossless,
             "Audio source estimates use the selected audio stream's reported bitrate");

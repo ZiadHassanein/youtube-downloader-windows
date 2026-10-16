@@ -65,6 +65,13 @@ internal static partial class Program
         await Task.Delay(250);
         window.UpdateLayout();
         Capture(window, System.IO.Path.Combine(captures, "preview-inline-error.png"));
+        model.SettingsVisible = true;
+        await Task.Delay(100);
+        Check(!inline.IsVisible && WpfTree.Find(WpfTree.Find(window, "SettingsPane") as DependencyObject, "StatusHeading") == null,
+            "Settings excludes media errors while preserving the failed download state");
+        model.SettingsVisible = false;
+        Check(inline.IsVisible && model.HasStatus,
+            "Returning from Settings retains the media error and its recovery context");
         model.Folder = folder;
         model.Url = "https://youtu.be/jNQXAC9IVRw";
         await Task.Delay(850);
@@ -86,8 +93,8 @@ internal static partial class Program
             Capture(window, System.IO.Path.Combine(captures, "preview-inline-complete.png"));
             model.SettingsVisible = true;
             await Task.Delay(100);
-            Check(((FrameworkElement)WpfTree.Find(window, "ActiveDownload")).IsVisible && !inline.IsVisible,
-                "Settings preserves the completed result without duplicating inline feedback");
+            Check(WpfTree.Find(WpfTree.Find(window, "SettingsPane") as DependencyObject, "StatusHeading") == null && !inline.IsVisible && model.HasRecentDownloadsBadge,
+                "Settings excludes completed media results and retains the recent-download badge");
             model.SettingsVisible = false;
         }
         finally

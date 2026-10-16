@@ -44,7 +44,9 @@ The adapter rebuilds its arguments and retries once after a recognized extractor
 
 ## Browser integration
 
-The companion requests activeTab/contextMenus/nativeMessaging only. Explicit user action sends a versioned open-link JSON message, never a download command. No content scripts, website-wide permission or local HTTP server is used.
+The companion requests activeTab/scripting/contextMenus/nativeMessaging. Explicit user action on Facebook/TikTok injects a self-contained read-only detector into the main frame's isolated world. It ranks visible playing media, excludes hidden/preloaded players, supports TikTok canvas rendering, and associates the selected player with a local permalink or public player identifier. It never reads cookies, credentials or private application state. Ambiguous/missing media produces recovery guidance rather than a homepage or unrelated link. Other sites retain page forwarding; explicit clicked links retain their target. No persistent content scripts, website-wide host permission or runtime local HTTP server is used. The opt-in development source viewer is loopback-only and is not shipped.
+
+Only a versioned open-link JSON message reaches the native host, never a download command. Discovery does not establish that the website permits an anonymous download. Popup and page/video context-menu paths share detection and transport; preview/stable identities remain separate.
 
 `BrowserIdentity` holds public development IDs. `BrowserProtocol` owns strict bounded framing/schema. `BrowserHost` validates the caller and handles stdin/stdout. `BrowserLinkTransport` uses a current-user-only named pipe to the preview app. `BrowserRegistration` owns explicit per-user manifests/registry values and removes only its own values. Moving the EXE requires re-enabling the connection. Production extension-store distribution is deferred.
 

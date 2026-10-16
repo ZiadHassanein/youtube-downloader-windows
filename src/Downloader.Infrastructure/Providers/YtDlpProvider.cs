@@ -135,6 +135,17 @@ namespace YouTubeDownloader
             var data = Json().Deserialize<Dictionary<string, object>>(Execute(args, null, token));
             if (data.ContainsKey("entries"))
                 return new VideoInfo { Title = Value(data, "title"), Collection = PlaylistMetadata.Read(url, data) };
+            if (DirectMediaMetadata.NeedsProbe(data, url))
+            {
+                var probe = new StringBuilder();
+                var errors = new StringBuilder();
+                int code = runner.Run(tools.FFprobe, DirectMediaMetadata.ProbeArguments(url), line => probe.AppendLine(line),
+                    line => errors.AppendLine(line), token, TimeSpan.FromSeconds(25), 1024 * 1024);
+                token.ThrowIfCancellationRequested();
+                if (cancelled) throw new OperationCanceledException();
+                if (code != 0) throw new MediaToolExecutionException(errors.ToString());
+                DirectMediaMetadata.Apply(data, Json().Deserialize<Dictionary<string, object>>(probe.ToString()));
+            }
             var info = new VideoInfo
             {
                 Title = Value(data, "title"),
