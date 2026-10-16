@@ -55,7 +55,7 @@
       ],
       "kind": "Original transparent WPF vector raster exports",
       "source": "scripts/render-brand.ps1 from Themes/Symbols.xaml",
-      "state": "Current approved integrated angular V/down-arrow and geometric ydrop, rendered from shared vector contours. V-only app/browser icon. White/dark preview backgrounds; no cursor or application capture. The arrow inside the V has a white outline that is open at the top, with no horizontal cap. Its wordmark stroke is 7 source units and the V-only icon uses the proportional 1.562-unit stroke."
+      "state": "Current approved integrated angular V/down-arrow and geometric ydrop, rendered from shared vector contours. V-only app/browser icon. White/dark preview backgrounds; no cursor or application capture. The download arrow inside the V is filled solid white, with no outline."
     },
     {
       "files": [

@@ -119,11 +119,24 @@ internal static partial class Program
                     var cancelBounds = cancel.TransformToAncestor(viewport).TransformBounds(new Rect(cancel.RenderSize));
                     Check(cancel.IsEnabled && cancel.IsVisible && cancelBounds.Top >= 0 && cancelBounds.Bottom <= viewport.ActualHeight + 1,
                         "Cancel stays visible beside the active action in the compact viewport in " + variant);
-                    finish.Set();
-                    await download;
+                    bool sawCompletionAnimation = false;
+                    System.ComponentModel.PropertyChangedEventHandler observeCompletion = (_, args) =>
+                    {
+                        if (args.PropertyName == nameof(MainViewModel.DownloadActionState) &&
+                            model.DownloadActionState == DownloadActionState.Complete)
+                            sawCompletionAnimation |= check.Visibility == Visibility.Visible && check.HasAnimatedProperties;
+                    };
+                    model.PropertyChanged += observeCompletion;
+                    try
+                    {
+                        finish.Set();
+                        await download;
+                    }
+                    finally { model.PropertyChanged -= observeCompletion; }
                     await Task.Delay(70);
+                    // Observe animation attachment at the transition; runner delays can exceed its 240 ms duration.
                     Check(model.DownloadActionState == DownloadActionState.Complete && model.DownloadActionLabel == model.RevealLabel &&
-                        check.Visibility == Visibility.Visible && check.StrokeDashOffset > 0 && button.IsEnabled && model.Progress == 100,
+                        check.Visibility == Visibility.Visible && sawCompletionAnimation && button.IsEnabled && model.Progress == 100,
                         "Only full success draws the check and exposes the localized folder action in " + variant);
                     Shot("complete-draw-" + variant);
                     await Task.Delay(240);

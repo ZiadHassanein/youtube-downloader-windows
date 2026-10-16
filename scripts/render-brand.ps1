@@ -10,9 +10,7 @@ $geometry = [Windows.Media.Geometry]::Parse($mark)
 $artConfig = Get-Content -LiteralPath (Join-Path $projectRoot 'assets/brand/wordmark.geometry.json') -Raw | ConvertFrom-Json
 $iconArrowData = $symbols.SelectSingleNode("//*[@x:Key='BrandIconArrowGeometry']", $namespaces).InnerText
 $iconArrow = [Windows.Media.Geometry]::Parse($iconArrowData)
-$iconArrowPen = [Windows.Media.Pen]::new([Windows.Media.Brushes]::White, $artConfig.iconArrowStroke)
-$iconArrowPen.LineJoin = [Windows.Media.PenLineJoin]::Miter
-$iconArrowPen.MiterLimit = 2
+$arrowBrush = [Windows.Media.SolidColorBrush]::new([Windows.Media.ColorConverter]::ConvertFromString($artConfig.arrowFill))
 $fill = $symbols.SelectSingleNode("//*[@x:Key='BrandFill']", $namespaces)
 $brush = [Windows.Media.SolidColorBrush]::new([Windows.Media.ColorConverter]::ConvertFromString($fill.Color))
 function New-BrandFrame($bitmap) {
@@ -25,7 +23,7 @@ function Render-Mark([int]$size) {
     $drawing = $visual.RenderOpen()
     $drawing.PushTransform([Windows.Media.ScaleTransform]::new($size / 64.0, $size / 64.0))
     $drawing.DrawGeometry($brush, $null, $geometry)
-    $drawing.DrawGeometry($null, $iconArrowPen, $iconArrow)
+    $drawing.DrawGeometry($arrowBrush, $null, $iconArrow)
     $drawing.Pop()
     $drawing.Close()
     $bitmap = [Windows.Media.Imaging.RenderTargetBitmap]::new($size, $size, 96, 96, [Windows.Media.PixelFormats]::Pbgra32)
@@ -39,7 +37,7 @@ function Render-Mark([int]$size) {
 [IO.File]::WriteAllBytes((Join-Path $projectRoot 'assets/header-logo.png'), (Render-Mark 512))
 $markSvgData = $mark -replace '^F[01]\s*', ''
 $markSvgRule = if ($mark.StartsWith('F1')) { 'nonzero' } else { 'evenodd' }
-$iconArrowSvg = '<path fill="none" stroke="#FFFFFF" stroke-width="' + $artConfig.iconArrowStroke + '" stroke-linejoin="miter" stroke-miterlimit="2" d="' + $iconArrowData + '"/>'
+$iconArrowSvg = '<path fill="' + $artConfig.arrowFill + '" d="' + $iconArrowData + '"/>'
 $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-label="Vydrop download logo"><path fill="' + $fill.Color + '" fill-rule="' + $markSvgRule + '" d="' + $markSvgData + '"/>' + $iconArrowSvg + '</svg>'
 [IO.File]::WriteAllText((Join-Path $projectRoot 'assets/brand-mark.svg'), $svg, [Text.UTF8Encoding]::new($false))
 $initialData = $symbols.SelectSingleNode("//*[@x:Key='BrandInitialGeometry']", $namespaces).InnerText
@@ -48,10 +46,7 @@ $initial = [Windows.Media.Geometry]::Parse($initialData)
 $letters = [Windows.Media.Geometry]::Parse($lettersData)
 $arrowData = $symbols.SelectSingleNode("//*[@x:Key='BrandArrowGeometry']", $namespaces).InnerText
 $arrow = [Windows.Media.Geometry]::Parse($arrowData)
-$arrowPen = [Windows.Media.Pen]::new([Windows.Media.Brushes]::White, $artConfig.arrowStroke)
-$arrowPen.LineJoin = [Windows.Media.PenLineJoin]::Miter
-$arrowPen.MiterLimit = 2
-$arrowSvg = '<path fill="none" stroke="#FFFFFF" stroke-width="' + $artConfig.arrowStroke + '" stroke-linejoin="miter" stroke-miterlimit="2" d="' + $arrowData + '"/>'
+$arrowSvg = '<path fill="' + $artConfig.arrowFill + '" d="' + $arrowData + '"/>'
 $initialSvgData = $initialData -replace '^F[01]\s*', ''
 $initialSvgRule = if ($initialData.StartsWith('F1')) { 'nonzero' } else { 'evenodd' }
 # WPF's F1 prefix selects nonzero fill; SVG carries that as a separate attribute.
@@ -63,7 +58,7 @@ $typeY = (42 - 284 * $typeScale) / 2
 $culture = [Globalization.CultureInfo]::InvariantCulture
 $typeTransform = 'matrix(' + $typeScale.ToString($culture) + ' 0 0 ' + $typeScale.ToString($culture) + ' ' + $typeX.ToString($culture) + ' ' + $typeY.ToString($culture) + ')'
 foreach ($variant in @(@{Name='light';Ink='#272329';Page='#FFFFFF'}, @{Name='dark';Ink='#F6F2F4';Page='#181B20'})) {
-    $lockup = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="168" viewBox="0 0 128 42" role="img" aria-label="Vydrop"><title>Vydrop</title><desc>Approved integrated wordmark: a symmetrical sharp red V with a white-outlined download arrow, followed by matching geometric lettering.</desc><g transform="' + $typeTransform + '"><path fill="' + $fill.Color + '" fill-rule="' + $initialSvgRule + '" d="' + $initialSvgData + '"/>' + $arrowSvg + '<path fill="' + $variant.Ink + '" fill-rule="' + $lettersSvgRule + '" d="' + $lettersSvgData + '"/></g></svg>'
+    $lockup = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="168" viewBox="0 0 128 42" role="img" aria-label="Vydrop"><title>Vydrop</title><desc>Approved integrated wordmark: a symmetrical sharp red V with a solid white download arrow, followed by matching geometric lettering.</desc><g transform="' + $typeTransform + '"><path fill="' + $fill.Color + '" fill-rule="' + $initialSvgRule + '" d="' + $initialSvgData + '"/>' + $arrowSvg + '<path fill="' + $variant.Ink + '" fill-rule="' + $lettersSvgRule + '" d="' + $lettersSvgData + '"/></g></svg>'
     [IO.File]::WriteAllText((Join-Path $projectRoot ('assets/brand-logo-' + $variant.Name + '.svg')), $lockup, [Text.UTF8Encoding]::new($false))
     foreach ($background in @($false, $true)) {
     $visual = [Windows.Media.DrawingVisual]::new()
@@ -72,7 +67,7 @@ foreach ($variant in @(@{Name='light';Ink='#272329';Page='#FFFFFF'}, @{Name='dar
     $drawing.PushTransform([Windows.Media.ScaleTransform]::new(4,4))
     $drawing.PushTransform([Windows.Media.MatrixTransform]::new($typeScale,0,0,$typeScale,$typeX,$typeY))
     $drawing.DrawGeometry($brush, $null, $initial)
-    $drawing.DrawGeometry($null, $arrowPen, $arrow)
+    $drawing.DrawGeometry($arrowBrush, $null, $arrow)
     $drawing.DrawGeometry([Windows.Media.SolidColorBrush]::new([Windows.Media.ColorConverter]::ConvertFromString($variant.Ink)), $null, $letters)
     $drawing.Pop(); $drawing.Pop(); $drawing.Close()
     $bitmap = [Windows.Media.Imaging.RenderTargetBitmap]::new(512,168,96,96,[Windows.Media.PixelFormats]::Pbgra32)
@@ -91,7 +86,7 @@ $popup = [regex]::Replace([IO.File]::ReadAllText($popupPath), '<header>.*?</head
 $overlayPath = Join-Path $projectRoot 'browser/common/video-overlay.js'
 $overlay = [regex]::Replace([IO.File]::ReadAllText($overlayPath), 'mark\.setAttribute\("d", "[^"]*"\);', { param($m) 'mark.setAttribute("d", "' + $markSvgData + '");' })
 $overlay = [regex]::Replace($overlay, 'arrow\.setAttribute\("d", "[^"]*"\);', { param($m) 'arrow.setAttribute("d", "' + $iconArrowData + '");' })
-$overlay = [regex]::Replace($overlay, 'arrow\.setAttribute\("stroke-width", "[^"]*"\);', { param($m) 'arrow.setAttribute("stroke-width", "' + $artConfig.iconArrowStroke + '");' })
+$overlay = [regex]::Replace($overlay, 'arrow\.setAttribute\("fill", "[^"]*"\);', { param($m) 'arrow.setAttribute("fill", "' + $artConfig.arrowFill + '");' })
 [IO.File]::WriteAllText($overlayPath, $overlay, [Text.UTF8Encoding]::new($false))
 $sizes = @(16,24,32,48,64,128,256)
 $frames = @($sizes | ForEach-Object { ,(Render-Mark $_) })

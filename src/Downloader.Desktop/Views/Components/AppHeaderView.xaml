@@ -36,7 +36,7 @@
        <Path x:Name="BrandInitial" Data="{StaticResource BrandInitialGeometry}" Fill="{StaticResource BrandFill}">
         <Path.RenderTransform><ScaleTransform x:Name="LogoScale" CenterX="125.5" CenterY="134.5"/></Path.RenderTransform>
        </Path>
-       <Path Data="{StaticResource BrandArrowGeometry}" Stroke="White" StrokeThickness="7" StrokeLineJoin="Miter" StrokeMiterLimit="2" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False"/>
+       <Path Data="{StaticResource BrandArrowGeometry}" Fill="White" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False"/>
        <Path x:Name="BrandLetters" Data="{StaticResource BrandLettersGeometry}" Fill="{DynamicResource Ink}"/>
        <Path x:Name="LogoLight" Data="{StaticResource BrandInitialGeometry}" RenderTransform="{Binding RenderTransform,ElementName=BrandInitial}" IsHitTestVisible="False" Opacity="0">
        <Path.Fill><LinearGradientBrush StartPoint="0,0" EndPoint="1,0.4">

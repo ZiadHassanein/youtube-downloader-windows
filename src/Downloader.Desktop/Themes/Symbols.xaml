@@ -19,8 +19,8 @@
   <Geometry x:Key="CheckIcon">M2,10 L7,15 18,3</Geometry>
   <Geometry x:Key="ChevronIcon">M2,5 L9,12 16,5</Geometry>
   <Geometry x:Key="BrandMarkGeometry">F0M4,8.016L21.625,8.016 27.873,18.056 27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056 42.375,8.016 60,8.016 60,11.586 32,55.984 4,11.586Z</Geometry>
-  <Geometry x:Key="BrandArrowGeometry">M107,72L107,114 77,114 125.5,168 174,114 144,114 144,72</Geometry>
-  <Geometry x:Key="BrandIconArrowGeometry">M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056</Geometry>
+  <Geometry x:Key="BrandArrowGeometry">M107,72L107,114 77,114 125.5,168 174,114 144,114 144,72Z</Geometry>
+  <Geometry x:Key="BrandIconArrowGeometry">M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056Z</Geometry>
   <SolidColorBrush x:Key="BrandFill" Color="#E63D4D"/>
   <Style x:Key="LineIcon" TargetType="Path">
     <Setter Property="Width" Value="18"/>

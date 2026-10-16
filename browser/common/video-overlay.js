@@ -54,12 +54,8 @@
   mark.setAttribute("fill-rule", "evenodd");
   mark.setAttribute("d", "M4,8.016L21.625,8.016 27.873,18.056 27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056 42.375,8.016 60,8.016 60,11.586 32,55.984 4,11.586Z");
   const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  arrow.setAttribute("fill", "none");
-  arrow.setAttribute("stroke", "#FFFFFF");
-  arrow.setAttribute("stroke-width", "1.562");
-  arrow.setAttribute("stroke-linejoin", "miter");
-  arrow.setAttribute("stroke-miterlimit", "2");
-  arrow.setAttribute("d", "M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056");
+  arrow.setAttribute("fill", "#FFFFFF");
+  arrow.setAttribute("d", "M27.873,18.056L27.873,27.426 21.179,27.426 32,39.474 42.821,27.426 36.127,27.426 36.127,18.056Z");
   icon.append(mark, arrow);
   const label = document.createElement("span");
   label.textContent = text.open;
