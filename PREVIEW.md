@@ -13,3 +13,5 @@ Try:
 - Check both languages/themes, output options, menus, recent history and the existing silent animations.
 
 Validation passed: 1,577 WPF checks, 51 core, 36 boundary, 116 media workflow, 45 automatic-tool and four browser tests. The reported Mix returned 50 real metadata entries anonymously; no media download is claimed for this check. Clean Windows 10/11 and actual extension loading remain unverified. Nothing is merged or published.
+
+The single-ZIP payload, packaged native browser host and EXE-only bundled-runtime startup passed. Preview 26 opens normally.
