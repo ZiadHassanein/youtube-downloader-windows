@@ -5,10 +5,12 @@ using System.Text;
 using System.Text.Json;
 
 namespace YouTubeDownloader;
+internal enum BrowserDelivery { NoListener, Rejected, Accepted }
 public static class BrowserLinkTransport
 {
-    public static string PipeName => (ReleaseChannel.IsPreview ? "ViFree.Preview." : "ViFree.") + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User.Value)))[..24];
-    internal static async Task<bool> TrySendAsync(string url, int milliseconds, CancellationToken token)
+    internal static string PipeNameOverride { get; set; }
+    public static string PipeName => PipeNameOverride ?? (ReleaseChannel.IsPreview ? "ViFree.Preview." : "ViFree.") + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(WindowsIdentity.GetCurrent().User.Value)))[..24];
+    internal static async Task<BrowserDelivery> TrySendAsync(string url, int milliseconds, CancellationToken token)
     {
         try
         {
@@ -16,19 +18,19 @@ public static class BrowserLinkTransport
             await pipe.ConnectAsync(milliseconds, token).ConfigureAwait(false);
             await BrowserProtocol.WriteAsync(pipe, new { version = 1, type = "open-link", url }, token).ConfigureAwait(false);
             using var reply = await BrowserProtocol.ReadAsync(pipe, token).ConfigureAwait(false);
-            return reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True;
+            return reply.RootElement.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True ? BrowserDelivery.Accepted : BrowserDelivery.Rejected;
         }
         catch (OperationCanceledException) { throw; }
-        catch (IOException) { return false; }
-        catch (TimeoutException) { return false; }
+        catch (IOException) { return BrowserDelivery.NoListener; }
+        catch (TimeoutException) { return BrowserDelivery.NoListener; }
     }
     public static async Task ListenAsync(Func<string, bool> received, CancellationToken token)
     {
         while (!token.IsCancellationRequested)
         {
-            using var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
             try
             {
+                using var pipe = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await pipe.WaitForConnectionAsync(token).ConfigureAwait(false);
                 using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
                 deadline.CancelAfter(TimeSpan.FromSeconds(3));
@@ -38,7 +40,11 @@ public static class BrowserLinkTransport
                 await BrowserProtocol.WriteAsync(pipe, new { ok = accepted }, deadline.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException) { if (token.IsCancellationRequested) return; }
-            catch (IOException) { }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                try { await Task.Delay(1000, token).ConfigureAwait(false); }
+                catch (OperationCanceledException) { return; }
+            }
             catch (JsonException) { }
             catch (ArgumentException) { }
             catch (InvalidOperationException) { }

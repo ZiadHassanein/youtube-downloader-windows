@@ -1,0 +1,48 @@
+name: Documentation site
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Validate sources and build the documentation
+        env:
+          BUNDLE_PATH: build/docs-gems
+          BUNDLE_FROZEN: 'true'
+        run: |
+          gem install --user-install bundler -v 2.6.9 --no-document
+          export PATH="$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
+          bundle install --gemfile docs/Gemfile
+          bundle exec --gemfile docs/Gemfile jekyll build --source docs --destination build/site
+          node --test tests/docs.test.cjs
+          node scripts/check-site.cjs build/site
+      - name: Upload the checked documentation
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: build/site
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

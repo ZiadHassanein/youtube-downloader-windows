@@ -70,8 +70,10 @@ internal sealed class ToolUpdateClient(string cache) : IToolUpdateClient
             var updated = ToolSet.Validated(store.Verify(selection.YtDlp, "yt-dlp.exe", token) ?? current.YtDlp, current.FFmpeg, current.FFprobe,
                 store.Verify(selection.Deno, "deno.exe", token) ?? current.Deno);
             string description = await Describe(updated, token).ConfigureAwait(false);
-            store.Save(new(selection, active, state.RejectedYtDlp, state.RejectedDeno), token);
+            var promoted = new ToolUpdateStore.State(selection, active, state.RejectedYtDlp, state.RejectedDeno);
+            store.Save(promoted, token);
             committed = true;
+            store.Prune(promoted);
             return (updated, new(true, description));
         }
         finally
@@ -96,9 +98,11 @@ internal sealed class ToolUpdateClient(string cache) : IToolUpdateClient
         // Do not roll back another process's concurrent promotion.
         if (state.Previous == null || (store.Verify(state.Active.YtDlp, "yt-dlp.exe", token) is string yt && yt != current.YtDlp) ||
             (store.Verify(state.Active.Deno, "deno.exe", token) is string deno && deno != current.Deno)) return current;
-        store.Save(new(state.Previous, null,
+        var restored = new ToolUpdateStore.State(state.Previous, null,
             state.Active.YtDlp != state.Previous.YtDlp ? state.Active.YtDlp?.Version : state.RejectedYtDlp,
-            state.Active.Deno != state.Previous.Deno ? state.Active.Deno?.Version : state.RejectedDeno), token);
+            state.Active.Deno != state.Previous.Deno ? state.Active.Deno?.Version : state.RejectedDeno);
+        store.Save(restored, token);
+        store.Prune(restored);
         return ToolSet.Validated(store.Verify(state.Previous.YtDlp, "yt-dlp.exe", token) ?? fallback.YtDlp, fallback.FFmpeg, fallback.FFprobe,
             store.Verify(state.Previous.Deno, "deno.exe", token) ?? fallback.Deno);
     }, token);

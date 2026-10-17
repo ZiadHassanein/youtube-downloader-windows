@@ -21,6 +21,23 @@ internal static partial class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Apply DPI compatibility before process startup, so native popup threads use it too.
+        // A thread-only override mixes coordinate systems in WPF's native context menus.
+        if (args.Contains("--dpi-unaware") && !args.Contains("--dpi-child"))
+        {
+            var start = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath)
+                { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
+            start.Environment["__COMPAT_LAYER"] = "DPIUNAWARE";
+            foreach (string argument in args) start.ArgumentList.Add(argument);
+            // Windows may consume/remove __COMPAT_LAYER before managed startup.
+            start.ArgumentList.Add("--dpi-child");
+            using var child = System.Diagnostics.Process.Start(start);
+            var output = child.StandardOutput.BaseStream.CopyToAsync(Console.OpenStandardOutput());
+            var error = child.StandardError.BaseStream.CopyToAsync(Console.OpenStandardError());
+            child.WaitForExit();
+            Task.WhenAll(output, error).GetAwaiter().GetResult();
+            return child.ExitCode;
+        }
         var app = new Application();
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Vydrop;component/Themes/Controls.xaml") });
         string root = System.IO.Path.Combine(AppContext.BaseDirectory, "wpf-test-" + Guid.NewGuid().ToString("N"));
@@ -37,11 +54,29 @@ internal static partial class Program
                 var model = (MainViewModel)window.DataContext;
                 await Task.Delay(100);
                 window.UpdateLayout();
+                Console.WriteLine("WPF test DPI scale: " + VisualTreeHelper.GetDpi(window).DpiScaleX);
+                if (args.Contains("--dpi-unaware"))
+                    Check(Math.Abs(VisualTreeHelper.GetDpi(window).DpiScaleX - 1) < .01, "Process compatibility tests actually use 100% scale");
                 Check(window.Title == "Vydrop" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
                 Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
                 var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
+                if (args.Contains("--docs"))
+                {
+                    Check(Math.Abs(VisualTreeHelper.GetDpi(window).DpiScaleX - 1) < .01, "Documentation captures render at 100% scale");
+                    foreach (string locale in new[] { "en", "ar" })
+                        foreach (bool dark in new[] { true, false })
+                        {
+                            model.SelectLanguageCommand.Execute(locale);
+                            if (model.IsDark != dark) model.ThemeCommand.Execute(null);
+                            await Task.Delay(350);
+                            window.UpdateLayout();
+                            Capture(window, System.IO.Path.Combine(captures, "vydrop-" + (dark ? "dark" : "light") + "-" + locale + "-download.png"));
+                        }
+                    Console.WriteLine(count + " WPF documentation capture checks passed.");
+                    return;
+                }
                 if (args.Contains("--output-details"))
                 {
                     await CheckOutputDetails(window, model, provider, captures);

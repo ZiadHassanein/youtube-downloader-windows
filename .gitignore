@@ -1,5 +1,9 @@
 /dist/
 /build/
+/.bundle/
+/docs/.jekyll-cache/
+/docs/.sass-cache/
+/docs/_site/
 /tools/
 settings.json
 *.exe

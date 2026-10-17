@@ -100,6 +100,25 @@ internal static partial class Program
             "Cancelling maintenance gives a clear outcome and releases the operation");
         await Task.Delay(5200);
         Check(!model.NoticeVisible, "Finished maintenance feedback disappears after five seconds");
+        var checkForUpdate = model.CheckForUpdate;
+        try
+        {
+            model.SelectLanguageCommand.Execute("en");
+            model.CheckForUpdate = _ => Task.FromException<AppRelease>(new HttpRequestException("fixture offline"));
+            await model.UpdateCommand.ExecuteAsync(null);
+            Check(model.NoticeHeading == "Couldn't check for updates" && model.UpdateLabel == "Check for updates",
+                "A network update failure keeps the ordinary connection retry path");
+            model.CheckForUpdate = _ => Task.FromException<AppRelease>(new System.IO.InvalidDataException("This release has no verified desktop package yet."));
+            await model.UpdateCommand.ExecuteAsync(null);
+            foreach (string locale in new[] { "en", "ar" })
+            {
+                model.SelectLanguageCommand.Execute(locale);
+                Check(model.NoticeHeading == Texts.For(locale, "Download the new version manually") && model.UpdateLabel == Texts.For(locale, "Download update") &&
+                    model.NoticeDetail == Texts.For(locale, "The release could not be verified for installation from this version. Open the releases page and extract the new ZIP into a new folder."),
+                    "An incompatible release shows a localized manual download action rather than a connection error in " + locale);
+            }
+        }
+        finally { model.CheckForUpdate = checkForUpdate; }
     }
 
     private static async Task SettleMaintenance(Window window)

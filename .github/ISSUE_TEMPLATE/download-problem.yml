@@ -1,0 +1,37 @@
+name: Download problem / مشكلة تنزيل
+description: Report a public-link download failure without sharing private data.
+title: "[Download] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Include only public, non-sensitive information. Never post cookies, passwords, tokens, private URLs or personal paths. لا ترسل كلمات مرور أو ملفات تعريف ارتباط أو روابط خاصة."
+  - type: input
+    id: version
+    attributes:
+      label: App version / إصدار التطبيق
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and display scale / إصدار ويندوز ومقياس العرض
+    validations:
+      required: true
+  - type: input
+    id: public-link
+    attributes:
+      label: Public video link, if safe to share / رابط عام إن أمكن مشاركته
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps, chosen format and expected result / الخطوات والصيغة والنتيجة المتوقعة
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message and actual result / رسالة الخطأ والنتيجة الفعلية
+      description: Redact personal information. Include browser/extension versions if relevant.
+    validations:
+      required: true

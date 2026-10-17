@@ -21,20 +21,29 @@ public static class BrowserHost
             if (!IsAllowedCaller(args)) throw new InvalidDataException("This browser extension is not authorized.");
             using var message = await BrowserProtocol.ReadAsync(Console.OpenStandardInput(), timeout.Token).ConfigureAwait(false);
             string url = BrowserProtocol.ReadUrl(message.RootElement);
-            if (!await BrowserLinkTransport.TrySendAsync(url, 250, timeout.Token).ConfigureAwait(false))
+            var delivery = await DeliverAsync(url, () =>
             {
-                Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = false, CreateNoWindow = true, ArgumentList = { "--browser-launch" } });
-                bool sent = false;
-                for (int attempt = 0; attempt < 20 && !sent; attempt++)
-                {
-                    await Task.Delay(200, timeout.Token).ConfigureAwait(false);
-                    sent = await BrowserLinkTransport.TrySendAsync(url, 250, timeout.Token).ConfigureAwait(false);
-                }
-                if (!sent) throw new IOException("Open Vydrop and try sending the link again.");
-            }
-            response = new { ok = true, message = "Link opened in Vydrop. Review it before downloading." };
+                using var process = Process.Start(new ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = false, CreateNoWindow = true, ArgumentList = { "--browser-launch" } });
+            }, timeout.Token).ConfigureAwait(false);
+            response = delivery == BrowserDelivery.Accepted
+                ? new { ok = true, code = "opened", message = "Link opened in Vydrop. Review it before downloading." }
+                : new { ok = false, code = "busy", message = "Vydrop is busy. Finish or cancel the current download, then try again." };
         }
         catch { response = new { ok = false, message = "Could not send this link. Open Vydrop and enable browser integration, then try again." }; }
         try { await BrowserProtocol.WriteAsync(Console.OpenStandardOutput(), response, CancellationToken.None).ConfigureAwait(false); } catch (IOException) { }
+    }
+
+    internal static async Task<BrowserDelivery> DeliverAsync(string url, Action launch, CancellationToken token)
+    {
+        var delivery = await BrowserLinkTransport.TrySendAsync(url, 250, token).ConfigureAwait(false);
+        if (delivery != BrowserDelivery.NoListener) return delivery;
+        launch();
+        for (int attempt = 0; attempt < 20; attempt++)
+        {
+            await Task.Delay(200, token).ConfigureAwait(false);
+            delivery = await BrowserLinkTransport.TrySendAsync(url, 250, token).ConfigureAwait(false);
+            if (delivery != BrowserDelivery.NoListener) return delivery;
+        }
+        throw new IOException("Open Vydrop and try sending the link again.");
     }
 }

@@ -122,6 +122,7 @@ internal static class FakeDownloader
         }
         if (args.Contains("--dump-single-json"))
         {
+            File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "metadata-inspections.txt"), url + Environment.NewLine);
             if (url.Contains("list=RD") && (args[Array.IndexOf(args, "--playlist-end") + 1] != "50" || !url.Contains("watch?v=")))
             {
                 Console.Error.WriteLine("ERROR: Mix inspection requires a seeded watch link and a bounded snapshot.");

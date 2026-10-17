@@ -1,0 +1,62 @@
+{
+  "en": [
+    {
+      "question": "Can Vydrop download videos from sites other than YouTube?",
+      "answer": "Yes. Vydrop uses yt-dlp for public pages from 1,000+ supported sites, including TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips. Direct MP4/MP3 links also work. Site changes and access restrictions can prevent a particular download."
+    },
+    {
+      "question": "Is there a free open-source Windows downloader with Arabic?",
+      "answer": "Yes. Vydrop is free under the MIT license, runs on Windows 10/11 x64, and includes English and Arabic interfaces with light and dark themes. The .NET runtime is bundled; missing media tools are prepared automatically."
+    },
+    {
+      "question": "Does Vydrop download TikTok, Facebook, Vimeo or X videos?",
+      "answer": "Yes, when the public video is supported by yt-dlp and available without signing in. Paste the video’s own link, not the homepage. The extension can resolve a playing video, but custom players and site restrictions can limit detection."
+    },
+    {
+      "question": "Can I download a video playing in my browser?",
+      "answer": "Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website."
+    },
+    {
+      "question": "How do I save a YouTube playlist as MP3 on Windows?",
+      "answer": "Paste a public playlist link, choose Whole playlist, select the entries, choose Audio → MP3 and an available audio quality, then choose Download. The app processes the selected entries in order. Available quality depends on the original audio."
+    },
+    {
+      "question": "Does Vydrop need an account, API key or subscription?",
+      "answer": "No. Vydrop needs no account, API key or paid subscription. It contacts media sites and official update servers when needed. It does not import browser cookies, bypass sign-in or decrypt DRM. Only download media you have permission to save."
+    },
+    {
+      "question": "What happens when a website changes?",
+      "answer": "Vydrop checks for verified yt-dlp and Deno updates once daily when you use a link and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate."
+    }
+  ],
+  "ar": [
+    {
+      "question": "هل ينزّل Vydrop الفيديو من مواقع غير يوتيوب؟",
+      "answer": "نعم. يستخدم Vydrop أداة yt-dlp للصفحات العامة في أكثر من ١٠٠٠ موقع مدعوم، منها تيك توك وفيسبوك وVimeo وX وReddit وDailymotion ومقاطع Twitch، إضافة إلى روابط MP4 وMP3 المباشرة. قد تمنع تغييرات الموقع أو قيود الوصول تنزيل رابط معيّن."
+    },
+    {
+      "question": "هل يوجد برنامج تنزيل مجاني ومفتوح المصدر لويندوز بواجهة عربية؟",
+      "answer": "نعم. Vydrop مجاني بترخيص MIT ويعمل على Windows 10/11 x64، مع واجهتين عربية وإنجليزية ومظهرين فاتح وداكن. بيئة .NET مضمّنة، وتُجهّز أدوات الوسائط الناقصة تلقائيًا."
+    },
+    {
+      "question": "هل يدعم Vydrop فيديوهات تيك توك وفيسبوك وVimeo وX؟",
+      "answer": "نعم، عندما يكون الفيديو عامًا ومدعومًا عبر yt-dlp ومتاحًا دون تسجيل دخول. الصق رابط الفيديو نفسه بدل الصفحة الرئيسية. تستطيع الإضافة تحديد الفيديو الجاري تشغيله، لكن بعض المشغّلات وقيود المواقع قد تمنع اكتشافه."
+    },
+    {
+      "question": "هل يمكن تنزيل الفيديو الذي أشاهده في المتصفح؟",
+      "answer": "استخدم إضافة Chrome أوEdge أوFirefox الاختيارية. فعّل الربط بالمتصفح داخل Vydrop، ثم اضغط «تنزيل بواسطة Vydrop» بجانب الفيديو الجاري تشغيله. تنسخ الإضافة الرابط وتفتح التطبيق لمراجعته، ثم تختار التنزيل. لا يُضمن اكتشاف الفيديو في كل موقع."
+    },
+    {
+      "question": "كيف أحفظ قائمة تشغيل يوتيوب بصيغة MP3 على ويندوز؟",
+      "answer": "الصق رابط قائمة عامة، واختر القائمة كاملة ثم الفيديوهات المطلوبة. اختر الصوت ثم MP3 وجودة الصوت المتاحة، واضغط تنزيل. يعالج التطبيق العناصر المحددة بالترتيب، وتعتمد الجودة على الصوت الأصلي."
+    },
+    {
+      "question": "هل يحتاج Vydrop إلى حساب أو مفتاح API أو اشتراك؟",
+      "answer": "لا. لا يحتاج Vydrop إلى حساب أو مفتاح API أو اشتراك مدفوع. يتصل بمواقع الوسائط وخوادم التحديث الرسمية عند الحاجة، ولا يستورد ملفات تعريف الارتباط أو يتجاوز تسجيل الدخول أو يفك DRM. نزّل فقط ما تملك إذنًا بحفظه."
+    },
+    {
+      "question": "ماذا يحدث عندما يغيّر موقع طريقة عمله؟",
+      "answer": "يفحص Vydrop تحديثات yt-dlp وDeno المتحقق منها مرة يوميًا عند استخدام رابط، وقد يحدّث الأدوات ويعيد المحاولة مرة واحدة عند خطأ متوافق. قد يظل الحل بحاجة إلى إصلاح من المطوّرين الأصليين. للفحص اليدوي اختر الإعدادات ثم تحديث أداة التنزيل؛ تحديث التطبيق منفصل."
+    }
+  ]
+}

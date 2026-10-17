@@ -120,8 +120,12 @@ public sealed class WindowsProcessRunner : IDisposable
 
     public void Cancel()
     {
-        lock (gate)
-            active?.Stop();
+        try
+        {
+            lock (gate)
+                active?.Stop();
+        }
+        catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception) { }
     }
 
     public void Dispose() => Cancel();

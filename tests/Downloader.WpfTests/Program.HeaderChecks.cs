@@ -45,7 +45,8 @@ internal static partial class Program
                     window.UpdateLayout();
                     var themeBounds = Bounds(theme);
                     var glyphBounds = Bounds((FrameworkElement)WpfTree.Find(theme, "ThemeGlyph"));
-                    Check(Math.Abs(theme.ActualWidth - 42) < .1 && Math.Abs(theme.ActualHeight - 42) < .1 &&
+                    var themeDpi = VisualTreeHelper.GetDpi(theme);
+                    Check(Math.Abs(theme.ActualWidth - 42) <= 1 / themeDpi.DpiScaleX + .01 && Math.Abs(theme.ActualHeight - 42) <= 1 / themeDpi.DpiScaleY + .01 &&
                         Math.Abs(header.ActualHeight - headerHeight) < .1 && Math.Abs(Bounds(heading).Top - headingTop) < .1 &&
                         glyphBounds.Left >= themeBounds.Left + 8 && glyphBounds.Right <= themeBounds.Right - 8 &&
                         glyphBounds.Top >= themeBounds.Top + 8 && glyphBounds.Bottom <= themeBounds.Bottom - 8,
@@ -69,6 +70,8 @@ internal static partial class Program
                         "The compact vector wordmark keeps a red V, themed remaining letters and fixed direction across themes");
                     string variant = (arabic ? "ar" : "en") + (dark ? "-dark" : "-light") + (width == startupWidth ? "-default" : width < 1000 ? "-compact" : "-wide");
                     CaptureVisual(header, System.IO.Path.Combine(captures, "header-" + variant + ".png"));
+                    language.Focus();
+                    await SettleMaintenance(window);
                     language.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                     await Task.Delay(300);
                     var menu = language.ContextMenu;

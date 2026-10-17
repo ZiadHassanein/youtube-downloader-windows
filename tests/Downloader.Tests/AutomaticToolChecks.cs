@@ -195,14 +195,18 @@ internal static class AutomaticToolChecks
             VersionOf = (file, _) => file.StartsWith("old/") ? (file.EndsWith("deno.exe") ? "2.9.7" : "2026.08.19") : file.EndsWith("deno.exe") ? "2.10.0" : "2026.10.16"
         };
         string root = Root(); var client = Client(root); var old = Tools("old");
+        string obsolete = Path.Combine(new ToolUpdateStore(root).Root, "version-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(obsolete);
+        File.WriteAllText(Path.Combine(obsolete, "yt-dlp.exe"), "superseded fixture");
         var updated = await client.RefreshAsync(old, null, default);
         var store = new ToolUpdateStore(root); var state = store.Read();
         Check(updated.Result.Updated && File.Exists(updated.Tools.YtDlp) && File.Exists(updated.Tools.Deno) && state.Previous != null, "Both verified tools activate together with a retained previous selection");
+        Check(!Directory.Exists(obsolete), "A real tool promotion prunes superseded owned versions after saving its verified selection");
         Check(!requestHadCredentials && assetDownloads == 2, "Update acquisition is anonymous and downloads only the two newer official assets");
         Check(store.Verify(state.Active.YtDlp, "yt-dlp.exe", default) == updated.Tools.YtDlp && store.Verify(state.Active.Deno, "deno.exe", default) == updated.Tools.Deno,
             "The persisted selection revalidates executable sizes and SHA256 after extraction");
         var restored = await client.RollbackAsync(updated.Tools, old, default);
-        Check(restored.YtDlp == old.YtDlp && restored.Deno == old.Deno && File.Exists(updated.Tools.YtDlp) && File.Exists(updated.Tools.Deno), "Rollback restores the previous pair without deleting either version");
+        Check(restored.YtDlp == old.YtDlp && restored.Deno == old.Deno && !File.Exists(updated.Tools.YtDlp) && !File.Exists(updated.Tools.Deno), "Rollback restores the previous pair and prunes the rejected version");
         int before = assetDownloads;
         var skipped = await client.RefreshAsync(old, null, default);
         Check(!skipped.Result.Updated && assetDownloads == before, "A rejected version is not silently reinstalled the following day");

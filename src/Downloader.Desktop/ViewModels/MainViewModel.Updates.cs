@@ -4,6 +4,7 @@ public sealed partial class MainViewModel
     private AppRelease available;
     private bool downloadingUpdate;
     private bool manualUpdateFallback;
+    internal Func<CancellationToken, Task<AppRelease>> CheckForUpdate { get; set; } = AppUpdates.CheckAsync;
     public string UpdateLabel => T(downloadingUpdate ? "Downloading update…" : manualUpdateFallback ? "Download update" : available == null ? "Check for updates" : "Install v" + available.Version.ToString(3));
 
     private async Task UpdateAsync(CancellationToken token)
@@ -25,7 +26,7 @@ public sealed partial class MainViewModel
             if (available == null)
             {
                 ShowNotice("Checking for updates", "Looking for the latest app release…", false, "update");
-                available = await AppUpdates.CheckAsync(operation.Token);
+                available = await CheckForUpdate(operation.Token);
                 if (available == null)
                     ShowNotice("You're up to date", T("No newer app release is available."), false, "update");
                 else
@@ -49,6 +50,12 @@ public sealed partial class MainViewModel
         {
             manualUpdateFallback = true;
             ShowNotice("Update couldn't be installed", "Download the new ZIP and extract it into a writable folder. Your current app is ready to use.", true, "update");
+        }
+        catch (InvalidDataException)
+        {
+            manualUpdateFallback = true;
+            available = null;
+            ShowNotice("Download the new version manually", "The release could not be verified for installation from this version. Open the releases page and extract the new ZIP into a new folder.", true, "update");
         }
         catch
         {

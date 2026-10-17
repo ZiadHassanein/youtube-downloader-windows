@@ -9,7 +9,7 @@ public static class MediaValidator
     {
         var text = new StringBuilder();
         using var runner = new WindowsProcessRunner();
-        int code = runner.Run(tools.FFprobe, new[] { "-v", "error", "-show_entries", "format=format_name,duration:stream=codec_type", "-of", "json", "-i", file }, line => text.AppendLine(line), null, token, TimeSpan.FromSeconds(15), 1024 * 1024);
+        int code = runner.Run(tools.FFprobe, new[] { "-v", "error", "-show_entries", "format=format_name,duration:stream=codec_type", "-of", "json", "-i", "file:" + Path.GetFullPath(file) }, line => text.AppendLine(line), null, token, TimeSpan.FromSeconds(15), 1024 * 1024);
         if (code != 0) throw new InvalidDataException("The downloaded file could not be verified. Try another quality.");
         using var document = JsonDocument.Parse(text.ToString());
         if (!Matches(document.RootElement, options)) throw new InvalidDataException("The downloaded file could not be verified. Try another quality.");

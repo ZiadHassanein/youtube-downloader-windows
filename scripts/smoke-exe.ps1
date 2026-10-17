@@ -46,4 +46,6 @@ try {
 } finally {
     if (!$process.HasExited) { $process.Kill($true); $process.WaitForExit(5000) | Out-Null }
     $process.Dispose()
+    # Retain the small startup/host-trace receipts, not another full app copy per run.
+    Remove-Item -LiteralPath $executable -Force -ErrorAction SilentlyContinue
 }

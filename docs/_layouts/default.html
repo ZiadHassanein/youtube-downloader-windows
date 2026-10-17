@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="{{ page.lang | default: 'en' }}" dir="{% if page.lang == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>{% include head.html %}</head>
+<body>
+  <a class="skip" href="#content">{% if page.lang == 'ar' %}انتقل إلى المحتوى{% else %}Skip to content{% endif %}</a>
+  <header class="site-header">
+    <a class="brand" href="{% if page.lang == 'ar' %}{{ '/ar/' | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}" aria-label="Vydrop">
+      <picture><source media="(prefers-color-scheme: dark)" srcset="{{ '/assets/brand-logo-dark.svg' | relative_url }}"><img src="{{ '/assets/brand-logo-light.svg' | relative_url }}" width="144" height="44" alt="Vydrop"></picture>
+    </a>
+    <nav aria-label="{% if page.lang == 'ar' %}التنقل{% else %}Navigation{% endif %}">
+      {% if page.lang == 'ar' %}<a href="{{ '/ar/supported-sites.html' | relative_url }}">المواقع المدعومة</a><a href="{{ '/ar/browser-extension-setup.html' | relative_url }}">إضافة المتصفح</a>{% else %}<a href="{{ '/supported-sites.html' | relative_url }}">Supported sites</a><a href="{{ '/browser-extension-setup.html' | relative_url }}">Browser setup</a>{% endif %}
+      <a href="https://github.com/ZiadHassanein/ViFree">GitHub</a>
+      {% if page.alternate %}{% if page.lang == 'ar' %}<a href="{{ page.english | relative_url }}" lang="en">English</a>{% else %}<a href="{{ page.arabic | relative_url }}" lang="ar">العربية</a>{% endif %}{% endif %}
+    </nav>
+  </header>
+  <main id="content" tabindex="-1"><article>{{ content }}</article></main>
+  <footer>{% if page.lang == 'ar' %}Vydrop من تطوير زياد حسنين · مجاني ومفتوح المصدر بترخيص MIT.{% else %}Vydrop by Ziad Hassanein · Free and open source under MIT.{% endif %} <a href="https://github.com/ZiadHassanein/ViFree/blob/main/SECURITY.md">{% if page.lang == 'ar' %}الأمان والخصوصية{% else %}Security and privacy{% endif %}</a></footer>
+</body>
+</html>

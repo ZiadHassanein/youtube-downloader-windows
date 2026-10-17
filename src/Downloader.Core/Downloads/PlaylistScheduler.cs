@@ -86,6 +86,7 @@ namespace YouTubeDownloader
                     item.Folder = folder;
                     item.Playlist = null;
                     item.PlaylistItem = true;
+                    item.FreshMetadata = null;
                     item.Selection = null;
                     item.QualityKey = null;
                     var saved = download(item, token);

@@ -36,12 +36,10 @@ public sealed class DependencyManager : IDisposable
     {
         void Report(string detail, double percent = 0, bool indeterminate = true) => progress?.Report(new DownloadProgress { Stage = "Preparing media tools", Detail = detail, Percent = percent, Indeterminate = indeterminate });
         Report("Checking available media tools…");
-        var existing = await Task.Run(() => Discover(token), token).ConfigureAwait(false);
-        if (existing != null)
-            return existing;
         Directory.CreateDirectory(cache);
         using var preparation = await AcquireLock(token).ConfigureAwait(false);
-        existing = await Task.Run(() => Discover(token), token).ConfigureAwait(false);
+        PruneQuarantine();
+        var existing = await Task.Run(() => Discover(token), token).ConfigureAwait(false);
         if (existing != null)
             return existing;
         string target = Path.Combine(cache, ToolManifest.Identity);
@@ -206,6 +204,18 @@ public sealed class DependencyManager : IDisposable
     }
 
     public void Dispose() => downloads.Dispose();
+    internal void PruneQuarantine()
+    {
+        try
+        {
+            foreach (string directory in Directory.GetDirectories(cache))
+                if (System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(directory), @"^[a-zA-Z0-9._-]+\.unusable-[a-f0-9]{32}$") &&
+                    Directory.GetLastWriteTimeUtc(directory) < DateTime.UtcNow.AddDays(-7))
+                    OwnedDirectoryCleanup.TryDelete(cache, directory);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+    }
+
     private void CleanupStaging(string stage)
     {
         // Only files created under the exact private staging path may be removed.

@@ -1,0 +1,12 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title | escape }}</title>
+{% seo title=false %}
+{% if page.alternate %}
+<link rel="alternate" hreflang="en" href="{{ page.english | absolute_url }}">
+<link rel="alternate" hreflang="ar" href="{{ page.arabic | absolute_url }}">
+<link rel="alternate" hreflang="x-default" href="{{ page.english | absolute_url }}">
+{% endif %}
+<link rel="icon" href="{{ '/assets/brand-mark.svg' | relative_url }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+{% if page.home %}{% include jsonld.html %}{% endif %}

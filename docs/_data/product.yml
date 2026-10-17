@@ -1,0 +1,4 @@
+version: "4.2.0"
+repository: "https://github.com/ZiadHassanein/ViFree"
+download: "https://github.com/ZiadHassanein/ViFree/releases/latest"
+author: "Ziad Hassanein"

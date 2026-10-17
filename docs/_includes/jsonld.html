@@ -1,0 +1,27 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Vydrop",
+      "alternateName": ["ViFree", "YouTube Downloader"],
+      "softwareVersion": {{ site.data.product.version | jsonify }},
+      "operatingSystem": "Windows 10, Windows 11 (x64)",
+      "applicationCategory": "MultimediaApplication",
+      "inLanguage": ["en", "ar"],
+      "url": {{ '/' | absolute_url | jsonify }},
+      "downloadUrl": {{ site.data.product.download | jsonify }},
+      "license": "https://opensource.org/license/mit/",
+      "author": {"@type": "Person", "name": "Ziad Hassanein", "url": "https://github.com/ZiadHassanein"},
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+      "featureList": ["Public video and audio from 1,000+ sites via yt-dlp", "Playlists and download queue", "Available SRT and VTT subtitles", "Optional Chrome, Edge and Firefox companion", "English and Arabic interfaces", "MP4, MKV, WebM, MP3, M4A, Opus, WAV and FLAC"]
+    },
+    {"@type": "FAQPage", "inLanguage": {{ page.lang | jsonify }}, "mainEntity": [
+      {% for item in site.data.faq[page.lang] %}
+      {"@type": "Question", "name": {{ item.question | jsonify }}, "acceptedAnswer": {"@type": "Answer", "text": {{ item.answer | jsonify }}}}{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ]}
+  ]
+}
+</script>

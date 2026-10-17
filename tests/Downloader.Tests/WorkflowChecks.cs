@@ -106,7 +106,7 @@ internal static class WorkflowChecks
         var received = new List<string>();
         var listener = BrowserLinkTransport.ListenAsync(link => { received.Add(link); return true; }, pipeLifetime.Token);
         using var pipeDeadline = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        Check(await BrowserLinkTransport.TrySendAsync(vimeo, 1000, pipeDeadline.Token) && received.Single() == vimeo, "Current-user pipe acknowledges reviewed link delivery without a download command");
+        Check(await BrowserLinkTransport.TrySendAsync(vimeo, 1000, pipeDeadline.Token) == BrowserDelivery.Accepted && received.Single() == vimeo, "Current-user pipe acknowledges reviewed link delivery without a download command");
         pipeLifetime.Cancel(); await listener;
 
         await QueueChecks();

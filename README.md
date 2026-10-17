@@ -3,19 +3,19 @@
 <a id="theme-previews"></a>
 
 <p align="center">
-  <a href="docs/images/app-overview-dark.svg"><img src="docs/images/app-overview-dark.svg" width="48%" alt="Illustrated Vydrop dark interface with integrated red V logo, video and audio controls, subtitles and Download"></a>
-  <a href="docs/images/app-overview-light.svg"><img src="docs/images/app-overview-light.svg" width="48%" alt="Illustrated Vydrop white interface with the same logo and download controls"></a>
+  <a href="docs/images/screenshots/vydrop-dark-en-download.png"><img src="docs/images/screenshots/vydrop-dark-en-download.png" width="48%" alt="Native Vydrop English dark interface: link, output format, quality, subtitles and Download"></a>
+  <a href="docs/images/screenshots/vydrop-light-ar-download.png"><img src="docs/images/screenshots/vydrop-light-ar-download.png" width="48%" alt="واجهة Vydrop العربية الفاتحة: الرابط والصيغة والجودة والترجمة والتنزيل"></a>
 </p>
 
-<p align="center"><em>Vydrop 4.2.0 interface — labelled illustrations, not screenshots. Click to view at full size.</em></p>
+<p align="center"><em>Native 100% scale client renders of the 4.2.0 source interface, without a pointer. Browser setup images below are labelled illustrations.</em></p>
 
 # Vydrop — Free Video & Audio Downloader for Windows
 
-**Vydrop (formerly ViFree)** is a free, open-source Windows desktop app by **Ziad Hassanein** for downloading YouTube videos, Shorts and playlists, saving audio, and organizing multiple downloads. It supports English and Arabic interfaces, light and dark themes, subtitles, and an optional browser extension. Other public websites depend on yt-dlp support and access.
+**Vydrop (formerly ViFree)** is a free, open-source Windows video and audio downloader by **Ziad Hassanein**. Download public media from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites supported by yt-dlp, plus compatible direct media links. English and Arabic, playlists, queues, subtitles and an optional browser companion are included.
 
 **[Download Vydrop v4.2.0 for Windows (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip)**
 
-[Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
+[Documentation](https://ziadhassanein.github.io/ViFree/) · [العربية](https://ziadhassanein.github.io/ViFree/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
 
 ## Latest release: Vydrop 4.2.0
 
@@ -29,13 +29,20 @@
 
 This is the official repository for Vydrop source code, Windows downloads, release notes and support. The source is MIT licensed.
 
-## Video, audio and download features
+## Download from YouTube and 1,000+ sites
+
+### At a glance
+
+<!-- facts:start -->
+**Vydrop (formerly ViFree and YouTube Downloader)** is a free, MIT-licensed video and audio downloader for Windows 10/11 x64. Version **4.2.0** uses yt-dlp for public pages from 1,000+ supported sites, including YouTube, TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips, plus direct MP4/MP3 links. Video outputs: MP4, MKV, WebM. Audio outputs: MP3, M4A, Opus, WAV, FLAC. It supports playlists, queues, SRT/VTT subtitles, an optional browser companion, English and Arabic. Private, sign-in-only and DRM-protected media are unsupported. Settings, history and media tools stay locally in `%LocalAppData%\YouTubeDownloader`; downloads use your chosen folder. Vydrop has no telemetry.
+<!-- facts:end -->
 
 Vydrop retains these download features:
 
 | Task | Support |
 | --- | --- |
-| Download video | YouTube videos, Shorts and playlists; MP4, MKV and WebM when inspected streams fit the chosen container. |
+| Supported public sites | YouTube, TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion, Twitch clips and other yt-dlp-supported pages; compatible direct MP4/MP3 links. [Scope and limits](docs/supported-sites.md). |
+| Download video | Public videos, Shorts and playlist entries; MP4, MKV and WebM when inspected streams fit the chosen container. |
 | Save audio | MP3, M4A, Opus, WAV and FLAC. Conversion bitrate choices respect the reported source estimate; unknown sources offer Automatic. |
 | Manage playlists and queues | Choose playlist entries, add individual links to a queue, follow progress and open completed files in their folder. |
 | Save subtitles | Choose an available subtitle language and SRT or VTT format. The media details show the selection. |
@@ -82,21 +89,48 @@ Internet access is required for downloads and missing-tool preparation. No accou
 
 ## Frequently asked questions
 
-### Is Vydrop free and open source?
+<!-- faq:start -->
+### Can Vydrop download videos from sites other than YouTube?
 
-Yes. Vydrop's source is available under the [MIT license](LICENSE). Media tools retain their own licenses; see the [third-party notices](THIRD-PARTY-NOTICES.txt).
+Yes. Vydrop uses yt-dlp for public pages from 1,000+ supported sites, including TikTok, Facebook, Vimeo, X/Twitter, Reddit, Dailymotion and Twitch clips. Direct MP4/MP3 links also work. Site changes and access restrictions can prevent a particular download.
 
-### Can Vydrop download YouTube videos as MP4 or MP3?
+### Is there a free open-source Windows downloader with Arabic?
 
-Yes. You can save supported YouTube videos, Shorts and playlist entries as video or audio. Available formats and quality depend on the media, app version and site access.
+Yes. Vydrop is free under the MIT license, runs on Windows 10/11 x64, and includes English and Arabic interfaces with light and dark themes. The .NET runtime is bundled; missing media tools are prepared automatically.
 
-### Does Vydrop need a browser extension?
+### Does Vydrop download TikTok, Facebook, Vimeo or X videos?
 
-No. Pasting a link into the app works without an extension. The companion is an optional way to send the video you are watching to Vydrop.
+Yes, when the public video is supported by yt-dlp and available without signing in. Paste the video’s own link, not the homepage. The extension can resolve a playing video, but custom players and site restrictions can limit detection.
 
-### What happens when YouTube changes?
+### Can I download a video playing in my browser?
 
-Vydrop retains the automatic maintenance introduced in ViFree 4.1.0: it checks for verified yt-dlp and Deno updates once daily when a link is used, retaining the previous tools and allowing one compatible update-and-retry. An upstream fix may still be needed. App-version updates are separate and manual; see [Preview 30 details](PREVIEW.md).
+Use the optional Chrome, Edge or Firefox companion. Enable Browser integration in Vydrop, then click Download by Vydrop beside a playing video. It copies the resolved link and opens the app for review. You choose Download in the app; detection is not guaranteed on every website.
+
+### How do I save a YouTube playlist as MP3 on Windows?
+
+Paste a public playlist link, choose Whole playlist, select the entries, choose Audio → MP3 and an available audio quality, then choose Download. The app processes the selected entries in order. Available quality depends on the original audio.
+
+### Does Vydrop need an account, API key or subscription?
+
+No. Vydrop needs no account, API key or paid subscription. It contacts media sites and official update servers when needed. It does not import browser cookies, bypass sign-in or decrypt DRM. Only download media you have permission to save.
+
+### What happens when a website changes?
+
+Vydrop checks for verified yt-dlp and Deno updates once daily when you use a link and can try one compatible update-and-retry. A site may still require an upstream fix. Use Settings → Update downloader for a manual check; application updates are separate.
+<!-- faq:end -->
+
+## Why Vydrop?
+
+| Task | Vydrop | yt-dlp command line | Web converters |
+| --- | --- | --- | --- |
+| Multiple public sites | yt-dlp support in one window | yt-dlp support | Depends on the service |
+| Controls | English/Arabic desktop UI | Command arguments | Browser form; varies |
+| Media tools | Missing tools prepared automatically | User manages tools | Service manages tools |
+| Playlists, captions, queue | App controls | Command options and scripts | Depends on the service |
+| Cost and advertising | Free, no ads | Free, no ads | Pricing and ads vary |
+| Browser handoff | Optional companion | Requires another integration | Varies |
+
+Each web service differs. This compares workflows, not other products’ safety.
 
 ## Build from source
 
@@ -111,14 +145,45 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 ## Vydrop بالعربية — برنامج تنزيل الفيديو والصوت لويندوز
 
-<div dir="rtl">
+<div dir="rtl" lang="ar">
 
-**Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل فيديوهات يوتيوب والمقاطع القصيرة وقوائم التشغيل وحفظ الصوت. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
+**Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل الفيديو والصوت من الصفحات العامة في يوتيوب وتيك توك وفيسبوك وVimeo وأكثر من ١٠٠٠ موقع مدعوم عبر yt-dlp، إضافة إلى روابط الوسائط المباشرة. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
 الإصدار الحالي هو **Vydrop 4.2.0**، ويشمل الهوية الحمراء الجديدة وإضافة المتصفح **1.3.0**. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. عند الترقية من ViFree، احتفظ بالإعدادات والملفات الحالية، وفعّل الربط بالمتصفح من Vydrop ثم أعد تحميل الإضافة. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](docs/browser-extension-setup.md#arabic). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
-</div>
+### أسئلة شائعة
 
+### هل ينزّل Vydrop الفيديو من مواقع غير يوتيوب؟
+
+نعم. يستخدم Vydrop أداة yt-dlp للصفحات العامة في أكثر من ١٠٠٠ موقع مدعوم، منها تيك توك وفيسبوك وVimeo وX وReddit وDailymotion ومقاطع Twitch، إضافة إلى روابط MP4 وMP3 المباشرة. قد تمنع تغييرات الموقع أو قيود الوصول تنزيل رابط معيّن.
+
+### هل يوجد برنامج تنزيل مجاني ومفتوح المصدر لويندوز بواجهة عربية؟
+
+نعم. Vydrop مجاني بترخيص MIT ويعمل على Windows 10/11 x64، مع واجهتين عربية وإنجليزية ومظهرين فاتح وداكن. بيئة .NET مضمّنة، وتُجهّز أدوات الوسائط الناقصة تلقائيًا.
+
+### هل يدعم Vydrop فيديوهات تيك توك وفيسبوك وVimeo وX؟
+
+نعم، عندما يكون الفيديو عامًا ومدعومًا عبر yt-dlp ومتاحًا دون تسجيل دخول. الصق رابط الفيديو نفسه بدل الصفحة الرئيسية. تستطيع الإضافة تحديد الفيديو الجاري تشغيله، لكن بعض المشغّلات وقيود المواقع قد تمنع اكتشافه.
+
+### هل يمكن تنزيل الفيديو الذي أشاهده في المتصفح؟
+
+استخدم إضافة Chrome أوEdge أوFirefox الاختيارية. فعّل الربط بالمتصفح داخل Vydrop، ثم اضغط «تنزيل بواسطة Vydrop» بجانب الفيديو الجاري تشغيله. تنسخ الإضافة الرابط وتفتح التطبيق لمراجعته، ثم تختار التنزيل. لا يُضمن اكتشاف الفيديو في كل موقع.
+
+### كيف أحفظ قائمة تشغيل يوتيوب بصيغة MP3 على ويندوز؟
+
+الصق رابط قائمة عامة، واختر القائمة كاملة ثم الفيديوهات المطلوبة. اختر الصوت ثم MP3 وجودة الصوت المتاحة، واضغط تنزيل. يعالج التطبيق العناصر المحددة بالترتيب، وتعتمد الجودة على الصوت الأصلي.
+
+### هل يحتاج Vydrop إلى حساب أو مفتاح API أو اشتراك؟
+
+لا. لا يحتاج Vydrop إلى حساب أو مفتاح API أو اشتراك مدفوع. يتصل بمواقع الوسائط وخوادم التحديث الرسمية عند الحاجة، ولا يستورد ملفات تعريف الارتباط أو يتجاوز تسجيل الدخول أو يفك DRM. نزّل فقط ما تملك إذنًا بحفظه.
+
+### ماذا يحدث عندما يغيّر موقع طريقة عمله؟
+
+يفحص Vydrop تحديثات yt-dlp وDeno المتحقق منها مرة يوميًا عند استخدام رابط، وقد يحدّث الأدوات ويعيد المحاولة مرة واحدة عند خطأ متوافق. قد يظل الحل بحاجة إلى إصلاح من المطوّرين الأصليين. للفحص اليدوي اختر الإعدادات ثم تحديث أداة التنزيل؛ تحديث التطبيق منفصل.
+
+[الأدلة العربية](docs/ar/index.md) · [المواقع والقيود](docs/ar/supported-sites.md)
+
+</div>
 
 ## Author and support
 

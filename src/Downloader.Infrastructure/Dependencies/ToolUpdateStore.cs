@@ -39,6 +39,22 @@ internal sealed class ToolUpdateStore
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
+    // Caller holds refresh.lock and the provider operation lease.
+    internal void Prune(State state)
+    {
+        var keep = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var record in new[] { state.Active?.YtDlp, state.Active?.Deno, state.Previous?.YtDlp, state.Previous?.Deno })
+            if (record != null) keep.Add(record.Directory);
+        try
+        {
+            if (!System.IO.Directory.Exists(root) || IsLink(root)) return;
+            foreach (string directory in System.IO.Directory.GetDirectories(root))
+                if (Regex.IsMatch(Path.GetFileName(directory), @"^version-[a-f0-9]{32}$") && !keep.Contains(Path.GetFileName(directory)))
+                    OwnedDirectoryCleanup.TryDelete(root, directory);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+    }
+
     internal string Verify(FileRecord record, string expectedName, CancellationToken token)
     {
         if (record == null) return null;

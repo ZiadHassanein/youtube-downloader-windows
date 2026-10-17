@@ -8,11 +8,13 @@
     open: "تنزيل بواسطة Vydrop", action: "نسخ رابط الفيديو وفتحه في Vydrop", finding: "جارٍ تحديد الفيديو…",
     opening: "جارٍ الفتح…", opened: "تم الفتح في Vydrop", copied: "تم نسخ الرابط وفتح الفيديو في Vydrop.",
     clipboard: "تم الفتح في Vydrop، لكن تعذّر نسخ الرابط.", missing: "افتح صفحة هذا الفيديو أو استخدم مشاركة ثم نسخ الرابط.",
+    busy: "Vydrop مشغول. أنهِ التنزيل الحالي أو ألغِه، ثم حاول مجددًا.",
     retry: "حاول مجددًا", failed: "تعذّر فتح Vydrop. افتح التطبيق وفعّل الربط بالمتصفح، وأنهِ أي تنزيل جارٍ ثم حاول مجددًا."
   } : {
     open: "Download by Vydrop", action: "Copy video link and open Vydrop", finding: "Finding video…",
     opening: "Opening…", opened: "Opened in Vydrop", copied: "Link copied and video opened in Vydrop.",
     clipboard: "Opened in Vydrop. The clipboard was unavailable.", missing: "Open this video's own page or use Share → Copy link.",
+    busy: "Vydrop is busy. Finish or cancel the current download, then try again.",
     retry: "Try again", failed: "Could not open Vydrop. Open the app, enable Browser integration and finish any active download, then try again."
   };
   const host = document.createElement("div");
@@ -184,12 +186,12 @@
       try { await navigator.clipboard.writeText(found.url); copied = true; } catch { /* Opening the app remains useful when clipboard access is unavailable. */ }
       label.textContent = text.opening;
       const response = await api.runtime.sendMessage({ version: 1, type: "vifree-open-video", url: found.url });
-      if (!response?.ok) throw new Error(response?.message || text.failed);
+      if (!response?.ok) throw new Error(response?.code === "busy" ? text.busy : text.failed);
       label.textContent = text.opened; button.dataset.state = "success";
       status.textContent = copied ? text.copied : text.clipboard;
     } catch (error) {
       label.textContent = text.retry;
-      status.textContent = error.message === text.missing ? text.missing : text.failed;
+      status.textContent = error.message === text.missing ? text.missing : error.message === text.busy ? text.busy : text.failed;
       button.title = status.textContent;
     } finally {
       busy = false; pendingVideo = null; button.disabled = false; button.removeAttribute("aria-busy");

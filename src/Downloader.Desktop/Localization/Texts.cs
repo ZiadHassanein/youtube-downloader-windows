@@ -587,6 +587,14 @@ namespace YouTubeDownloader
                 "سيُعاد تشغيل التطبيق بعد التحقق من التحديث وتجهيزه."
             },
             {
+                "Download the new version manually",
+                "نزّل الإصدار الجديد يدويًا"
+            },
+            {
+                "The release could not be verified for installation from this version. Open the releases page and extract the new ZIP into a new folder.",
+                "تعذّر التحقق من الإصدار لتثبيته من هذه النسخة. افتح صفحة الإصدارات وفكّ ضغط ملف ZIP الجديد في مجلد جديد."
+            },
+            {
                 "Update couldn't be installed",
                 "تعذّر تثبيت التحديث"
             },

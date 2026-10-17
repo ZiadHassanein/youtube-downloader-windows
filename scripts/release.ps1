@@ -24,6 +24,8 @@ if ($destination.private -or $destination.full_name -ne $repository -or $destina
 $api = "https://api.github.com/repos/$repository/releases"
 $url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
 $body = @"
+Vydrop brings its red download identity and a consistent bilingual interface to public video and audio downloads from YouTube and 1,000+ sites supported by yt-dlp.
+
 **[Download for Windows (.zip)]($url)**
 
 Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools are prepared automatically.
@@ -39,7 +41,8 @@ Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools 
 
 - MP4, MKV and WebM video where inspected streams are compatible.
 - MP3, M4A, Opus, WAV and FLAC audio with source-aware conversion choices.
-- Queue, playlist selection, SRT/VTT subtitles and supported public sites.
+- Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
+- Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
 - Browser companion 1.3.0 inside Browser: Download by Vydrop outside the playing video's border.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.

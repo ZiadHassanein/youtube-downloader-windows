@@ -72,6 +72,48 @@
       "kind": "Original SVG interface illustrations",
       "source": "scripts/render-setup-guide.py",
       "state": "Labelled simplified current-source interface diagrams, not native screenshots. They replace older screenshots at the start of README to show the selected V logo honestly without desktop controls."
+    },
+    {
+      "files": [
+        "screenshots/vydrop-dark-ar-download.png",
+        "screenshots/vydrop-dark-en-download.png",
+        "screenshots/vydrop-light-ar-download.png",
+        "screenshots/vydrop-light-en-download.png"
+      ],
+      "kind": "Native WPF client-area renders at 100% scale",
+      "source": "tests/Downloader.WpfTests --docs --dpi-unaware",
+      "state": "Current 4.2.0 source UI with local fixture services in an empty state, both themes and languages. Not a live-site download or a screenshot of the published binary. No desktop computer controls or mouse pointer. Only lossless PNG optimization and metadata applied.",
+      "date": "2026-10-17",
+      "captures": [
+        {
+          "file": "docs/images/screenshots/vydrop-dark-ar-download.png",
+          "width": 724,
+          "height": 761,
+          "bytes": 42510,
+          "sha256": "c8e9c328eb5a32408bb37b44541b99dcf3878d735f3f17cb965fa445c51023f6"
+        },
+        {
+          "file": "docs/images/screenshots/vydrop-dark-en-download.png",
+          "width": 724,
+          "height": 761,
+          "bytes": 44474,
+          "sha256": "ab2d29446e44e36b852c7c4ae05d32e0d04b825fc8e5b6898e8a7f333ed2a6fb"
+        },
+        {
+          "file": "docs/images/screenshots/vydrop-light-ar-download.png",
+          "width": 724,
+          "height": 761,
+          "bytes": 42542,
+          "sha256": "3751f5dc9300ee1ab9e0ea3ff0c401fe83e310c3926cd6290ebdb2a52ad663b7"
+        },
+        {
+          "file": "docs/images/screenshots/vydrop-light-en-download.png",
+          "width": 724,
+          "height": 761,
+          "bytes": 44261,
+          "sha256": "fdc84da97602a917b893e86c886b998ed188838d699b4997e10157fabb579d3a"
+        }
+      ]
     }
   ],
   "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",

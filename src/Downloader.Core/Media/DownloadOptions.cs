@@ -5,6 +5,7 @@ namespace YouTubeDownloader
         public string Url, Folder;
         public string QualityKey;
         internal string FormatSelector;
+        internal VideoInfo FreshMetadata;
         public bool Audio;
         public int Height = 1080;
         public int AudioBitrate;
@@ -19,7 +20,7 @@ namespace YouTubeDownloader
 
         public DownloadOptions Snapshot() => new()
         {
-            Url = Url, Folder = Folder, QualityKey = QualityKey, FormatSelector = FormatSelector,
+            Url = Url, Folder = Folder, QualityKey = QualityKey, FormatSelector = FormatSelector, FreshMetadata = FreshMetadata,
             Audio = Audio, AudioBitrate = AudioBitrate, AudioEncoding = AudioEncoding, VideoContainer = VideoContainer, AudioSource = AudioSource,
             Height = Height, Captions = Captions, Selection = Selection, PlaylistItem = PlaylistItem,
             ResumeDirectory = ResumeDirectory,

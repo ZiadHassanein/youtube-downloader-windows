@@ -31,7 +31,8 @@ internal static partial class Program
                         model.SelectLanguageCommand.Execute(arabic ? "ar" : "en");
                         if (model.IsDark != dark) model.ThemeCommand.Execute(null);
                         model.Url = loaded ? "https://youtu.be/jNQXAC9IVRw" : "";
-                        await Task.Delay(loaded ? 850 : 80);
+                        // Theme/locale transitions can still be painting after an idle URL clears.
+                        await Task.Delay(loaded ? 850 : 350);
                         model.SelectedEncoding = model.Encodings.First(choice => choice.Encoding == AudioEncoding.Mp3);
                         model.Audio = false;
                         audio.BringIntoView();
@@ -43,7 +44,8 @@ internal static partial class Program
                         Check(Math.Abs(qualityBounds.Bottom - optionsBounds.Bottom) < 1 &&
                             (arabic ? optionsBounds.Right < qualityBounds.Left : qualityBounds.Right < optionsBounds.Left) &&
                             quality.ActualWidth >= 140 && Descendants<ComboBox>(form).Count() == 1,
-                            "Quality and More options share a usable row without a format dropdown in " + variant);
+                            "Quality and More options share a usable row without a format dropdown in " + variant +
+                            $" (quality={qualityBounds}, options={optionsBounds}, combos={Descendants<ComboBox>(form).Count()})");
                         var sizeBefore = window.RenderSize;
                         audio.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
                         await Task.Delay(300);
@@ -105,9 +107,13 @@ internal static partial class Program
                         model.LanguageCommand.Execute(null);
                         Check(model.SelectedQuality.Bitrate == 128, "Expanded quality selections survive language changes in " + variant);
                         model.LanguageCommand.Execute(null);
+                        quality.Focus();
+                        await SettleMaintenance(window);
                         quality.IsDropDownOpen = true;
-                        await Task.Delay(80);
+                        await SettleMaintenance(window);
                         var popup = (Popup)quality.Template.FindName("PART_Popup", quality);
+                        Check(quality.IsDropDownOpen && popup.IsOpen, "The focused quality control opens its popup in " + variant);
+                        popup.Child.UpdateLayout();
                         var popupSource = (HwndSource)PresentationSource.FromVisual(popup.Child);
                         var selectedRow = (ComboBoxItem)quality.ItemContainerGenerator.ContainerFromItem(quality.SelectedItem);
                         var qualityViewport = Descendants<ScrollContentPresenter>(popup.Child).Single();

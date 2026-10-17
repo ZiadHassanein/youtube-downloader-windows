@@ -11,7 +11,11 @@ globalThis.ViFreeConnection = (() => {
     let response;
     try { response = await api.runtime.sendNativeMessage(host, { version: 1, type: "open-link", url: url.href }); }
     catch { throw new Error(`Open ${name} and enable Browser integration, then try again.`); }
-    if (!response?.ok) throw new Error(response?.message ?? `Open ${name} and enable browser integration first.`);
+    if (!response?.ok) {
+      const error = new Error(response?.message ?? `Open ${name} and enable browser integration first.`);
+      if (response?.code === "busy") error.code = "busy";
+      throw error;
+    }
     return response;
   }
   return { api, name, sendLink };

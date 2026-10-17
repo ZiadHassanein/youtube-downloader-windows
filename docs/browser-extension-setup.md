@@ -1,3 +1,13 @@
+---
+title: "Set up Vydrop in Chrome, Edge and Firefox"
+description: "Install the free Vydrop companion in Chrome, Edge or Firefox. Illustrated setup, website permissions, reload steps and native connection troubleshooting."
+lang: en
+dir: ltr
+alternate: true
+english: /browser-extension-setup.html
+arabic: /ar/browser-extension-setup.html
+---
+
 # Set up the Vydrop browser extension
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
@@ -87,13 +97,13 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 | The app opens Preview | Load the regular companion from the matching desktop package and enable the connection from that app. |
 | The icon or name looks old after an update | Reload the companion, then refresh the video page. The current Vydrop icon is the red V alone. |
 
-The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](../browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
+The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/ViFree/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 <a id="arabic"></a>
 
 ## تفعيل الإضافة بالعربية
 
-<div dir="rtl">
+<div dir="rtl" lang="ar" markdown="1">
 
 الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. يتضمن إصدار **Vydrop 4.2.0** إضافة **Vydrop 1.3.0**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. عند الترقية من ViFree، فعّل الاتصال من Vydrop وأعد تحميل الإضافة من مجلد **Browser** الجديد.
 
@@ -106,5 +116,6 @@ The companion locates visible players and sends a public link after your click. 
 7. **شغّل ثم راجع:** اضغط **تنزيل بواسطة Vydrop** خارج إطار الفيديو، أو استخدم زر الإضافة من شريط المتصفح. راجع الرابط والصيغة والجودة ومجلد الحفظ داخل البرنامج، ثم اضغط **تنزيل**.
 
 إذا نقلت مجلد البرنامج، فعّل الاتصال مجددًا. عند تحديث الإضافة، أعد تحميلها وحدّث صفحة الفيديو. تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو؛ لا تستورد الإضافة حساباتك أو ملفات تعريف الارتباط.
+
 
 </div>

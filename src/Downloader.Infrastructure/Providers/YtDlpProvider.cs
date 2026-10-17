@@ -200,7 +200,9 @@ namespace YouTubeDownloader
             VideoInfo fresh = null;
             if (options.Audio || !options.PlaylistItem && (options.Selection != null || options.Captions?.Required == true) || options.VideoContainer != VideoContainer.Mp4)
             {
-                fresh = InspectCore(options.Url, token, progress);
+                fresh = !options.PlaylistItem && options.FreshMetadata is { } queued &&
+                    (options.Audio || options.Captions != null || queued.QualitiesFor(options.VideoContainer).Any(q => q.Selection == options.Selection))
+                    ? queued : InspectCore(options.Url, token, progress);
                 if (fresh.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
                 if (options.Captions?.Required == true && !fresh.Captions.Any(c => c.Language == options.Captions.Language && c.Automatic == options.Captions.Automatic))
                     throw new InvalidOperationException("The selected subtitles are no longer available. Refresh output options or choose no subtitles.");

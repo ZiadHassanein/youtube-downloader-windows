@@ -10,7 +10,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       Number.isInteger(sender.frameId) && sender.frameId >= 0 && /^https?:$/u.test(page.protocol) && !page.username && !page.password;
   } catch { /* Only this extension's web content scripts can forward an explicit video click. */ }
   if (!allowed) { respond({ ok: false, message: "This video page cannot open Vydrop." }); return false; }
-  sendLink(message.url).then(() => respond({ ok: true }), error => respond({ ok: false, message: error.message }));
+  sendLink(message.url).then(() => respond({ ok: true }), error => respond({ ok: false, code: error.code, message: error.message }));
   return true;
 });
 

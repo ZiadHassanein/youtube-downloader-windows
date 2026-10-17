@@ -433,7 +433,38 @@ internal static class UpdateTransaction
             }
         }
 
+        PruneStages();
         return false;
+    }
+
+    private static void PruneStages()
+    {
+        try
+        {
+            if (ToolUpdateStore.IsLink(Root)) return;
+            foreach (string directory in Directory.GetDirectories(Root))
+            {
+                try
+                {
+                    string path = Path.Combine(directory, "transaction.json");
+                    if (string.Equals(path, acknowledgement, StringComparison.OrdinalIgnoreCase) || ToolUpdateStore.IsLink(directory)) continue;
+                    if (File.Exists(path))
+                    {
+                        if (ToolUpdateStore.IsLink(path)) continue;
+                        var journal = Read(path);
+                        ValidateJournal(path, journal);
+                        if (journal.Phase is not ("committed" or "rolled-back")) continue;
+                        using var helper = FindProcess(journal.HelperPid, journal.HelperStart);
+                        if (helper != null && !helper.HasExited) continue;
+                    }
+                    else if (!Guid.TryParseExact(Path.GetFileName(directory), "N", out _) ||
+                        Directory.GetLastWriteTimeUtc(directory) >= DateTime.UtcNow.AddDays(-7)) continue;
+                    OwnedDirectoryCleanup.TryDelete(Root, directory);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception or System.Text.Json.JsonException) { }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
     }
 
     private static void ValidateJournal(string path, UpdateJournal journal)

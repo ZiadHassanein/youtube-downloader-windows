@@ -79,6 +79,25 @@ test('public Chromium key matches native-host identity and carries no private ke
   assert.ok(source.includes(`ChromiumId = "${id}"`));
 });
 
+test('busy native delivery retains its error code through connection and background', async () => {
+  let handler;
+  const api = {
+    runtime: { id: 'test-extension', getManifest: () => ({ name: 'Vydrop' }),
+      onMessage: { addListener: fn => { handler = fn; } }, onInstalled: { addListener: () => {} },
+      sendNativeMessage: async () => ({ ok: false, code: 'busy', message: 'Vydrop is busy.' }) },
+    contextMenus: { onClicked: { addListener: () => {} } }
+  };
+  const context = vm.createContext({ browser: api, URL });
+  for (const file of ['connection.js', 'video-detection.js', 'background.js']) vm.runInContext(fs.readFileSync(path.join(root, 'browser/common', file), 'utf8'), context);
+  const response = await new Promise(resolve => {
+    assert.equal(handler({ type: 'vifree-open-video', version: 1, url: 'https://example.com/video.mp4' },
+      { id: 'test-extension', tab: { id: 1 }, frameId: 0, url: 'https://example.com/video' }, resolve), true);
+  });
+  assert.equal(response.ok, false);
+  assert.equal(response.code, 'busy');
+  assert.equal(response.message, 'Vydrop is busy.');
+});
+
 for (const detected of [true, false]) test(`popup ${detected ? 'sends the detected TikTok video' : 'explains a missing video without sending its homepage'}`, async () => {
   let click, calls = 0, inspections = 0;
   const button = { disabled: false, addEventListener: (_, fn) => { click = fn; } }, status = { textContent: '' };

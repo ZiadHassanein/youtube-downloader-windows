@@ -4,6 +4,8 @@ public sealed partial class DownloadService
     public async Task<DownloadResult> DownloadQueueItemAsync(DownloadOptions options, IProgress<DownloadProgress> progress, CancellationToken token)
     {
         options = options.Snapshot();
+        // Only an inspection from this execution may bypass the provider's stale-choice check.
+        options.FreshMetadata = null;
         Action<DownloadProgress> report = p => progress?.Report(p);
         Progress += report;
         try
@@ -16,6 +18,7 @@ public sealed partial class DownloadService
                 else
                 {
                     var metadata = await InspectAsync(options.Url, progress, token).ConfigureAwait(false);
+                    options.FreshMetadata = metadata.Collection == null ? metadata : null;
                     if (metadata.Live) throw new InvalidOperationException("This video is live right now. Try again once the stream has ended.");
                     if (metadata.Collection != null) options.Playlist = metadata.Collection;
                     else if (options.Audio && !metadata.HasAudio) throw new InvalidOperationException("This video has no downloadable audio stream.");
