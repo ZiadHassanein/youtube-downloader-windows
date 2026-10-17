@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Validate sources and build the documentation
         env:
-          BUNDLE_PATH: build/docs-gems
+          BUNDLE_PATH: ${{ runner.temp }}/vydrop-docs-gems
           BUNDLE_FROZEN: 'true'
         run: |
           gem install --user-install bundler -v 2.6.9 --no-document
