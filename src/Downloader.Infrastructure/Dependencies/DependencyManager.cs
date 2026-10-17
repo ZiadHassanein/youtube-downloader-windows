@@ -3,7 +3,6 @@ public sealed class DependencyManager : IDisposable
 {
     private readonly string cache;
     private readonly string[] locations;
-    private readonly ToolProbe probe = new();
     private readonly VerifiedDownloads downloads;
     public string CacheDirectory => cache;
     internal Func<ToolArtifact, string, CancellationToken, Task> AcquireArtifact { get; set; }
@@ -101,7 +100,7 @@ public sealed class DependencyManager : IDisposable
 
             Report("Checking prepared media tools…");
             pieces = (pieces.Yt ?? Path.Combine(stage, "yt-dlp.exe"), pieces.Ffmpeg ?? Path.Combine(stage, "ffmpeg.exe"), pieces.Ffprobe ?? Path.Combine(stage, "ffprobe.exe"), pieces.Deno ?? Path.Combine(stage, "deno.exe"));
-            bool valid = await Task.Run(() => probe.Accept(pieces.Yt, "yt-dlp", token) && probe.Accept(pieces.Deno, "Deno", token) && probe.AcceptPair(pieces.Ffmpeg, pieces.Ffprobe, token), token).ConfigureAwait(false);
+            bool valid = await Task.Run(() => ToolProbe.Accept(pieces.Yt, "yt-dlp", token) && ToolProbe.Accept(pieces.Deno, "Deno", token) && ToolProbe.AcceptPair(pieces.Ffmpeg, pieces.Ffprobe, token), token).ConfigureAwait(false);
             if (!valid)
                 throw new InvalidDataException("The prepared tools are not compatible with this PC.");
             using (var notices = typeof(DependencyManager).Assembly.GetManifestResourceStream("YouTubeDownloader.ThirdPartyNotices"))
@@ -164,21 +163,21 @@ public sealed class DependencyManager : IDisposable
                 if (yt == null)
                 {
                     string file = Path.Combine(folder, "yt-dlp.exe");
-                    if (probe.Accept(file, "yt-dlp", token))
+                    if (ToolProbe.Accept(file, "yt-dlp", token))
                         yt = file;
                 }
 
                 if (deno == null)
                 {
                     string file = Path.Combine(folder, "deno.exe");
-                    if (probe.Accept(file, "Deno", token))
+                    if (ToolProbe.Accept(file, "Deno", token))
                         deno = file;
                 }
 
                 if (ffmpeg == null)
                 {
                     string file = Path.Combine(folder, "ffmpeg.exe"), pair = Path.Combine(folder, "ffprobe.exe");
-                    if (probe.AcceptPair(file, pair, token))
+                    if (ToolProbe.AcceptPair(file, pair, token))
                     {
                         ffmpeg = file;
                         ffprobe = pair;

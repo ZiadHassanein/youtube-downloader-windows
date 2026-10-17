@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <!-- The check harness reports failures with plain exceptions by design (CA2201). -->
+    <NoWarn>$(NoWarn);CA2201</NoWarn>
+  </PropertyGroup>
+</Project>

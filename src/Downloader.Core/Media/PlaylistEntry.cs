@@ -1,14 +1,12 @@
-namespace YouTubeDownloader
+namespace YouTubeDownloader;
+public sealed class PlaylistEntry
 {
-    public sealed class PlaylistEntry
+    public string Id, Title, MediaUrl;
+    public string Url
     {
-        public string Id, Title, MediaUrl;
-        public string Url
+        get
         {
-            get
-            {
-                return MediaUrl;
-            }
+            return MediaUrl;
         }
     }
 }

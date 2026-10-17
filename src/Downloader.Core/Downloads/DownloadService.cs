@@ -12,7 +12,7 @@ public sealed partial class DownloadService : IDisposable
         this.playlists = playlists;
     }
 
-    private IProgress<DownloadProgress> BoundProgress(long operationId, Action<DownloadProgress> report)
+    private InlineProgress BoundProgress(long operationId, Action<DownloadProgress> report)
     {
         return new InlineProgress(p =>
         {
@@ -58,8 +58,7 @@ public sealed partial class DownloadService : IDisposable
 
     public async Task<DownloadResult> DownloadAsync(DownloadOptions options, IProgress<DownloadProgress> preparation, CancellationToken token)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
         options = options.Snapshot();
         if (options.Playlist != null && options.Playlist.Entries.Count is < 1 or > 1000)
             throw new ArgumentException("Choose between one and 1,000 playlist videos.");

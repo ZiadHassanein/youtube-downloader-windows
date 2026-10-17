@@ -15,6 +15,10 @@ home: true
 
 <a class="download" href="https://github.com/ZiadHassanein/ViFree/releases/latest">تنزيل Vydrop لويندوز</a>
 
+[![عدد تنزيلات إصدارات GitHub](https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&color=CB2D42)](https://github.com/ZiadHassanein/ViFree/releases)
+
+يحسب GitHub تنزيلات ملفات الإصدارات، بما فيها التنزيلات المتكررة والآلية؛ وهذا ليس عدد الأشخاص أو مرات التثبيت. توفّر Shields.io الشارة المخزّنة مؤقتًا. لا تُضاف أي أدوات تتبّع داخل التطبيق أو تحليلات مدفوعة.
+
 ## معلومات أساسية
 
 {% include facts-ar.md %}

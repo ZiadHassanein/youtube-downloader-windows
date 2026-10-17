@@ -6,6 +6,8 @@ namespace YouTubeDownloader;
 // Runs inside the provider's existing operation lease. No background task can replace tools mid-download.
 internal sealed class AutomaticToolUpdates(string cache, IToolUpdateClient client = null)
 {
+    private static readonly string[] UnrecoverableMarkers = { "private", "removed", "unavailable", "unsupported url", "requested format", "drm", "age-restricted", "geo-restricted" };
+    private static readonly string[] ExtractorMarkers = { "signature extraction failed", "nsig extraction failed", "signature solving failed", "challenge solving failed", "no supported javascript runtime", "javascript runtime is too old" };
     private readonly IToolUpdateClient updates = client ?? new ToolUpdateClient(cache);
     private ToolSet previous;
     internal Func<DateTimeOffset> UtcNow { get; set; } = () => DateTimeOffset.UtcNow;
@@ -92,8 +94,8 @@ internal sealed class AutomaticToolUpdates(string cache, IToolUpdateClient clien
     {
         if (DownloadErrors.IsBlocked(message) || DownloadErrors.IsTransient(message)) return false;
         string text = (message ?? "").ToLowerInvariant();
-        if (new[] { "private", "removed", "unavailable", "unsupported url", "requested format", "drm", "age-restricted", "geo-restricted" }.Any(text.Contains)) return false;
-        return new[] { "signature extraction failed", "nsig extraction failed", "signature solving failed", "challenge solving failed", "no supported javascript runtime", "javascript runtime is too old" }.Any(text.Contains) ||
+        if (UnrecoverableMarkers.Any(text.Contains)) return false;
+        return ExtractorMarkers.Any(text.Contains) ||
             Regex.IsMatch(text, @"unable to extract .*(?:signature|player|initial data|n function)");
     }
 

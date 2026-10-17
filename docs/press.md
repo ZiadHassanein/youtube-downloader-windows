@@ -1,6 +1,6 @@
 # Directory descriptions — drafts for owner submission
 
-These are factual listing drafts, not submitted directory entries. Categories: video downloader / media downloader. Free Windows 10/11 x64; MIT; published version 4.2.0.
+These are factual listing drafts, not submitted directory entries. Categories: video downloader / media downloader. Free Windows 10/11 x64; MIT; published version 4.2.1.
 
 ## English — short
 

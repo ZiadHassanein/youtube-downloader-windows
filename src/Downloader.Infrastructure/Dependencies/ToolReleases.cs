@@ -11,7 +11,7 @@ internal sealed record ToolReleaseSource(string Kind, string Repository, string 
     internal static readonly ToolReleaseSource YtDlp = new("yt-dlp", "yt-dlp/yt-dlp", "yt-dlp.exe", "yt-dlp.exe", 60_000_000);
     internal static readonly ToolReleaseSource Deno = new("Deno", "denoland/deno", "deno-x86_64-pc-windows-msvc.zip", "deno.exe", 200_000_000);
     internal string Api => $"https://api.github.com/repos/{Repository}/releases/";
-    internal string Prefix(ToolRelease release) => release.Url[..(release.Url.LastIndexOf('/') + 1)];
+    internal static string Prefix(ToolRelease release) => release.Url[..(release.Url.LastIndexOf('/') + 1)];
 
     internal ToolRelease Read(string json)
     {
@@ -47,8 +47,8 @@ internal sealed record ToolReleaseSource(string Kind, string Repository, string 
         if (matches.Count == 1) return matches[0].Groups[1].Value;
         // Deno's Windows publisher emits Get-FileHash's list format rather than sha256sum format.
         if (Kind == "Deno" && matches.Count == 0 &&
-            Regex.Matches(text, @"(?m)^Algorithm\s*:\s*SHA256\s*$").Count == 1 &&
-            Regex.Matches(text, @"(?m)^Path\s*:\s*[^\r\n]*[\\/]" + Regex.Escape(Asset) + @"\s*$").Count == 1)
+            Regex.Count(text, @"(?m)^Algorithm\s*:\s*SHA256\s*$") == 1 &&
+            Regex.Count(text, @"(?m)^Path\s*:\s*[^\r\n]*[\\/]" + Regex.Escape(Asset) + @"\s*$") == 1)
         {
             var hashes = Regex.Matches(text, @"(?m)^Hash\s*:\s*([A-Fa-f0-9]{64})\s*$");
             if (hashes.Count == 1) return hashes[0].Groups[1].Value;

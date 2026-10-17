@@ -64,8 +64,8 @@ public sealed partial class MainViewModel
     public bool HasPreviewDuration => (!QueueRunning || QueueMatchesPreview) && videoInfo?.Duration is > 0 and < 8640000;
     public bool PreviewIsAudio => QueueRunning && ActiveQueueEntry is { } entry ? entry.Options.Audio : Audio;
     public string PreviewDuration => !HasPreviewDuration ? "" : videoInfo.Duration >= 3600
-        ? TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"h\:mm\:ss")
-        : TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"m\:ss");
+        ? TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"h\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture)
+        : TimeSpan.FromSeconds(videoInfo.Duration).ToString(@"m\:ss", System.Globalization.CultureInfo.InvariantCulture);
     public string PreviewOutput => QueueRunning && ActiveQueueEntry is { } active ? QueueOutput(active.Options) : Audio ? SelectedEncoding.Label + " · " + SelectedQuality?.Label
         : SelectedVideoFormat.Label + " · " + (SelectedQuality?.Key != null || playlistInfo != null ? SelectedQuality?.Label : T("Quality"));
     private string QueueOutput(DownloadOptions request) => request.Audio

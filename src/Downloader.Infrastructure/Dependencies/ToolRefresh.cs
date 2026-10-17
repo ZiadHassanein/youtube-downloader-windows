@@ -17,7 +17,7 @@ public static class ToolRefresh
         var store = new ToolUpdateStore(cache);
         var selection = store.VerifiedSelection(token);
         string file = store.Verify(kind == "Deno" ? selection.Deno : selection.YtDlp, kind == "Deno" ? "deno.exe" : "yt-dlp.exe", token);
-        if (file != null && new ToolProbe().Accept(file, kind, token)) return file;
+        if (file != null && ToolProbe.Accept(file, kind, token)) return file;
         return kind == "yt-dlp" ? FindLegacyVerified(cache, token) : null;
     }
 
@@ -40,7 +40,7 @@ public static class ToolRefresh
             if (input.Length != size) return null;
             token.ThrowIfCancellationRequested();
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(input)), record.GetProperty("Hash").GetString(), StringComparison.OrdinalIgnoreCase)) return null;
-            return new ToolProbe().Accept(file, "yt-dlp", token) ? file : null;
+            return ToolProbe.Accept(file, "yt-dlp", token) ? file : null;
         }
         catch (OperationCanceledException) { throw; }
         catch { return null; }

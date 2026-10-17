@@ -147,7 +147,7 @@ internal static class BoundaryChecks
         }
 
         Check(incomplete && acquired.SequenceEqual(new[] { "Deno" }) && !Directory.Exists(Path.Combine(root, "cache", ToolManifest.Identity)), "Partial installed tools download only Deno and a bad download never promotes");
-        Check(!Directory.GetDirectories(Path.Combine(root, "cache"), "stage-*").Any(), "Failed bootstrap cleans its owned staging directory");
+        Check(Directory.GetDirectories(Path.Combine(root, "cache"), "stage-*").Length == 0, "Failed bootstrap cleans its owned staging directory");
         {
             var operations = new OperationCoordinator();
             using var owner = operations.Begin(OperationState.Inspecting, CancellationToken.None);
@@ -418,7 +418,7 @@ internal static class BoundaryChecks
                     Check(File.Exists(child), "Unacknowledged startup fixture spawned an independent descendant");
                     try
                     {
-                        using var process = System.Diagnostics.Process.GetProcessById(int.Parse(File.ReadAllText(child)));
+                        using var process = System.Diagnostics.Process.GetProcessById(int.Parse(File.ReadAllText(child), System.Globalization.CultureInfo.InvariantCulture));
                         alive = !process.HasExited;
                     }
                     catch (ArgumentException)

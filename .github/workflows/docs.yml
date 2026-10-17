@@ -13,8 +13,13 @@ jobs:
   docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.value }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Read the documented release version
+        id: version
+        run: node -e 'console.log("value="+require("fs").readFileSync("docs/_data/product.yml","utf8").match(/^version:\s*"([0-9.]+)"/m)[1])' >> "$GITHUB_OUTPUT"
       - name: Validate sources and build the documentation
         env:
           BUNDLE_PATH: ${{ runner.temp }}/vydrop-docs-gems
@@ -35,7 +40,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: docs
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       pages: write
       id-token: write
@@ -43,6 +48,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Wait for the documented Windows release
+        env:
+          VERSION: ${{ needs.docs.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in {1..60}; do
+            if curl --silent --show-error --fail --header "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/ZiadHassanein/ViFree/releases/tags/v$VERSION" > "$RUNNER_TEMP/documented-release.json"; then
+              if node -e 'const r=require(process.env.RUNNER_TEMP+"/documented-release.json");process.exit(r.draft||r.prerelease||!r.assets.some(a=>a.name===`Vydrop-v${process.env.VERSION}-win-x64.zip`&&a.state==="uploaded"&&a.digest?.startsWith("sha256:"))?1:0)'; then
+                exit 0
+              fi
+            fi
+            echo "Waiting for the verified v$VERSION Windows package ($attempt/60)."
+            sleep 10
+          done
+          echo 'The documented Windows package is not published; retaining the previous site.'
+          exit 1
       - name: Publish to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

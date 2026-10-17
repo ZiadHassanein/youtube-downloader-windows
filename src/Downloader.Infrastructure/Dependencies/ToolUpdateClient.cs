@@ -5,10 +5,10 @@ namespace YouTubeDownloader;
 internal sealed class ToolUpdateClient(string cache) : IToolUpdateClient
 {
     internal Func<VerifiedDownloads> OpenDownloads { get; set; } = () => new();
-    internal Func<string, string, CancellationToken, bool> Accept { get; set; } = (file, kind, token) => new ToolProbe().Accept(file, kind, token);
+    internal Func<string, string, CancellationToken, bool> Accept { get; set; } = (file, kind, token) => ToolProbe.Accept(file, kind, token);
     internal Func<string, CancellationToken, string> VersionOf { get; set; } = (file, token) =>
     {
-        string text = new ToolProbe().Capture(file, token, "--version").Trim();
+        string text = ToolProbe.Capture(file, token, "--version").Trim();
         return Path.GetFileName(file) == "deno.exe" ? Regex.Match(text, @"^deno (\d+\.\d+\.\d+)").Groups[1].Value : text;
     };
 
@@ -40,7 +40,7 @@ internal sealed class ToolUpdateClient(string cache) : IToolUpdateClient
         {
             foreach (var (source, release) in candidates)
             {
-                string prefix = source.Prefix(release);
+                string prefix = ToolReleaseSource.Prefix(release);
                 string checksums = source.Kind == "Deno" ? source.Asset + ".sha256sum" : "SHA2-256SUMS";
                 string hash = source.ReadChecksum(await downloads.TextAsync(prefix + checksums, prefix, 16 * 1024, token).ConfigureAwait(false));
                 if (release.Digest != null && !string.Equals(release.Digest, "sha256:" + hash, StringComparison.OrdinalIgnoreCase))

@@ -29,7 +29,7 @@ internal static class BootstrapLiveChecks
             foreach (var source in new[] { ToolReleaseSource.YtDlp, ToolReleaseSource.Deno })
             {
                 var release = source.Read(await downloads.TextAsync(source.Api + "latest", source.Api, 512 * 1024, timeout.Token));
-                string prefix = source.Prefix(release);
+                string prefix = ToolReleaseSource.Prefix(release);
                 string name = source.Kind == "Deno" ? source.Asset + ".sha256sum" : "SHA2-256SUMS";
                 string hash = source.ReadChecksum(await downloads.TextAsync(prefix + name, prefix, 16384, timeout.Token));
                 if (!string.Equals("sha256:" + hash, release.Digest, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Published checksums disagree.");

@@ -57,7 +57,7 @@ internal static class ReliabilityChecks
             for (int n = 0; n < 100 && (!File.Exists(pidFile) || !File.Exists(writer)); n++)
                 await Task.Delay(20);
             Check(File.Exists(pidFile), "Immediate child fixture actually spawned a descendant");
-            int pid = int.Parse(File.ReadAllText(pidFile));
+            int pid = int.Parse(File.ReadAllText(pidFile), System.Globalization.CultureInfo.InvariantCulture);
             cancel.Cancel();
             await run;
             long length = new FileInfo(writer).Length;

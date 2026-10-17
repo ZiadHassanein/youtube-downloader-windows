@@ -14,9 +14,10 @@ internal static class OutputMediaLiveChecks
             var tools = dependencies.Discover(CancellationToken.None) ?? throw new IOException("Prepare the isolated tool cache first.");
             using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(5));
             using var runner = new WindowsProcessRunner();
+            string[] baseArguments = { "-nostdin", "-hide_banner", "-loglevel", "error", "-y" };
             void Encode(params string[] args)
             {
-                if (runner.Run(tools.FFmpeg, new[] { "-nostdin", "-hide_banner", "-loglevel", "error", "-y" }.Concat(args).ToArray(), null, Console.Error.WriteLine, deadline.Token, TimeSpan.FromSeconds(30)) != 0)
+                if (runner.Run(tools.FFmpeg, baseArguments.Concat(args).ToArray(), null, Console.Error.WriteLine, deadline.Token, TimeSpan.FromSeconds(30)) != 0)
                     throw new IOException("Synthetic media encoding failed.");
             }
             foreach (var (encoding, encoder, codec, sourceRate) in new[]
@@ -29,7 +30,7 @@ internal static class OutputMediaLiveChecks
                 long before = new FileInfo(file).Length;
                 var options = new DownloadOptions { Folder = folder, Audio = true, AudioEncoding = encoding, AudioBitrate = 128, AudioSource = new(codec, sourceRate) };
                 AudioBitrateConversion.Apply(file, options, tools, deadline.Token);
-                string json = new ToolProbe().Capture(tools.FFprobe, deadline.Token, "-v", "error", "-show_entries", "stream=codec_name:format=duration,bit_rate", "-of", "json", file);
+                string json = ToolProbe.Capture(tools.FFprobe, deadline.Token, "-v", "error", "-show_entries", "stream=codec_name:format=duration,bit_rate", "-of", "json", file);
                 using var info = JsonDocument.Parse(json);
                 double duration = double.Parse(info.RootElement.GetProperty("format").GetProperty("duration").GetString(), CultureInfo.InvariantCulture);
                 double rate = double.Parse(info.RootElement.GetProperty("format").GetProperty("bit_rate").GetString(), CultureInfo.InvariantCulture) / 1000;

@@ -44,7 +44,7 @@ public sealed partial class MainViewModel
     internal void PasteQueueLinks(QueueLinkInputView field, string text)
     {
         if (!QueueLinkInputs.Contains(field) || string.IsNullOrWhiteSpace(text)) return;
-        var links = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var links = text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (QueueLinkInputs.Count + links.Length - 1 > DownloadQueue.Capacity)
         {
             field.SetError("You can enter up to 100 links. Remove a link before adding another.");

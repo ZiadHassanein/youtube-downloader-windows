@@ -1,1 +1,24 @@
-<Project><PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable><Version>4.2.0</Version><AssemblyVersion>4.2.0.0</AssemblyVersion><FileVersion>4.2.0.0</FileVersion><Authors>Ziad Hassanein</Authors><Deterministic>true</Deterministic><PlatformTarget>x64</PlatformTarget><ViFreePreview Condition="'$(ViFreePreview)' == ''">false</ViFreePreview><DefineConstants Condition="'$(ViFreePreview)' == 'true'">$(DefineConstants);VIFREE_PREVIEW</DefineConstants></PropertyGroup></Project>
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Version>4.2.1</Version>
+    <AssemblyVersion>4.2.1.0</AssemblyVersion>
+    <FileVersion>4.2.1.0</FileVersion>
+    <Authors>Ziad Hassanein</Authors>
+    <Deterministic>true</Deterministic>
+    <PlatformTarget>x64</PlatformTarget>
+    <!-- Recommended .NET analyzers and .editorconfig code-style rules run in every build; warnings fail the build. -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- IDE0005 (unused usings) only runs on build when documentation generation is on; the XML files stay out of published output. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishDocumentationFile>false</PublishDocumentationFile>
+    <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <ViFreePreview Condition="'$(ViFreePreview)' == ''">false</ViFreePreview>
+    <DefineConstants Condition="'$(ViFreePreview)' == 'true'">$(DefineConstants);VIFREE_PREVIEW</DefineConstants>
+  </PropertyGroup>
+</Project>

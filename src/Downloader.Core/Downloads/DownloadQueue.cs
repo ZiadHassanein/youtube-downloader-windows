@@ -71,7 +71,7 @@ public sealed class DownloadQueue
     public void Stop() { lock (gate) lifetime?.Cancel(); }
 
     public async Task RunAsync(Func<DownloadOptions, IProgress<DownloadProgress>, CancellationToken, Task<DownloadResult>> execute,
-        CancellationToken token = default, Func<TimeSpan, CancellationToken, Task> wait = null)
+        Func<TimeSpan, CancellationToken, Task> wait = null, CancellationToken token = default)
     {
         CancellationTokenSource run;
         lock (gate)

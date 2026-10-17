@@ -12,7 +12,7 @@ arabic: /ar/browser-extension-setup.html
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-**Use the matching package:** [Vydrop 4.2.0 for Windows](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip) includes companion **Vydrop 1.3.0**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
+**Use the matching package:** [Vydrop 4.2.1 for Windows](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip) includes companion **Vydrop 1.3.1**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
 
 [Published downloads](https://github.com/ZiadHassanein/ViFree/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
@@ -105,7 +105,7 @@ The companion locates visible players and sends a public link after your click. 
 
 <div dir="rtl" lang="ar" markdown="1">
 
-الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. يتضمن إصدار **Vydrop 4.2.0** إضافة **Vydrop 1.3.0**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. عند الترقية من ViFree، فعّل الاتصال من Vydrop وأعد تحميل الإضافة من مجلد **Browser** الجديد.
+الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. يتضمن إصدار **Vydrop 4.2.1** إضافة **Vydrop 1.3.1**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. عند الترقية من ViFree، فعّل الاتصال من Vydrop وأعد تحميل الإضافة من مجلد **Browser** الجديد.
 
 1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
 2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.

@@ -1,911 +1,298 @@
 using System.Globalization;
 
-namespace YouTubeDownloader
+namespace YouTubeDownloader;
+
+internal static class Texts
 {
-    internal static class Texts
+    private static readonly Dictionary<string, string> Arabic = new()
     {
-        private static readonly Dictionary<string, string> Arabic = new Dictionary<string, string>
-        {
-            { "New download", "تنزيل فيديو جديد" },
-            { "Audio bitrate", "جودة الصوت" },
-            { "Video format", "صيغة الفيديو" },
-            { "No bitrate setting", "لا يتطلب معدل بت" },
-            { "Choose a subtitle language and file format.", "اختر لغة الترجمة وصيغة ملفها." },
-            { "Subtitles are saved as a separate file beside the video or audio.", "تُحفظ الترجمة في ملف منفصل بجوار الفيديو أو الصوت." },
-            { "Recent downloads, {0} new files", "التنزيلات الأخيرة، {0} ملفات جديدة" },
-            { "Source bitrate unavailable. Use automatic conversion.", "معدل بت المصدر غير متاح. استخدم التحويل التلقائي." },
-            { "The source audio is checked for each video. Conversion cannot add detail.", "يُفحص مصدر الصوت لكل فيديو. التحويل لا يحسّن جودة المصدر." },
-            { "Source estimate: {0} · {1} kbps", "تقدير المصدر: {0} · {1} كيلوبت/ث" },
-            { "Lossless source", "مصدر صوت دون فقدان جودة" },
-            { "Bitrates are conversion targets. Higher numbers cannot improve the source.", "القيم تحدد معدل بت الملف الناتج. رفعها لا يحسّن جودة المصدر." },
-            { "The source audio has changed. Check the link again and choose an available bitrate.", "تغيّر مصدر الصوت. افحص الرابط مجددًا واختر معدل بت متاحًا." },
-            { "This video has no compatible streams for this format. Choose another video format.", "لا تتوفر مسارات متوافقة مع هذه الصيغة. اختر صيغة فيديو أخرى." },
-            { "The audio could not be converted to the selected bitrate. The original file was kept.", "تعذّر تحويل الصوت إلى معدل البت المحدد. احتُفظ بالملف الأصلي." },
-            { "The downloaded audio could not be verified.", "تعذّر التحقق من ملف الصوت الذي نُزّل." },
-            { "Preparing video", "جارٍ تجهيز الفيديو" },
-            { "The latest downloader still couldn't read this link. The website may have changed; try again later.", "تعذّر تشغيل هذا الرابط حتى باستخدام أحدث أداة تنزيل. قد يكون الموقع تغيّر؛ جرّب مرة أخرى لاحقًا." },
-            { "The downloader couldn't be updated. Check your internet connection and try again.", "تعذّر تحديث أداة التنزيل. تحقق من اتصال الإنترنت ثم جرّب مرة أخرى." },
-            { "Checking for a downloader fix…", "جارٍ البحث عن تحديث لحل المشكلة…" },
-            { "Updating yt-dlp…", "جارٍ تحديث أداة التنزيل…" },
-            { "Updating Deno…", "جارٍ تحديث أداة تشغيل التنزيل…" },
-            { "Vydrop checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.", "يبحث Vydrop تلقائيًا عن تحديثات أدوات التنزيل مرة يوميًا عند استخدام رابط. ويمكنك البحث مجددًا من هنا." },
-            { "More options", "خيارات إضافية" },
-            { "For a YouTube Mix, copy the link of a playing video in the mix.", "لقوائم YouTube Mix، انسخ رابط أحد الفيديوهات أثناء تشغيله من القائمة." },
-            { "YouTube Mix · {0} videos from this changing mix", "YouTube Mix · {0} فيديو من القائمة المتجددة" },
-            { "Couldn't open this folder", "تعذّر فتح المجلد" },
-            { "This download folder is no longer available.", "مجلد التنزيل لم يعد موجودًا في مكانه المحفوظ." },
-            { "Choose a supported audio quality.", "اختر جودة صوت متاحة للصيغة المحددة." },
-            { "Language", "اللغة" },
-            { "Done", "تم" },
-            { "Subtitle file format", "صيغة ملف الترجمة" },
-            { "Ready to download", "جاهز للتنزيل" },
-            { "Playlist", "قائمة تشغيل" },
-            { "YouTube Mix (up to 50 videos)", "قائمة Mix (حتى 50 فيديو)" },
-            { "Recent", "التنزيلات الأخيرة" },
-            { "Your last five completed files.", "آخر خمسة ملفات اكتمل تنزيلها." },
-            { "No downloads yet", "لم تنزّل أي ملفات بعد" },
-            { "File moved or deleted", "الملف نُقل أو حُذف" },
-            { "This file is no longer in its saved location.", "لم نعثر على الملف في مكانه. ربما نُقل أو حُذف." },
-            { "Settings", "الإعدادات" },
-            { "Contact", "تواصل معي" },
-            { "Email", "البريد الإلكتروني" },
-            { "Video", "فيديو" },
-            { "Format", "الصيغة" },
-            { "Subtitles and file options", "الترجمة وخيارات الملف" },
-            { "Change", "تغيير" },
-            { "App updates", "تحديثات التطبيق" },
-            { "Download support", "دعم التنزيل" },
-            { "Send a video link from your browser to Vydrop.", "أرسل رابط الفيديو من المتصفح إلى Vydrop." },
-            { "Video preview", "معاينة الفيديو" },
-            { "Your next download", "تنزيلك القادم" },
-            { "Paste a link to see its details.", "الصق رابطًا لعرض تفاصيله." },
-            { "Paste a video or playlist link", "الصق رابط فيديو أو قائمة تشغيل" },
-            { "Choose a folder", "اختيار مجلد" },
-            { "Video link", "رابط الفيديو" },
-            { "Audio", "صوت" },
-            { "Source quality", "جودة المصدر" },
-            { "Queue ({0})", "قائمة التنزيلات ({0})" },
-            { "Choose videos", "اختيار الفيديوهات" },
-            { "Choose videos ({0}/{1})", "اختيار الفيديوهات ({0}/{1})" },
-            { "Output options", "خيارات الحفظ" },
-            { "Audio format", "صيغة الصوت" },
-            { "Subtitles", "الترجمة" },
-            { "Automatic", "تلقائية" },
-            { "Get subtitle languages", "جلب لغات الترجمة" },
-            { "Check your internet connection, then choose Get subtitle languages to try again.", "تحقّق من اتصالك بالإنترنت، ثم اضغط «جلب لغات الترجمة» لإعادة المحاولة." },
-            { "No subtitles", "بدون ترجمة" },
-            { "Add to queue", "إضافة للقائمة" },
-            { "Start queue", "بدء التنزيلات" },
-            { "Retry", "إعادة المحاولة" },
-            { "Remove", "إزالة" },
-            { "Download queue", "قائمة التنزيلات" },
-            { "Paste one link per line, then choose Add to queue. Choose Start queue to download the list in order.", "الصق الروابط هنا، كل رابط في سطر، ثم اضغط «إضافة للقائمة». اضغط «بدء التنزيلات» لتنزيلها بالترتيب." },
-            { "Choose the format and quality in the main window before adding links.", "اختَر الصيغة والجودة من الشاشة الرئيسية قبل إضافة الروابط." },
-            { "Your download list is empty.", "قائمة التنزيلات فارغة حاليًا." },
-            { "Video links", "روابط الفيديوهات" },
-            { "Enter a link, add more fields if needed, then choose Start queue.", "أدخل الرابط، وأضف خانات أخرى عند الحاجة، ثم اضغط «بدء التنزيلات»." },
-            { "Link {0}", "الرابط {0}" },
-            { "Add another link", "إضافة رابط آخر" },
-            { "Remove link", "حذف الرابط" },
-            { "Enter a valid video or playlist link.", "أدخل رابط فيديو أو قائمة تشغيل صحيحًا." },
-            { "You can enter up to 100 links. Remove a link before adding another.", "يمكن إدخال 100 رابط كحد أقصى. احذف رابطًا لإضافة غيره." },
-            { "This download is already in the queue.", "هذا الرابط موجود بالفعل في قائمة التنزيلات." },
-            { "Browser integration", "الربط بالمتصفح" },
-            { "Update downloader", "تحديث أداة التنزيل" },
-            { "Updating downloader…", "جارٍ تحديث أداة التنزيل…" },
-            { "Checking downloader updates", "جارٍ البحث عن تحديث لأداة التنزيل" },
-            { "Looking for an update to the tool that reads video links and downloads files…", "جارٍ البحث عن إصدار أحدث من الأداة المسؤولة عن قراءة روابط الفيديوهات وتنزيلها…" },
-            { "Downloader is up to date", "أداة التنزيل محدّثة بالفعل" },
-            { "No new downloader update is available. You can use Vydrop as usual.", "لا يوجد تحديث جديد لأداة التنزيل. يمكنك متابعة استخدام التطبيق كالمعتاد." },
-            { "Downloading the downloader update…", "جارٍ تنزيل تحديث أداة التنزيل…" },
-            { "Downloader updated", "تم تحديث أداة التنزيل" },
-            { "The update is ready. Try the video link that was not working again.", "التحديث جاهز. جرّب رابط الفيديو الذي لم يعمل مرة أخرى." },
-            { "Downloader update cancelled", "أُلغي تحديث أداة التنزيل" },
-            { "You can check again whenever you need to.", "يمكنك البحث عن تحديث مرة أخرى وقتما تحتاج." },
-            { "Could not update the downloader", "تعذّر تحديث أداة التنزيل" },
-            { "Check your internet connection and free disk space, then try again.", "تحقق من اتصال الإنترنت والمساحة المتاحة على القرص، ثم أعد المحاولة." },
-            { "Audio conversion cannot improve the source quality. Subtitles are saved beside the media when available.", "تحويل الصوت لا يزيد جودة المصدر. تُحفظ الترجمة بجوار الوسائط عند توفرها." },
-            { "Added to queue", "تمت الإضافة للقائمة" },
-            { "Open the queue to start or manage downloads.", "افتح قائمة التنزيلات لبدء التنزيل أو إدارة الروابط." },
-            { "Could not add download", "تعذّرت إضافة التنزيل" },
-            { "Checking for media-tool updates…", "جارٍ البحث عن تحديثات أدوات الوسائط…" },
-            { "Languages shown come from the first available playlist video. Availability may vary for other videos.", "اللغات المعروضة من أول فيديو متاح بالقائمة. قد تختلف الترجمة المتوفرة في بقية الفيديوهات." },
-            { "Paste one or more video links first.", "الصق رابط فيديو واحدًا أو أكثر أولًا." },
-            { "The queue can hold at most 100 downloads. Remove finished items first.", "يمكن إضافة 100 تنزيل إلى القائمة كحد أقصى. أزل التنزيلات المكتملة أولًا." },
-            { "{0} links added to the queue.", "عدد الروابط المضافة للقائمة: {0}." },
-            { "Queue paused", "التنزيلات متوقفة مؤقتًا" },
-            { "Queue finished", "انتهت التنزيلات" },
-            { "Review failed items before starting the remaining downloads.", "راجع العناصر التي فشلت قبل بدء التنزيلات المتبقية." },
-            { "Open the queue to review completed or failed downloads.", "افتح قائمة التنزيلات لمراجعة التنزيلات المكتملة أو التي فشلت." },
-            { "Pending", "في الانتظار" },
-            { "Preparing", "جارٍ التجهيز" },
-            { "Completed", "مكتمل" },
-            { "Failed", "فشل" },
-            { "Cancelled", "أُلغي" },
-            { "Select all", "تحديد الكل" },
-            { "Clear selection", "إلغاء التحديد" },
-            { "Use selection", "استخدام التحديد" },
-            { "Choose at least one available video.", "اختر فيديو متاحًا واحدًا على الأقل." },
-            { "Send a link from your browser", "إرسال رابط من المتصفح" },
-            { "Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading.", "ضع Vydrop في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من مجلد Browser المرفق مع التطبيق. يدعم التحميل المحلي Chrome وEdge وFirefox." },
-            { "Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download.", "انقر الإضافة أو انقر بزر الفأرة الأيمن على رابط لفتحه في Vydrop. لا يبدأ التنزيل حتى تختار تنزيل." },
-            { "Enable connection", "تفعيل الاتصال" },
-            { "Disable connection", "تعطيل الاتصال" },
-            { "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.", "تعذّر تغيير اتصال المتصفح. ضع Vydrop.exe في مجلد قابل للكتابة وأعد المحاولة." },
-            { "Browser connection enabled. Load the companion extension to send links.", "تم تفعيل اتصال المتصفح. حمّل الإضافة لإرسال الروابط." },
-            { "Browser connection disabled.", "تم تعطيل اتصال المتصفح." },
-            { "Preview build", "نسخة تجريبية" },
-            { "This test build stays separate from stable releases. Updates will be enabled after testing.", "هذه النسخة التجريبية منفصلة عن الإصدارات المستقرة. ستُفعّل تحديثات التطبيق بعد الاختبار." },
-            { "This site or link is not supported. Try a public video link.", "الموقع أو الرابط غير مدعوم. جرّب رابط فيديو عام." },
-            { "The site did not return downloadable formats for this video.", "لم يُرجع الموقع صيغًا قابلة للتنزيل لهذا الفيديو." },
-            { "Preparing audio", "جارٍ تجهيز الصوت" },
-            { "Requested subtitles were unavailable. The media file was saved.", "الترجمة المطلوبة غير متاحة. تم حفظ ملف الوسائط." },
-            { "Some requested subtitles were unavailable. The media files were saved.", "بعض الترجمات المطلوبة غير متاحة. تم حفظ ملفات الوسائط." },
-            { "The selected subtitles are no longer available. Refresh output options or choose no subtitles.", "الترجمة المختارة لم تعد متاحة. حدّث خيارات الحفظ أو اختر بدون ترجمة." },
-            {
-                "Paste",
-                "لصق"
-            },
-            {
-                "Save as",
-                "احفظ بالصيغة"
-            },
-            {
-                "Video · MP4",
-                "فيديو · MP4"
-            },
-            {
-                "Audio · MP3",
-                "صوت · MP3"
-            },
-            {
-                "Save to",
-                "مجلد الحفظ"
-            },
-            {
-                "Browse…",
-                "تصفح…"
-            },
-            {
-                "Download",
-                "تنزيل"
-            },
-            {
-                "Cancel",
-                "إلغاء"
-            },
-            {
-                "Open folder",
-                "فتح المجلد"
-            },
-            {
-                "Open file",
-                "فتح الملف"
-            },
-            {
-                "Show in folder",
-                "عرض الملف في المجلد"
-            },
-            {
-                "No newer app release is available.",
-                "لا يتوفر إصدار أحدث من التطبيق."
-            },
-            {
-                "Preparing media tools",
-                "جارٍ تجهيز أدوات الوسائط"
-            },
-            {
-                "Checking available media tools…",
-                "جارٍ فحص أدوات الوسائط المتاحة…"
-            },
-            {
-                "Checking prepared media tools…",
-                "جارٍ فحص أدوات الوسائط المجهزة…"
-            },
-            {
-                "Media tools are ready.",
-                "أدوات الوسائط جاهزة."
-            },
-            {
-                "Check your internet connection, then paste the link again to retry.",
-                "تحقق من اتصال الإنترنت، ثم الصق الرابط مجددًا لإعادة المحاولة."
-            },
-            {
-                "Media tools could not be prepared. Paste the link again to retry.",
-                "تعذّر تجهيز أدوات الوسائط. الصق الرابط مجددًا لإعادة المحاولة."
-            },
-            {
-                "Cancelling…",
-                "جارٍ الإلغاء…"
-            },
-            {
-                "Settings recovered",
-                "تمت استعادة الإعدادات"
-            },
-            {
-                "Your settings were recovered from a backup.",
-                "تمت استعادة إعداداتك من نسخة احتياطية."
-            },
-            {
-                "Your preferences could not be saved. Check available storage and try again.",
-                "تعذّر حفظ تفضيلاتك. تحقق من مساحة التخزين وجرّب مرة أخرى."
-            },
-            {
-                "Videos, Shorts, and playlists",
-                "الفيديوهات والمقاطع القصيرة وقوائم التشغيل"
-            },
-            {
-                "&This video",
-                "هذا ال&فيديو"
-            },
-            {
-                "&Whole playlist",
-                "&قائمة التشغيل كاملة"
-            },
-            {
-                "This video",
-                "هذا الفيديو"
-            },
-            {
-                "Whole playlist",
-                "قائمة التشغيل كاملة"
-            },
-            {
-                "Choose this video or the whole playlist.",
-                "اختر هذا الفيديو أو قائمة التشغيل كاملة."
-            },
-            {
-                "{0} · {1} videos\nDownloads one at a time. Quality is a maximum; lower resolutions are used when needed.",
-                "{0} · {1} فيديو\nيُنزل فيديو واحدًا في كل مرة. الجودة حد أقصى؛ تُستخدم دقة أقل عند الحاجة."
-            },
-            {
-                "Best available",
-                "أفضل جودة متاحة"
-            },
-            {
-                "Up to {0}p",
-                "حتى {0}p"
-            },
-            {
-                "Playlist maximum video quality",
-                "الحد الأقصى لجودة قائمة التشغيل"
-            },
-            {
-                "Checking playlist",
-                "جارٍ فحص قائمة التشغيل"
-            },
-            {
-                "Getting the playlist titles…",
-                "جارٍ جلب عناوين قائمة التشغيل…"
-            },
-            {
-                "Could not check playlist",
-                "تعذّر فحص قائمة التشغيل"
-            },
-            {
-                "Downloading playlist",
-                "جارٍ تنزيل قائمة التشغيل"
-            },
-            {
-                "Video {0} of {1}",
-                "الفيديو {0} من {1}"
-            },
-            {
-                "Playlist complete",
-                "اكتمل تنزيل قائمة التشغيل"
-            },
-            {
-                "Playlist cancelled",
-                "أُلغي تنزيل قائمة التشغيل"
-            },
-            {
-                "Playlist paused",
-                "توقف تنزيل قائمة التشغيل"
-            },
-            {
-                "Playlist finished with errors",
-                "انتهت قائمة التشغيل مع أخطاء"
-            },
-            {
-                "{0} saved · {1} already downloaded · {2} failed · {3} remaining",
-                "{0} تم حفظه · {1} تم تنزيله سابقًا · {2} تعذّر تنزيله · {3} متبقي"
-            },
-            {
-                "Run the same playlist again to resume. Completed files are kept.",
-                "أعد تنزيل القائمة نفسها للاستئناف. تُحفظ الملفات المكتملة."
-            },
-            {
-                "Use a link to a YouTube video, Short, or playlist.",
-                "استخدم رابط فيديو أو مقطع قصير أو قائمة تشغيل من يوتيوب."
-            },
-            {
-                "This link does not contain a playlist.",
-                "هذا الرابط لا يحتوي على قائمة تشغيل."
-            },
-            {
-                "Choose Whole playlist for a playlist-only link.",
-                "اختر قائمة التشغيل كاملة لرابط قائمة التشغيل."
-            },
-            {
-                "This playlist is empty or unavailable. Try a public playlist.",
-                "قائمة التشغيل فارغة أو غير متاحة. جرّب قائمة عامة."
-            },
-            {
-                "The playlist could not be read. Check the link and try again.",
-                "تعذّر قراءة قائمة التشغيل. تحقق من الرابط وجرّب مجددًا."
-            },
-            {
-                "Check the playlist link again before downloading.",
-                "تحقق من رابط قائمة التشغيل مجددًا قبل التنزيل."
-            },
-            {
-                "Completed file saved, but resume information could not be saved.",
-                "حُفظ الملف المكتمل، لكن تعذّر حفظ معلومات الاستئناف."
-            },
-            {
-                "Vydrop",
-                "Vydrop"
-            },
-            {
-                "Close",
-                "إغلاق"
-            },
-            {
-                "Could not open link",
-                "تعذّر فتح الرابط"
-            },
-            {
-                "Open the link in your browser and try again.",
-                "افتح الرابط في المتصفح وجرّب مرة أخرى."
-            },
-            {
-                "YouTube &link",
-                "&رابط يوتيوب"
-            },
-            {
-                "YouTube link",
-                "رابط يوتيوب"
-            },
-            {
-                "Vydrop logo",
-                "شعار Vydrop"
-            },
-            {
-                "Open the save folder and try opening the file there.",
-                "افتح مجلد الحفظ وجرّب فتح الملف من هناك."
-            },
-            {
-                "Videos, Shorts, and shared links",
-                "الفيديوهات والمقاطع القصيرة والروابط المشتركة"
-            },
-            {
-                "&Paste",
-                "&لصق"
-            },
-            {
-                "&Browse…",
-                "&تصفح…"
-            },
-            {
-                "&Download",
-                "&تنزيل"
-            },
-            {
-                "&Cancel",
-                "&إلغاء"
-            },
-            {
-                "Open &folder",
-                "فتح ال&مجلد"
-            },
-            {
-                "Open &file",
-                "فتح ال&ملف"
-            },
-            {
-                "Show &in folder",
-                "إظهار في ال&مجلد"
-            },
-            {
-                "Save &as",
-                "احفظ بال&صيغة"
-            },
-            {
-                "Save &to",
-                "مجلد ال&حفظ"
-            },
-            {
-                "&Video · MP4",
-                "&فيديو · MP4"
-            },
-            {
-                "&Audio · MP3",
-                "&صوت · MP3"
-            },
-            {
-                "Video MP4",
-                "فيديو MP4"
-            },
-            {
-                "Audio MP3",
-                "صوت MP3"
-            },
-            {
-                "Quality",
-                "الجودة"
-            },
-            {
-                "192 kbps",
-                "192 كيلوبت/ث"
-            },
-            {
-                "Available video quality",
-                "جودة الفيديو المتاحة"
-            },
-            {
-                "MP3 encoding bitrate",
-                "معدل ترميز MP3"
-            },
-            {
-                "Save folder",
-                "مجلد الحفظ"
-            },
-            {
-                "Choose a video to get started",
-                "اختر فيديو للبدء"
-            },
-            {
-                "Available qualities appear after you paste a link.",
-                "تظهر الجودات المتاحة بعد لصق الرابط."
-            },
-            {
-                "Checking your next video",
-                "جارٍ فحص الفيديو"
-            },
-            {
-                "Getting the available qualities…",
-                "جارٍ جلب الجودات المتاحة…"
-            },
-            {
-                "Paste one YouTube video link.",
-                "الصق رابط فيديو واحد من يوتيوب."
-            },
-            {
-                "Ready for another video",
-                "جاهز لفيديو آخر"
-            },
-            {
-                "Paste a new link whenever you're ready.",
-                "الصق رابطًا جديدًا عندما تكون جاهزًا."
-            },
-            {
-                "Your file is being prepared.",
-                "جارٍ تجهيز ملفك."
-            },
-            {
-                "Available: ",
-                "الجودات: "
-            },
-            {
-                "Audio only",
-                "صوت فقط"
-            },
-            {
-                "Ready for a video link",
-                "جاهز لرابط فيديو"
-            },
-            {
-                "Paste a link to get started.",
-                "الصق رابطًا للبدء."
-            },
-            {
-                "Downloader tools are missing",
-                "أدوات التنزيل غير متوفرة"
-            },
-            {
-                "Run SetupTools.cmd in the app folder, then reopen the app.",
-                "شغّل SetupTools.cmd من مجلد التطبيق، ثم افتح التطبيق مجددًا."
-            },
-            {
-                "Recent downloads",
-                "التنزيلات الأخيرة"
-            },
-            {
-                "Your completed downloads will appear here.",
-                "ستظهر تنزيلاتك المكتملة هنا."
-            },
-            {
-                "Check for updates",
-                "البحث عن تحديث"
-            },
-            {
-                "Download update",
-                "تنزيل التحديث"
-            },
-            {
-                "Checking updates…",
-                "جارٍ البحث…"
-            },
-            {
-                "Retry update",
-                "إعادة التحديث"
-            },
-            {
-                "Downloading update…",
-                "جارٍ التنزيل…"
-            },
-            {
-                "Dismiss",
-                "إغلاق"
-            },
-            {
-                "Dismiss update message",
-                "إغلاق رسالة التحديث"
-            },
-            {
-                "App update status",
-                "حالة تحديث التطبيق"
-            },
-            {
-                "Checking for updates",
-                "جارٍ البحث عن تحديث"
-            },
-            {
-                "Looking for the latest app release…",
-                "نبحث عن أحدث إصدار للتطبيق…"
-            },
-            {
-                "You're up to date",
-                "لديك أحدث إصدار"
-            },
-            {
-                "Version {0} is the latest release.",
-                "الإصدار {0} هو الأحدث."
-            },
-            {
-                "A new version is ready",
-                "يتوفر تحديث جديد"
-            },
-            {
-                "Version {0} is available. Choose Install to update the app.",
-                "الإصدار {0} متاح. اضغط تثبيت لتحديث التطبيق."
-            },
-            {
-                "Couldn't check for updates",
-                "تعذّر البحث عن تحديث"
-            },
-            {
-                "Check your internet connection, then choose Check for updates again.",
-                "تحقق من اتصال الإنترنت، ثم ابحث عن تحديث مجددًا."
-            },
-            {
-                "Preparing your update",
-                "جارٍ تجهيز التحديث"
-            },
-            {
-                "The app will restart when the verified update is ready.",
-                "سيُعاد تشغيل التطبيق بعد التحقق من التحديث وتجهيزه."
-            },
-            {
-                "Download the new version manually",
-                "نزّل الإصدار الجديد يدويًا"
-            },
-            {
-                "The release could not be verified for installation from this version. Open the releases page and extract the new ZIP into a new folder.",
-                "تعذّر التحقق من الإصدار لتثبيته من هذه النسخة. افتح صفحة الإصدارات وفكّ ضغط ملف ZIP الجديد في مجلد جديد."
-            },
-            {
-                "Update couldn't be installed",
-                "تعذّر تثبيت التحديث"
-            },
-            {
-                "Your current app is ready to use. Check your connection and choose Retry update.",
-                "يمكنك استخدام الإصدار الحالي. تحقق من الاتصال ثم اضغط إعادة التحديث."
-            },
-            {
-                "App version",
-                "إصدار التطبيق"
-            },
-            {
-                "Switch to light theme",
-                "التبديل إلى المظهر الفاتح"
-            },
-            {
-                "Switch to dark theme",
-                "التبديل إلى المظهر الداكن"
-            },
-            {
-                "Switch to Arabic",
-                "التبديل إلى العربية"
-            },
-            {
-                "Switch to English",
-                "التبديل إلى الإنجليزية"
-            },
-            {
-                "Scroll page",
-                "تمرير الصفحة"
-            },
-            {
-                "Use the arrow keys, Page Up, Page Down, Home, or End to scroll.",
-                "استخدم الأسهم أو Page Up أو Page Down أو Home أو End للتمرير."
-            },
-            {
-                "Information",
-                "معلومة"
-            },
-            {
-                "Success",
-                "نجاح"
-            },
-            {
-                "Error",
-                "خطأ"
-            },
-            {
-                "Clipboard is empty",
-                "الحافظة فارغة"
-            },
-            {
-                "Copy a YouTube video link, then choose Paste.",
-                "انسخ رابط فيديو من يوتيوب، ثم اضغط لصق."
-            },
-            {
-                "Could not paste",
-                "تعذّر اللصق"
-            },
-            {
-                "Copy the video link again, then choose Paste.",
-                "انسخ رابط الفيديو مجددًا، ثم اضغط لصق."
-            },
-            {
-                "Check the link",
-                "تحقق من الرابط"
-            },
-            {
-                "Could not check video",
-                "تعذّر فحص الفيديو"
-            },
-            {
-                "Video is ready",
-                "الفيديو جاهز"
-            },
-            {
-                "Only qualities available for this video are shown.",
-                "تظهر فقط الجودات المتاحة لهذا الفيديو."
-            },
-            {
-                "This video has an audio download available.",
-                "يمكن تنزيل الصوت لهذا الفيديو."
-            },
-            {
-                "Check cancelled",
-                "أُلغي الفحص"
-            },
-            {
-                "You can paste another link or try again.",
-                "يمكنك لصق رابط آخر أو المحاولة مجددًا."
-            },
-            {
-                "Check your download",
-                "تحقق من إعدادات التنزيل"
-            },
-            {
-                "Download failed",
-                "تعذّر التنزيل"
-            },
-            {
-                "Download cancelled",
-                "أُلغي التنزيل"
-            },
-            {
-                "Download complete",
-                "اكتمل التنزيل"
-            },
-            {
-                "Partial files are kept so the same download can resume later.",
-                "تُحفظ الملفات الجزئية لاستئناف التنزيل لاحقًا."
-            },
-            {
-                "You can start another download.",
-                "يمكنك بدء تنزيل آخر."
-            },
-            {
-                "Cancelling",
-                "جارٍ الإلغاء"
-            },
-            {
-                "Stopping the download…",
-                "جارٍ إيقاف التنزيل…"
-            },
-            {
-                "Choose an available video quality first.",
-                "اختر جودة متاحة للفيديو أولًا."
-            },
-            {
-                "An audio download is not available for this video.",
-                "تنزيل الصوت غير متاح لهذا الفيديو."
-            },
-            {
-                "Choose a save folder with Browse.",
-                "اختر مجلد الحفظ باستخدام تصفح."
-            },
-            {
-                "Choose a valid folder on this computer with Browse.",
-                "اختر مجلدًا صالحًا على هذا الجهاز باستخدام تصفح."
-            },
-            {
-                "Folder is not available",
-                "المجلد غير متوفر"
-            },
-            {
-                "Choose an existing folder or download a video first.",
-                "اختر مجلدًا موجودًا أو نزّل فيديو أولًا."
-            },
-            {
-                "Could not open folder",
-                "تعذّر فتح المجلد"
-            },
-            {
-                "File is not available",
-                "الملف غير متوفر"
-            },
-            {
-                "The file may have been moved or deleted.",
-                "ربما نُقل الملف أو حُذف."
-            },
-            {
-                "Could not open file",
-                "تعذّر فتح الملف"
-            },
-            {
-                "Choose where to save your YouTube downloads",
-                "اختر مكان حفظ تنزيلات يوتيوب"
-            },
-            {
-                "A download is running. Cancel it and close?",
-                "يوجد تنزيل جارٍ. هل تريد إلغاءه وإغلاق التطبيق؟"
-            },
-            {
-                "Close downloader",
-                "إغلاق التطبيق"
-            },
-            {
-                "The update could not be installed. The previous app will reopen.",
-                "تعذّر تثبيت التحديث. سيُفتح الإصدار السابق مجددًا."
-            },
-            {
-                "Settings could not be saved",
-                "تعذّر حفظ الإعدادات"
-            },
-            {
-                "Paste a YouTube video link first.",
-                "الصق رابط فيديو من يوتيوب أولًا."
-            },
-            {
-                "Paste one complete YouTube video link.",
-                "الصق رابط فيديو كاملًا من يوتيوب."
-            },
-            {
-                "Enter a valid YouTube video link.",
-                "أدخل رابط فيديو صالحًا من يوتيوب."
-            },
-            {
-                "Use a youtube.com or youtu.be video link.",
-                "استخدم رابط فيديو من youtube.com أو youtu.be."
-            },
-            {
-                "Use a link to one video or Short. Playlist-only links are not supported.",
-                "استخدم رابط فيديو واحد أو مقطع قصير. روابط قوائم التشغيل وحدها غير مدعومة."
-            },
-            {
-                "Choose a folder on this computer.",
-                "اختر مجلدًا على هذا الجهاز."
-            },
-            {
-                "This site is limiting downloads right now. Wait a few minutes, then try again.",
-                "يوتيوب يحدّ التنزيلات مؤقتًا. انتظر بضع دقائق ثم أعد المحاولة."
-            },
-            {
-                "This video requires sign-in. Try a publicly available video.",
-                "هذا الفيديو يتطلب تسجيل الدخول. جرّب فيديو متاحًا للجميع."
-            },
-            {
-                "This site refused this download. Wait a little, then paste the link again.",
-                "يوتيوب رفض التنزيل. انتظر قليلًا، ثم الصق الرابط مجددًا."
-            },
-            {
-                "This video is unavailable. Try another video link.",
-                "هذا الفيديو غير متاح. جرّب رابط فيديو آخر."
-            },
-            {
-                "That quality is no longer available. Paste the link again to refresh the options.",
-                "هذه الجودة لم تعد متاحة. الصق الرابط مجددًا لتحديث الخيارات."
-            },
-            {
-                "The drive is full. Free some space or choose another save folder.",
-                "القرص ممتلئ. وفر مساحة أو اختر مجلد حفظ آخر."
-            },
-            {
-                "We can't save in that folder. Choose another folder with Browse.",
-                "لا يمكن الحفظ في هذا المجلد. اختر مجلدًا آخر باستخدام تصفح."
-            },
-            {
-                "Couldn't reach YouTube. Check your internet connection, then try again.",
-                "تعذّر الاتصال بيوتيوب. تحقق من اتصال الإنترنت ثم أعد المحاولة."
-            },
-            {
-                "Run SetupTools.cmd in the app folder to install the missing tools, then reopen the app.",
-                "شغّل SetupTools.cmd من مجلد التطبيق لتثبيت الأدوات المطلوبة، ثم افتح التطبيق مجددًا."
-            },
-            {
-                "We couldn't finish this action. Check the link and save folder, then try again.",
-                "تعذّر إكمال العملية. تحقق من الرابط ومجلد الحفظ، ثم أعد المحاولة."
-            },
-            {
-                "Checking video",
-                "جارٍ فحص الفيديو"
-            },
-            {
-                "Getting the title and available formats…",
-                "جارٍ جلب العنوان والجودات المتاحة…"
-            },
-            {
-                "Connecting",
-                "جارٍ الاتصال"
-            },
-            {
-                "Preparing your download…",
-                "جارٍ تجهيز التنزيل…"
-            },
-            {
-                "Downloading",
-                "جارٍ التنزيل"
-            },
-            {
-                "Finishing download",
-                "جارٍ إنهاء التنزيل"
-            },
-            {
-                "Preparing the final file…",
-                "جارٍ تجهيز الملف النهائي…"
-            },
-            {
-                "Making MP3",
-                "جارٍ تجهيز MP3"
-            },
-            {
-                "Preparing MP4",
-                "جارٍ تجهيز MP4"
-            },
-            {
-                "Finishing your file. This can take a moment…",
-                "جارٍ إنهاء الملف. قد يستغرق ذلك لحظات…"
-            }
-        };
-        public static string For(string language, string text)
-        {
-            if (language != "ar" || String.IsNullOrEmpty(text))
-                return text;
-            string value;
-            if (Arabic.TryGetValue(text, out value))
-                return value;
-            if (text.StartsWith("Downloading ", StringComparison.Ordinal) && text.EndsWith("…", StringComparison.Ordinal))
-                return "جارٍ تنزيل " + text.Substring(12);
-            if (text.StartsWith("Install v", StringComparison.Ordinal))
-                return "تثبيت الإصدار " + text.Substring(9);
+        { "New download", "تنزيل فيديو جديد" },
+        { "Audio bitrate", "جودة الصوت" },
+        { "Video format", "صيغة الفيديو" },
+        { "No bitrate setting", "لا يتطلب معدل بت" },
+        { "Choose a subtitle language and file format.", "اختر لغة الترجمة وصيغة ملفها." },
+        { "Subtitles are saved as a separate file beside the video or audio.", "تُحفظ الترجمة في ملف منفصل بجوار الفيديو أو الصوت." },
+        { "Recent downloads, {0} new files", "التنزيلات الأخيرة، {0} ملفات جديدة" },
+        { "Source bitrate unavailable. Use automatic conversion.", "معدل بت المصدر غير متاح. استخدم التحويل التلقائي." },
+        { "The source audio is checked for each video. Conversion cannot add detail.", "يُفحص مصدر الصوت لكل فيديو. التحويل لا يحسّن جودة المصدر." },
+        { "Source estimate: {0} · {1} kbps", "تقدير المصدر: {0} · {1} كيلوبت/ث" },
+        { "Lossless source", "مصدر صوت دون فقدان جودة" },
+        { "Bitrates are conversion targets. Higher numbers cannot improve the source.", "القيم تحدد معدل بت الملف الناتج. رفعها لا يحسّن جودة المصدر." },
+        { "The source audio has changed. Check the link again and choose an available bitrate.", "تغيّر مصدر الصوت. افحص الرابط مجددًا واختر معدل بت متاحًا." },
+        { "This video has no compatible streams for this format. Choose another video format.", "لا تتوفر مسارات متوافقة مع هذه الصيغة. اختر صيغة فيديو أخرى." },
+        { "The audio could not be converted to the selected bitrate. The original file was kept.", "تعذّر تحويل الصوت إلى معدل البت المحدد. احتُفظ بالملف الأصلي." },
+        { "The downloaded audio could not be verified.", "تعذّر التحقق من ملف الصوت الذي نُزّل." },
+        { "Preparing video", "جارٍ تجهيز الفيديو" },
+        { "The latest downloader still couldn't read this link. The website may have changed; try again later.", "تعذّر تشغيل هذا الرابط حتى باستخدام أحدث أداة تنزيل. قد يكون الموقع تغيّر؛ جرّب مرة أخرى لاحقًا." },
+        { "The downloader couldn't be updated. Check your internet connection and try again.", "تعذّر تحديث أداة التنزيل. تحقق من اتصال الإنترنت ثم جرّب مرة أخرى." },
+        { "Checking for a downloader fix…", "جارٍ البحث عن تحديث لحل المشكلة…" },
+        { "Updating yt-dlp…", "جارٍ تحديث أداة التنزيل…" },
+        { "Updating Deno…", "جارٍ تحديث أداة تشغيل التنزيل…" },
+        { "Vydrop checks for downloader and runtime updates automatically once a day when you use a link. You can check again here.", "يبحث Vydrop تلقائيًا عن تحديثات أدوات التنزيل مرة يوميًا عند استخدام رابط. ويمكنك البحث مجددًا من هنا." },
+        { "More options", "خيارات إضافية" },
+        { "For a YouTube Mix, copy the link of a playing video in the mix.", "لقوائم YouTube Mix، انسخ رابط أحد الفيديوهات أثناء تشغيله من القائمة." },
+        { "YouTube Mix · {0} videos from this changing mix", "YouTube Mix · {0} فيديو من القائمة المتجددة" },
+        { "This download folder is no longer available.", "مجلد التنزيل لم يعد موجودًا في مكانه المحفوظ." },
+        { "Choose a supported audio quality.", "اختر جودة صوت متاحة للصيغة المحددة." },
+        { "Language", "اللغة" },
+        { "Done", "تم" },
+        { "Subtitle file format", "صيغة ملف الترجمة" },
+        { "Ready to download", "جاهز للتنزيل" },
+        { "Playlist", "قائمة تشغيل" },
+        { "YouTube Mix (up to 50 videos)", "قائمة Mix (حتى 50 فيديو)" },
+        { "Recent", "التنزيلات الأخيرة" },
+        { "Your last five completed files.", "آخر خمسة ملفات اكتمل تنزيلها." },
+        { "No downloads yet", "لم تنزّل أي ملفات بعد" },
+        { "File moved or deleted", "الملف نُقل أو حُذف" },
+        { "This file is no longer in its saved location.", "لم نعثر على الملف في مكانه. ربما نُقل أو حُذف." },
+        { "Settings", "الإعدادات" },
+        { "Contact", "تواصل معي" },
+        { "Email", "البريد الإلكتروني" },
+        { "Video", "فيديو" },
+        { "Format", "الصيغة" },
+        { "Change", "تغيير" },
+        { "App updates", "تحديثات التطبيق" },
+        { "Download support", "دعم التنزيل" },
+        { "Send a video link from your browser to Vydrop.", "أرسل رابط الفيديو من المتصفح إلى Vydrop." },
+        { "Video preview", "معاينة الفيديو" },
+        { "Your next download", "تنزيلك القادم" },
+        { "Paste a link to see its details.", "الصق رابطًا لعرض تفاصيله." },
+        { "Paste a video or playlist link", "الصق رابط فيديو أو قائمة تشغيل" },
+        { "Choose a folder", "اختيار مجلد" },
+        { "Video link", "رابط الفيديو" },
+        { "Audio", "صوت" },
+        { "Queue ({0})", "قائمة التنزيلات ({0})" },
+        { "Choose videos", "اختيار الفيديوهات" },
+        { "Choose videos ({0}/{1})", "اختيار الفيديوهات ({0}/{1})" },
+        { "Audio format", "صيغة الصوت" },
+        { "Subtitles", "الترجمة" },
+        { "Automatic", "تلقائية" },
+        { "Get subtitle languages", "جلب لغات الترجمة" },
+        { "Check your internet connection, then choose Get subtitle languages to try again.", "تحقّق من اتصالك بالإنترنت، ثم اضغط «جلب لغات الترجمة» لإعادة المحاولة." },
+        { "No subtitles", "بدون ترجمة" },
+        { "Add to queue", "إضافة للقائمة" },
+        { "Start queue", "بدء التنزيلات" },
+        { "Retry", "إعادة المحاولة" },
+        { "Remove", "إزالة" },
+        { "Download queue", "قائمة التنزيلات" },
+        { "Choose the format and quality in the main window before adding links.", "اختَر الصيغة والجودة من الشاشة الرئيسية قبل إضافة الروابط." },
+        { "Video links", "روابط الفيديوهات" },
+        { "Enter a link, add more fields if needed, then choose Start queue.", "أدخل الرابط، وأضف خانات أخرى عند الحاجة، ثم اضغط «بدء التنزيلات»." },
+        { "Link {0}", "الرابط {0}" },
+        { "Add another link", "إضافة رابط آخر" },
+        { "Remove link", "حذف الرابط" },
+        { "Enter a valid video or playlist link.", "أدخل رابط فيديو أو قائمة تشغيل صحيحًا." },
+        { "You can enter up to 100 links. Remove a link before adding another.", "يمكن إدخال 100 رابط كحد أقصى. احذف رابطًا لإضافة غيره." },
+        { "This download is already in the queue.", "هذا الرابط موجود بالفعل في قائمة التنزيلات." },
+        { "Browser integration", "الربط بالمتصفح" },
+        { "Update downloader", "تحديث أداة التنزيل" },
+        { "Updating downloader…", "جارٍ تحديث أداة التنزيل…" },
+        { "Checking downloader updates", "جارٍ البحث عن تحديث لأداة التنزيل" },
+        { "Looking for an update to the tool that reads video links and downloads files…", "جارٍ البحث عن إصدار أحدث من الأداة المسؤولة عن قراءة روابط الفيديوهات وتنزيلها…" },
+        { "Downloader is up to date", "أداة التنزيل محدّثة بالفعل" },
+        { "No new downloader update is available. You can use Vydrop as usual.", "لا يوجد تحديث جديد لأداة التنزيل. يمكنك متابعة استخدام التطبيق كالمعتاد." },
+        { "Downloading the downloader update…", "جارٍ تنزيل تحديث أداة التنزيل…" },
+        { "Downloader updated", "تم تحديث أداة التنزيل" },
+        { "The update is ready. Try the video link that was not working again.", "التحديث جاهز. جرّب رابط الفيديو الذي لم يعمل مرة أخرى." },
+        { "Downloader update cancelled", "أُلغي تحديث أداة التنزيل" },
+        { "You can check again whenever you need to.", "يمكنك البحث عن تحديث مرة أخرى وقتما تحتاج." },
+        { "Could not update the downloader", "تعذّر تحديث أداة التنزيل" },
+        { "Check your internet connection and free disk space, then try again.", "تحقق من اتصال الإنترنت والمساحة المتاحة على القرص، ثم أعد المحاولة." },
+        { "Added to queue", "تمت الإضافة للقائمة" },
+        { "Open the queue to start or manage downloads.", "افتح قائمة التنزيلات لبدء التنزيل أو إدارة الروابط." },
+        { "Could not add download", "تعذّرت إضافة التنزيل" },
+        { "Languages shown come from the first available playlist video. Availability may vary for other videos.", "اللغات المعروضة من أول فيديو متاح بالقائمة. قد تختلف الترجمة المتوفرة في بقية الفيديوهات." },
+        { "The queue can hold at most 100 downloads. Remove finished items first.", "يمكن إضافة 100 تنزيل إلى القائمة كحد أقصى. أزل التنزيلات المكتملة أولًا." },
+        { "{0} links added to the queue.", "عدد الروابط المضافة للقائمة: {0}." },
+        { "Queue paused", "التنزيلات متوقفة مؤقتًا" },
+        { "Queue finished", "انتهت التنزيلات" },
+        { "Review failed items before starting the remaining downloads.", "راجع العناصر التي فشلت قبل بدء التنزيلات المتبقية." },
+        { "Open the queue to review completed or failed downloads.", "افتح قائمة التنزيلات لمراجعة التنزيلات المكتملة أو التي فشلت." },
+        { "Pending", "في الانتظار" },
+        { "Preparing", "جارٍ التجهيز" },
+        { "Completed", "مكتمل" },
+        { "Failed", "فشل" },
+        { "Cancelled", "أُلغي" },
+        { "Select all", "تحديد الكل" },
+        { "Clear selection", "إلغاء التحديد" },
+        { "Use selection", "استخدام التحديد" },
+        { "Choose at least one available video.", "اختر فيديو متاحًا واحدًا على الأقل." },
+        { "Send a link from your browser", "إرسال رابط من المتصفح" },
+        { "Keep Vydrop in a permanent folder. Enable the connection here, then load the companion extension from the Browser folder included with the app. Chrome, Edge and Firefox support local loading.", "ضع Vydrop في مجلد دائم. فعّل الاتصال هنا، ثم حمّل الإضافة من مجلد Browser المرفق مع التطبيق. يدعم التحميل المحلي Chrome وEdge وFirefox." },
+        { "Click the extension or right-click a link to open it in Vydrop. Nothing downloads until you choose Download.", "انقر الإضافة أو انقر بزر الفأرة الأيمن على رابط لفتحه في Vydrop. لا يبدأ التنزيل حتى تختار تنزيل." },
+        { "Enable connection", "تفعيل الاتصال" },
+        { "Disable connection", "تعطيل الاتصال" },
+        { "Could not change the browser connection. Keep Vydrop.exe in a writable folder and try again.", "تعذّر تغيير اتصال المتصفح. ضع Vydrop.exe في مجلد قابل للكتابة وأعد المحاولة." },
+        { "Browser connection enabled. Load the companion extension to send links.", "تم تفعيل اتصال المتصفح. حمّل الإضافة لإرسال الروابط." },
+        { "Browser connection disabled.", "تم تعطيل اتصال المتصفح." },
+        { "Preview build", "نسخة تجريبية" },
+        { "This test build stays separate from stable releases. Updates will be enabled after testing.", "هذه النسخة التجريبية منفصلة عن الإصدارات المستقرة. ستُفعّل تحديثات التطبيق بعد الاختبار." },
+        { "This site or link is not supported. Try a public video link.", "الموقع أو الرابط غير مدعوم. جرّب رابط فيديو عام." },
+        { "The site did not return downloadable formats for this video.", "لم يُرجع الموقع صيغًا قابلة للتنزيل لهذا الفيديو." },
+        { "Preparing audio", "جارٍ تجهيز الصوت" },
+        { "Requested subtitles were unavailable. The media file was saved.", "الترجمة المطلوبة غير متاحة. تم حفظ ملف الوسائط." },
+        { "Some requested subtitles were unavailable. The media files were saved.", "بعض الترجمات المطلوبة غير متاحة. تم حفظ ملفات الوسائط." },
+        { "The selected subtitles are no longer available. Refresh output options or choose no subtitles.", "الترجمة المختارة لم تعد متاحة. حدّث خيارات الحفظ أو اختر بدون ترجمة." },
+        { "Paste", "لصق" },
+        { "Save as", "احفظ بالصيغة" },
+        { "Save to", "مجلد الحفظ" },
+        { "Browse…", "تصفح…" },
+        { "Download", "تنزيل" },
+        { "Cancel", "إلغاء" },
+        { "Open folder", "فتح المجلد" },
+        { "Open file", "فتح الملف" },
+        { "Show in folder", "عرض الملف في المجلد" },
+        { "No newer app release is available.", "لا يتوفر إصدار أحدث من التطبيق." },
+        { "Preparing media tools", "جارٍ تجهيز أدوات الوسائط" },
+        { "Checking available media tools…", "جارٍ فحص أدوات الوسائط المتاحة…" },
+        { "Checking prepared media tools…", "جارٍ فحص أدوات الوسائط المجهزة…" },
+        { "Media tools are ready.", "أدوات الوسائط جاهزة." },
+        { "Check your internet connection, then paste the link again to retry.", "تحقق من اتصال الإنترنت، ثم الصق الرابط مجددًا لإعادة المحاولة." },
+        { "Media tools could not be prepared. Paste the link again to retry.", "تعذّر تجهيز أدوات الوسائط. الصق الرابط مجددًا لإعادة المحاولة." },
+        { "Cancelling…", "جارٍ الإلغاء…" },
+        { "Settings recovered", "تمت استعادة الإعدادات" },
+        { "Your settings were recovered from a backup.", "تمت استعادة إعداداتك من نسخة احتياطية." },
+        { "Your preferences could not be saved. Check available storage and try again.", "تعذّر حفظ تفضيلاتك. تحقق من مساحة التخزين وجرّب مرة أخرى." },
+        { "Videos, Shorts, and playlists", "الفيديوهات والمقاطع القصيرة وقوائم التشغيل" },
+        { "This video", "هذا الفيديو" },
+        { "Whole playlist", "قائمة التشغيل كاملة" },
+        { "Best available", "أفضل جودة متاحة" },
+        { "Up to {0}p", "حتى {0}p" },
+        { "Checking playlist", "جارٍ فحص قائمة التشغيل" },
+        { "Getting the playlist titles…", "جارٍ جلب عناوين قائمة التشغيل…" },
+        { "Could not check playlist", "تعذّر فحص قائمة التشغيل" },
+        { "Downloading playlist", "جارٍ تنزيل قائمة التشغيل" },
+        { "Video {0} of {1}", "الفيديو {0} من {1}" },
+        { "Playlist complete", "اكتمل تنزيل قائمة التشغيل" },
+        { "Playlist paused", "توقف تنزيل قائمة التشغيل" },
+        { "Playlist finished with errors", "انتهت قائمة التشغيل مع أخطاء" },
+        { "{0} saved · {1} already downloaded · {2} failed · {3} remaining", "{0} تم حفظه · {1} تم تنزيله سابقًا · {2} تعذّر تنزيله · {3} متبقي" },
+        { "Run the same playlist again to resume. Completed files are kept.", "أعد تنزيل القائمة نفسها للاستئناف. تُحفظ الملفات المكتملة." },
+        { "Use a link to a YouTube video, Short, or playlist.", "استخدم رابط فيديو أو مقطع قصير أو قائمة تشغيل من يوتيوب." },
+        { "This link does not contain a playlist.", "هذا الرابط لا يحتوي على قائمة تشغيل." },
+        { "Choose Whole playlist for a playlist-only link.", "اختر قائمة التشغيل كاملة لرابط قائمة التشغيل." },
+        { "This playlist is empty or unavailable. Try a public playlist.", "قائمة التشغيل فارغة أو غير متاحة. جرّب قائمة عامة." },
+        { "The playlist could not be read. Check the link and try again.", "تعذّر قراءة قائمة التشغيل. تحقق من الرابط وجرّب مجددًا." },
+        { "Check the playlist link again before downloading.", "تحقق من رابط قائمة التشغيل مجددًا قبل التنزيل." },
+        { "Completed file saved, but resume information could not be saved.", "حُفظ الملف المكتمل، لكن تعذّر حفظ معلومات الاستئناف." },
+        { "Vydrop", "Vydrop" },
+        { "Close", "إغلاق" },
+        { "Open the save folder and try opening the file there.", "افتح مجلد الحفظ وجرّب فتح الملف من هناك." },
+        { "Quality", "الجودة" },
+        { "192 kbps", "192 كيلوبت/ث" },
+        { "Recent downloads", "التنزيلات الأخيرة" },
+        { "Your completed downloads will appear here.", "ستظهر تنزيلاتك المكتملة هنا." },
+        { "Check for updates", "البحث عن تحديث" },
+        { "Download update", "تنزيل التحديث" },
+        { "Downloading update…", "جارٍ التنزيل…" },
+        { "Dismiss", "إغلاق" },
+        { "Dismiss update message", "إغلاق رسالة التحديث" },
+        { "Checking for updates", "جارٍ البحث عن تحديث" },
+        { "Looking for the latest app release…", "نبحث عن أحدث إصدار للتطبيق…" },
+        { "You're up to date", "لديك أحدث إصدار" },
+        { "A new version is ready", "يتوفر تحديث جديد" },
+        { "Version {0} is available. Choose Install to update the app.", "الإصدار {0} متاح. اضغط تثبيت لتحديث التطبيق." },
+        { "Couldn't check for updates", "تعذّر البحث عن تحديث" },
+        { "Preparing your update", "جارٍ تجهيز التحديث" },
+        { "The app will restart when the verified update is ready.", "سيُعاد تشغيل التطبيق بعد التحقق من التحديث وتجهيزه." },
+        { "Download the new version manually", "نزّل الإصدار الجديد يدويًا" },
+        { "The release could not be verified for installation from this version. Open the releases page and extract the new ZIP into a new folder.", "تعذّر التحقق من الإصدار لتثبيته من هذه النسخة. افتح صفحة الإصدارات وفكّ ضغط ملف ZIP الجديد في مجلد جديد." },
+        { "Update couldn't be installed", "تعذّر تثبيت التحديث" },
+        { "Switch to light theme", "التبديل إلى المظهر الفاتح" },
+        { "Switch to dark theme", "التبديل إلى المظهر الداكن" },
+        { "Information", "معلومة" },
+        { "Success", "نجاح" },
+        { "Error", "خطأ" },
+        { "Check the link", "تحقق من الرابط" },
+        { "Could not check video", "تعذّر فحص الفيديو" },
+        { "Check cancelled", "أُلغي الفحص" },
+        { "You can paste another link or try again.", "يمكنك لصق رابط آخر أو المحاولة مجددًا." },
+        { "Download failed", "تعذّر التنزيل" },
+        { "Download cancelled", "أُلغي التنزيل" },
+        { "Download complete", "اكتمل التنزيل" },
+        { "Partial files are kept so the same download can resume later.", "تُحفظ الملفات الجزئية لاستئناف التنزيل لاحقًا." },
+        { "You can start another download.", "يمكنك بدء تنزيل آخر." },
+        { "Cancelling", "جارٍ الإلغاء" },
+        { "Choose a valid folder on this computer with Browse.", "اختر مجلدًا صالحًا على هذا الجهاز باستخدام تصفح." },
+        { "Folder is not available", "المجلد غير متوفر" },
+        { "Choose an existing folder or download a video first.", "اختر مجلدًا موجودًا أو نزّل فيديو أولًا." },
+        { "File is not available", "الملف غير متوفر" },
+        { "Settings could not be saved", "تعذّر حفظ الإعدادات" },
+        { "Paste a YouTube video link first.", "الصق رابط فيديو من يوتيوب أولًا." },
+        { "Paste one complete YouTube video link.", "الصق رابط فيديو كاملًا من يوتيوب." },
+        { "Enter a valid YouTube video link.", "أدخل رابط فيديو صالحًا من يوتيوب." },
+        { "Use a youtube.com or youtu.be video link.", "استخدم رابط فيديو من youtube.com أو youtu.be." },
+        { "Choose a folder on this computer.", "اختر مجلدًا على هذا الجهاز." },
+        { "This site is limiting downloads right now. Wait a few minutes, then try again.", "يوتيوب يحدّ التنزيلات مؤقتًا. انتظر بضع دقائق ثم أعد المحاولة." },
+        { "This video requires sign-in. Try a publicly available video.", "هذا الفيديو يتطلب تسجيل الدخول. جرّب فيديو متاحًا للجميع." },
+        { "This site refused this download. Wait a little, then paste the link again.", "يوتيوب رفض التنزيل. انتظر قليلًا، ثم الصق الرابط مجددًا." },
+        { "This video is unavailable. Try another video link.", "هذا الفيديو غير متاح. جرّب رابط فيديو آخر." },
+        { "That quality is no longer available. Paste the link again to refresh the options.", "هذه الجودة لم تعد متاحة. الصق الرابط مجددًا لتحديث الخيارات." },
+        { "The drive is full. Free some space or choose another save folder.", "القرص ممتلئ. وفر مساحة أو اختر مجلد حفظ آخر." },
+        { "We can't save in that folder. Choose another folder with Browse.", "لا يمكن الحفظ في هذا المجلد. اختر مجلدًا آخر باستخدام تصفح." },
+        { "We couldn't finish this action. Check the link and save folder, then try again.", "تعذّر إكمال العملية. تحقق من الرابط ومجلد الحفظ، ثم أعد المحاولة." },
+        { "Checking video", "جارٍ فحص الفيديو" },
+        { "Getting the title and available formats…", "جارٍ جلب العنوان والجودات المتاحة…" },
+        { "Connecting", "جارٍ الاتصال" },
+        { "Preparing your download…", "جارٍ تجهيز التنزيل…" },
+        { "Downloading", "جارٍ التنزيل" },
+        { "Finishing download", "جارٍ إنهاء التنزيل" },
+        { "Preparing the final file…", "جارٍ تجهيز الملف النهائي…" },
+        { "Finishing your file. This can take a moment…", "جارٍ إنهاء الملف. قد يستغرق ذلك لحظات…" },
+        // Link, queue and download errors that reach the interface verbatim.
+        { "Couldn't open this link", "تعذّر فتح هذا الرابط" },
+        { "Choose a default browser or email app in Windows, then try again.", "اختر متصفحًا أو تطبيق بريد افتراضيًا في ويندوز، ثم حاول مجددًا." },
+        { "Update needs recovery", "التحديث بحاجة إلى استعادة" },
+        { "Update cancelled", "أُلغي التحديث" },
+        { "Your current app is ready to use.", "تطبيقك الحالي جاهز للاستخدام." },
+        { "Download the new ZIP and extract it into a writable folder. Your current app is ready to use.", "نزّل ملف ZIP الجديد وفكّ ضغطه في مجلد قابل للكتابة. تطبيقك الحالي جاهز للاستخدام." },
+        { "Choose a media link.", "اختر رابط وسائط." },
+        { "The queue is already running.", "قائمة التنزيلات قيد التشغيل بالفعل." },
+        { "Choose between one and 1,000 playlist videos.", "اختر من فيديو واحد إلى 1,000 فيديو من قائمة التشغيل." },
+        { "This video is live right now. Try again once the stream has ended.", "هذا الفيديو بث مباشر الآن. حاول مجددًا بعد انتهاء البث." },
+        { "This video has no downloadable audio stream.", "لا يحتوي هذا الفيديو على مسار صوت قابل للتنزيل." },
+        { "The selected quality is no longer available.", "الجودة المحددة لم تعد متاحة." },
+        { "Another operation is already running.", "هناك عملية أخرى قيد التشغيل بالفعل." },
+        { "This video is unavailable.", "هذا الفيديو غير متاح." },
+        { "The downloader did not produce a completed file.", "لم تُنتج أداة التنزيل ملفًا مكتملًا." },
+        { "Choose a folder for your download.", "اختر مجلدًا لحفظ التنزيل." },
+        { "Choose a supported video quality.", "اختر جودة فيديو مدعومة." },
+        { "Choose a supported output format.", "اختر صيغة إخراج مدعومة." },
+        { "The video's format information is invalid. Check the video again.", "معلومات صيغة الفيديو غير صالحة. افحص الفيديو مجددًا." },
+        { "Choose a supported subtitle language.", "اختر لغة ترجمة مدعومة." },
+        { "Paste a public video or playlist link using HTTPS.", "الصق رابط فيديو أو قائمة تشغيل عامًا يبدأ بـ HTTPS." },
+        { "Local and private network links are not supported.", "روابط الشبكة المحلية والخاصة غير مدعومة." },
+        { "This media link is not supported.", "رابط الوسائط هذا غير مدعوم." },
+        { "Choose a video or the whole playlist.", "اختر فيديو واحدًا أو قائمة التشغيل كاملة." },
+        { "Choose a playlist with at most 1,000 videos.", "اختر قائمة تشغيل لا تتجاوز 1,000 فيديو." },
+        { "Media tools are not ready. Paste the link again to retry preparation.", "أدوات الوسائط غير جاهزة. الصق الرابط مجددًا لإعادة محاولة التجهيز." },
+        { "Check this video again to refresh its quality choices.", "افحص هذا الفيديو مجددًا لتحديث خيارات الجودة." },
+        { "The selected quality is no longer available. Check the link again and choose a new quality.", "الجودة المحددة لم تعد متاحة. افحص الرابط مجددًا واختر جودة جديدة." },
+        { "The downloaded file is outside the selected folder.", "الملف الذي نُزّل خارج المجلد المحدد." },
+    };
+
+    public static string For(string language, string text)
+    {
+        if (language != "ar" || String.IsNullOrEmpty(text))
             return text;
-        }
+        string value;
+        if (Arabic.TryGetValue(text, out value))
+            return value;
+        if (text.StartsWith("Downloading ", StringComparison.Ordinal) && text.EndsWith('…'))
+            return string.Concat("جارٍ تنزيل ", text.AsSpan(12));
+        if (text.StartsWith("Install v", StringComparison.Ordinal))
+            return string.Concat("تثبيت الإصدار ", text.AsSpan(9));
+        return text;
+    }
 
-        public static string Format(string language, string text, params object[] values)
-        {
-            return values == null || values.Length == 0 ? For(language, text) : String.Format(CultureInfo.InvariantCulture, For(language, text), values);
-        }
+    public static string Format(string language, string text, params object[] values)
+    {
+        return values == null || values.Length == 0 ? For(language, text) : String.Format(CultureInfo.InvariantCulture, For(language, text), values);
+    }
 
-        public static string Progress(string language, string text)
-        {
-            string value = For(language, text);
-            return language == "ar" ? value.Replace(" of ", " من ").Replace(" remaining", " متبقية").Replace("/s", "/ث") : value;
-        }
+    public static string Progress(string language, string text)
+    {
+        string value = For(language, text);
+        return language == "ar" ? value.Replace(" of ", " من ").Replace(" remaining", " متبقية").Replace("/s", "/ث") : value;
     }
 }

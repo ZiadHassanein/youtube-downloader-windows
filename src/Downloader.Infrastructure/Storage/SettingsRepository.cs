@@ -181,7 +181,7 @@ public sealed class SettingsRepository
             return false;
         try
         {
-            return Path.IsPathFullyQualified(value) && !value.StartsWith(@"\\") && Path.GetFullPath(value) == value;
+            return Path.IsPathFullyQualified(value) && !value.StartsWith(@"\\", StringComparison.Ordinal) && Path.GetFullPath(value) == value;
         }
         catch
         {

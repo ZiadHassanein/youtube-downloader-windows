@@ -291,7 +291,7 @@ public sealed class WindowsProcessRunner : IDisposable
                 if (info.Process != IntPtr.Zero)
                 {
                     TerminateProcess(info.Process, 1);
-                    WaitForSingleObject(info.Process, 5000);
+                    _ = WaitForSingleObject(info.Process, 5000);
                 }
 
                 owner.Dispose();

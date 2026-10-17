@@ -17,7 +17,7 @@ public sealed class LocalPlaylistStorage : IPlaylistStorage
         if (string.IsNullOrWhiteSpace(options.Folder))
             throw new ArgumentException("Choose a folder for your download.");
         string root = Path.GetFullPath(options.Folder);
-        if (root.StartsWith(@"\\"))
+        if (root.StartsWith(@"\\", StringComparison.Ordinal))
             throw new ArgumentException("Choose a folder on this computer.");
         string safeId = new string(options.Playlist.Id.Where(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_').Take(96).ToArray());
         if (safeId.Length == 0) throw new ArgumentException("Invalid playlist identity.");

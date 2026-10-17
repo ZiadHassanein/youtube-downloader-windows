@@ -142,7 +142,7 @@ public static class AppUpdates
         return manifest;
     }
 
-    public static void InstallAndRestart(string prepared) => UpdateTransaction.Launch(prepared, Environment.ProcessPath, Process.GetCurrentProcess().Id);
+    public static void InstallAndRestart(string prepared) => UpdateTransaction.Launch(prepared, Environment.ProcessPath, Environment.ProcessId);
     public static bool RunHelper(string[] args)
     {
         if (args.Length == 2 && args[0] == "--apply-update")

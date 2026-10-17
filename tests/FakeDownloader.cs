@@ -21,7 +21,7 @@ internal static class FakeDownloader
                 start.ArgumentList.Add("--writer");
                 start.ArgumentList.Add(Path.Combine(directory, "candidate-writer.txt"));
                 using var child = Process.Start(start);
-                File.WriteAllText(Path.Combine(directory, "candidate-child.pid"), child.Id.ToString());
+                File.WriteAllText(Path.Combine(directory, "candidate-child.pid"), child.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 Thread.Sleep(60000);
                 return 0;
             }
@@ -62,7 +62,7 @@ internal static class FakeDownloader
         if (args[0] == "--spawn-writer")
         {
             using var child = Process.Start(new ProcessStartInfo(Environment.ProcessPath, "--writer \"" + args[1] + "\"") { UseShellExecute = false, CreateNoWindow = true });
-            File.WriteAllText(args[2], child.Id.ToString());
+            File.WriteAllText(args[2], child.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Thread.Sleep(60000);
             return 0;
         }
@@ -139,19 +139,19 @@ internal static class FakeDownloader
             return 0;
         }
 
-        if (url.EndsWith("abcdefghijk"))
+        if (url.EndsWith("abcdefghijk", StringComparison.Ordinal))
         {
             Console.Error.WriteLine("ERROR: Video unavailable");
             return 1;
         }
 
-        if (url.EndsWith("rateLimit01"))
+        if (url.EndsWith("rateLimit01", StringComparison.Ordinal))
         {
             Console.Error.WriteLine("ERROR: HTTP 429 Too Many Requests");
             return 1;
         }
 
-        if (url.EndsWith("slowVideo01"))
+        if (url.EndsWith("slowVideo01", StringComparison.Ordinal))
             Thread.Sleep(10000);
         int index = Array.IndexOf(args, "--paths");
         string folder = args[index + 1];

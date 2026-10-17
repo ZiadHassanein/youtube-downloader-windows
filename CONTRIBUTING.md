@@ -14,7 +14,15 @@ Vydrop's source is MIT licensed. Dependencies retain their own licenses; keep th
 
 Keep the repository slug `ViFree`; installed updaters pin it and refuse API redirects. Preserve native-host names, Chromium public key and Firefox add-on IDs. Brand the repository through documentation and metadata instead.
 
-Run `./scripts/check.ps1` and `node --test tests/browser.test.cjs tests/browser-video.test.cjs tests/docs.test.cjs`. For 100% display compatibility also run the WPF test executable with `--dpi-unaware`; the default run follows the current display scale. Do not change the desktop's scale for tests.
+Run `./scripts/check.ps1` and `node --test tests/browser.test.cjs tests/browser-video.test.cjs tests/docs.test.cjs tests/localization.test.cjs`. For 100% display compatibility also run the WPF test executable with `--dpi-unaware`; the default run follows the current display scale. Do not change the desktop's scale for tests.
+
+## Code conventions
+
+`Directory.Build.props` enables the recommended .NET analyzers and the `.editorconfig` code-style rules with warnings treated as errors, so a build with warnings fails locally and in CI. `tests/Directory.Build.props` only relaxes CA2201 because the check harness reports failures with plain exceptions. Use file-scoped namespaces, keep `using` directives outside the namespace, and let `.gitattributes` normalize line endings instead of committing CRLF.
+
+## Localization
+
+Interface strings are English keys looked up in `src/Downloader.Desktop/Localization/Texts.cs`, which holds the Arabic table. Add an Arabic entry for every string passed to `T`, `F`, `ShowNotice`, `SetStatus`, `SetError`, `translate` or `t`, for every string returned by `FriendlyError`, and for every `ArgumentException` or `InvalidOperationException` message that can reach the interface. Remove an entry when its English text changes or disappears, and keep `{0}`-style placeholders identical in both languages. `node --test tests/localization.test.cjs` enforces this; messages that never reach the interface are listed in that test's allow-list.
 
 The documentation site is a GitHub Pages-compatible Jekyll project in `docs/`. Run `bundle install --gemfile docs/Gemfile`, then `bundle exec --gemfile docs/Gemfile jekyll build --source docs --destination build/site`. Keep `docs/_data/product.yml`, facts blocks, `llms.txt`, README and release facts synchronized with `Directory.Build.props`. The documentation tests detect version drift and local link/metadata errors.
 

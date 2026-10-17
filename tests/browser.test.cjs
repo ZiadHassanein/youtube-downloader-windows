@@ -123,7 +123,7 @@ test('missing native host has actionable guidance instead of a browser API error
 if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identity and enable on-video actions across web frames', () => {
   for (const browser of ['chromium', 'firefox']) {
     const folder = path.join(process.env.VIFREE_BROWSER_PACKAGE, browser), manifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
-    assert.equal(manifest.version, '1.3.0'); assert.equal(manifest.name, 'Vydrop Preview');
+    assert.equal(manifest.version, '1.3.1'); assert.equal(manifest.name, 'Vydrop Preview');
     assert.deepEqual([...manifest.permissions].sort(), ['activeTab', 'clipboardWrite', 'contextMenus', 'nativeMessaging', 'scripting'].sort());
     assert.equal(manifest.host_permissions, undefined);
     assert.deepEqual(manifest.content_scripts, [{ matches: ['https://*/*', 'http://*/*'], js: ['video-detection.js', 'video-overlay.js'], all_frames: true, run_at: 'document_idle' }]);
@@ -132,4 +132,21 @@ if (process.env.VIFREE_BROWSER_PACKAGE) test('packaged companions retain identit
     if (browser === 'chromium') assert.equal(manifest.key, fs.readFileSync(path.join(root, 'Browser/public-key.txt'), 'utf8').trim());
     else { assert.deepEqual(manifest.background.scripts, ['connection.js', 'video-detection.js', 'background.js']); assert.equal(manifest.browser_specific_settings.gecko.id, 'vifree-preview@ziadhassanein.github.io'); }
   }
+});
+
+test('popup renders Arabic when the browser interface language is Arabic', async () => {
+  let click;
+  const button = { disabled: false, textContent: 'Open in Vydrop', addEventListener: (_, fn) => { click = fn; } };
+  const status = { textContent: '' }, intro = { textContent: '' }, documentElement = { lang: 'en', dir: 'ltr' };
+  const api = {
+    i18n: { getUILanguage: () => 'ar' }, tabs: { query: async () => [{ url: 'https://example.com/video' }] },
+    runtime: { getManifest: () => ({ name: 'Vydrop' }), sendNativeMessage: async () => { throw new Error('Specified native messaging host not found'); } }
+  };
+  const context = vm.createContext({ browser: api, URL, document: { documentElement, querySelector: name => name === '#send' ? button : name === '#intro' ? intro : status } });
+  for (const file of ['connection.js', 'video-detection.js', 'popup.js']) vm.runInContext(fs.readFileSync(path.join(root, 'browser/common', file), 'utf8'), context);
+  assert.equal(documentElement.lang, 'ar'); assert.equal(documentElement.dir, 'rtl');
+  assert.match(intro.textContent, /Vydrop/u); assert.equal(button.textContent, 'فتح في Vydrop');
+  await click();
+  assert.match(status.textContent, /فعّل الربط بالمتصفح/u);
+  assert.equal(button.disabled, false);
 });

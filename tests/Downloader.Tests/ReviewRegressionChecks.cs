@@ -27,7 +27,7 @@ internal static class ReviewRegressionChecks
         string updates = Path.Combine(root, "updates");
         Directory.CreateDirectory(updates);
         UpdateTransaction.RootOverride = updates;
-        string Stage(string phase, int pid = 0, long start = 0)
+        string Stage(string phase, int pid = 0, long start = 0, int parentPid = 0, long parentStart = 0)
         {
             string stage = Path.Combine(updates, Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(stage);
@@ -35,15 +35,19 @@ internal static class ReviewRegressionChecks
             File.WriteAllText(Path.Combine(stage, "transaction.json"), new JsonCodec().Serialize(new UpdateJournal
             {
                 Id = Guid.NewGuid().ToString("N"), Target = Path.Combine(root, "other.exe"), Stage = stage,
-                Backup = Path.Combine(stage, "previous"), Phase = phase, HelperPid = pid, HelperStart = start
+                Backup = Path.Combine(stage, "previous"), Phase = phase, HelperPid = pid, HelperStart = start,
+                ParentPid = parentPid, ParentStart = parentStart
             }));
             return stage;
         }
         try
         {
             string committed = Stage("committed"), rolledBack = Stage("rolled-back"), recovery = Stage("recovery-required"), prepared = Stage("prepared");
+            string stalePrepared = Stage("prepared"); Directory.SetLastWriteTimeUtc(stalePrepared, DateTime.UtcNow.AddDays(-8));
             using var self = Process.GetCurrentProcess();
             string active = Stage("committed", self.Id, self.StartTime.ToUniversalTime().Ticks);
+            string activePreparation = Stage("prepared", parentPid: self.Id, parentStart: self.StartTime.ToUniversalTime().Ticks);
+            Directory.SetLastWriteTimeUtc(activePreparation, DateTime.UtcNow.AddDays(-8));
             string invalid = Stage("committed"); File.WriteAllText(Path.Combine(invalid, "transaction.json"), "malformed");
             string abandoned = Path.Combine(updates, Guid.NewGuid().ToString("N")); Directory.CreateDirectory(abandoned);
             Directory.SetLastWriteTimeUtc(abandoned, DateTime.UtcNow.AddDays(-8));
@@ -51,8 +55,8 @@ internal static class ReviewRegressionChecks
             string unrelated = Path.Combine(updates, "not-an-app-stage"); Directory.CreateDirectory(unrelated);
             Directory.SetLastWriteTimeUtc(unrelated, DateTime.UtcNow.AddDays(-8));
             Check(!UpdateTransaction.RecoverFor(Path.Combine(root, "current.exe")), "Stage cleanup does not request recovery for another app target");
-            Check(!Directory.Exists(committed) && !Directory.Exists(rolledBack) && !Directory.Exists(abandoned), "Later startup removes completed transactions and abandoned week-old preparations");
-            Check(new[] { recovery, prepared, active, invalid, recent, unrelated }.All(Directory.Exists), "Cleanup retains recovery, prepared, live-helper, invalid, recent and unowned stages");
+            Check(!Directory.Exists(committed) && !Directory.Exists(rolledBack) && !Directory.Exists(abandoned) && !Directory.Exists(stalePrepared), "Later startup removes completed transactions and abandoned week-old preparations");
+            Check(new[] { recovery, prepared, active, activePreparation, invalid, recent, unrelated }.All(Directory.Exists), "Cleanup retains recovery, recent preparation, live parent/helper, invalid, recent and unowned stages");
             string outside = Path.Combine(root, "outside"); Directory.CreateDirectory(outside);
             File.WriteAllText(Path.Combine(outside, "keep.txt"), "keep");
             OwnedDirectoryCleanup.TryDelete(updates, outside);

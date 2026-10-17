@@ -19,7 +19,7 @@ public static class CaptionMetadata
                     if (item is Dictionary<string, object> format)
                     {
                         available = true;
-                        if (format.TryGetValue("name", out var text) && text != null) name = new string(Convert.ToString(text).Where(c => !char.IsControl(c)).Take(80).ToArray());
+                        if (format.TryGetValue("name", out var text) && text != null) name = new string(Convert.ToString(text, System.Globalization.CultureInfo.InvariantCulture).Where(c => !char.IsControl(c)).Take(80).ToArray());
                     }
                 if (available) result.Add(new(track.Key, name, automatic));
             }

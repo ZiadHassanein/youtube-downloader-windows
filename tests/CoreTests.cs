@@ -1,6 +1,6 @@
 using YouTubeDownloader;
 
-public static class CoreTests
+internal static class CoreTests
 {
     private static int checks;
     private static void Check(bool condition, string name)
@@ -132,7 +132,7 @@ public static class CoreTests
             Func<DownloadOptions, CancellationToken, DownloadResult> save = delegate (DownloadOptions item, CancellationToken token)
             {
                 downloads++;
-                string file = Path.Combine(item.Folder, VideoLink.Parse(item.Url).VideoUrl.Substring(item.Url.Length - 11) + ".mp4");
+                string file = Path.Combine(item.Folder, string.Concat(VideoLink.Parse(item.Url).VideoUrl.AsSpan(item.Url.Length - 11), ".mp4"));
                 File.WriteAllText(file, "fixture");
                 return new DownloadResult
                 {

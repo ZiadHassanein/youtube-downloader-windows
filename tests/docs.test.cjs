@@ -14,9 +14,13 @@ test('Canonical product facts, version and FAQ match README and site data', () =
   assert.ok(read('llms.txt').split(/\s+/u).length < 400);
   assert.ok(read('llms.txt').includes(`version: ${version}`));
   assert.ok(read('CITATION.cff').includes(`version: "${version}"`));
-  for (const file of ['brand-logo-light.svg', 'brand-logo-dark.svg', 'brand-mark.svg', 'brand-preview-dark.png'])
+  for (const file of ['brand-logo-light.svg', 'brand-logo-dark.svg', 'brand-mark.svg', 'brand-preview-dark.png', 'social-card.png'])
     assert.deepEqual(fs.readFileSync(path.join(root, 'docs/assets', file)), fs.readFileSync(path.join(root, 'assets', file)), `${file}: site artwork must match the app brand`);
   const faq = JSON.parse(read('docs/_data/faq.json'));
+  const socialCard = fs.readFileSync(path.join(root, 'docs/assets/social-card.png'));
+  assert.equal(socialCard.readUInt32BE(16), 1200);
+  assert.equal(socialCard.readUInt32BE(20), 630);
+  assert.ok(read('docs/_config.yml').includes('path: /assets/social-card.png'));
   assert.equal(faq.en.length, faq.ar.length);
   for (const locale of ['en', 'ar']) for (const item of faq[locale]) {
     assert.ok(read('README.md').includes(item.question));

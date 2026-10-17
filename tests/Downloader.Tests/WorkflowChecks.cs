@@ -94,7 +94,7 @@ internal static class WorkflowChecks
             playlist.Entries = playlist.Entries.Where(e => e.Id == "jNQXAC9IVRw").ToList();
             var playlistRequest = new DownloadOptions { Url = playlist.Url, Playlist = playlist, Folder = Path.Combine(root, "SelectedPlaylist"), Audio = true, AudioEncoding = AudioEncoding.Opus, Captions = new("en", false, CaptionFormat.Srt) };
             var selected = await service.DownloadAsync(playlistRequest, null, CancellationToken.None);
-            Check(selected.Total == 1 && selected.Completed == 1 && selected.Failed == 0 && selected.Files.Single().EndsWith(".opus"), "Selected playlist propagates audio encoding and subtitles through the scheduler");
+            Check(selected.Total == 1 && selected.Completed == 1 && selected.Failed == 0 && selected.Files.Single().EndsWith(".opus", StringComparison.Ordinal), "Selected playlist propagates audio encoding and subtitles through the scheduler");
             var resumed = await service.DownloadAsync(playlistRequest, null, CancellationToken.None);
             Check(resumed.Skipped == 1, "Matching audio/subtitle profile resumes completed selected entries");
             string caption = Path.ChangeExtension(selected.FilePath, null) + ".en.srt";
@@ -129,7 +129,7 @@ internal static class WorkflowChecks
             progress.Report(new() { Stage = "Downloading", Percent = 50 });
             return Task.FromResult(new DownloadResult());
         }, wait: (_, _) => Task.CompletedTask);
-        Check(order.Count == 3 && order[0] == order[1] && order[2].EndsWith("/b") && queue.Entries.All(e => e.State == QueueState.Completed), "Queue retries transient failure once then preserves sequential order");
+        Check(order.Count == 3 && order[0] == order[1] && order[2].EndsWith("/b", StringComparison.Ordinal) && queue.Entries.All(e => e.State == QueueState.Completed), "Queue retries transient failure once then preserves sequential order");
         queue = new(); queue.Add(new() { Url = "https://example.com/rate", Folder = "fixture" }); queue.Add(new() { Url = "https://example.com/later", Folder = "fixture" });
         attempts = 0;
         await queue.RunAsync((_, _, _) => { attempts++; throw new IOException("HTTP 429 Too Many Requests"); }, wait: (_, _) => Task.CompletedTask);

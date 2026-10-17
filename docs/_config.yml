@@ -17,7 +17,11 @@ defaults:
       layout: default
       lang: en
       dir: ltr
-      image: /assets/brand-preview-dark.png
+      image:
+        path: /assets/social-card.png
+        width: 1200
+        height: 630
+        alt: Vydrop free video and audio downloader for Windows
   - scope:
       path: ar
     values:

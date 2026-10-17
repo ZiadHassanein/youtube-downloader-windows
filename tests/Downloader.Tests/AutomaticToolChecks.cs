@@ -44,7 +44,7 @@ internal static class AutomaticToolChecks
         using (var provider = new YtDlpProvider(old, new AutomaticToolUpdates(Path.Combine(root, "download-cache"), fake)))
         {
             var result = provider.DownloadItem(new() { Url = "https://youtu.be/jNQXAC9IVRw", Folder = Path.Combine(root, "media"), Audio = true, AudioBitrate = 192 });
-            Check(File.Exists(result.FilePath) && fake.Checks == 1 && result.FilePath.EndsWith(".mp3"), "A download retry uses the new tool paths and completes media validation through the adapter");
+            Check(File.Exists(result.FilePath) && fake.Checks == 1 && result.FilePath.EndsWith(".mp3", StringComparison.Ordinal), "A download retry uses the new tool paths and completes media validation through the adapter");
         }
     }
 
@@ -72,7 +72,7 @@ internal static class AutomaticToolChecks
         string root = Root();
         var old = Tools("old");
         var fake = new FakeUpdates();
-        var now = DateTimeOffset.Parse("2026-10-16T12:00:00Z");
+        var now = DateTimeOffset.Parse("2026-10-16T12:00:00Z", System.Globalization.CultureInfo.InvariantCulture);
         var automatic = new AutomaticToolUpdates(root, fake) { UtcNow = () => now };
         var active = await automatic.CheckDailyAsync(old, null, default);
         Check(active == fake.Candidate && fake.Checks == 1, "First use silently checks and activates a verified update without a consent prompt");
@@ -182,9 +182,9 @@ internal static class AutomaticToolChecks
             byte[] bytes = isDeno ? zip : yt;
             string tag = isDeno ? "v2.10.0" : "2026.10.16";
             string assetUrl = $"https://github.com/{source.Repository}/releases/download/{tag}/{source.Asset}";
-            if (url.EndsWith("/latest")) return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new
+            if (url.EndsWith("/latest", StringComparison.Ordinal)) return new(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new
                 { tag_name = tag, draft = false, prerelease = false, assets = new[] { new { name = source.Asset, size = bytes.Length, browser_download_url = assetUrl, digest = "sha256:" + Hash(bytes) } } })) };
-            if (url.EndsWith("SHA2-256SUMS") || url.EndsWith(".sha256sum")) return new(HttpStatusCode.OK) { Content = new StringContent(Hash(bytes) + "  " + source.Asset + "\n") };
+            if (url.EndsWith("SHA2-256SUMS", StringComparison.Ordinal) || url.EndsWith(".sha256sum", StringComparison.Ordinal)) return new(HttpStatusCode.OK) { Content = new StringContent(Hash(bytes) + "  " + source.Asset + "\n") };
             assetDownloads++;
             return new(HttpStatusCode.OK) { Content = new ByteArrayContent(isDeno && corruptDeno ? new byte[zip.Length] : bytes) };
         }
@@ -192,7 +192,7 @@ internal static class AutomaticToolChecks
         {
             OpenDownloads = () => new(new Handler(Respond)),
             Accept = (_, _, _) => !badProbe,
-            VersionOf = (file, _) => file.StartsWith("old/") ? (file.EndsWith("deno.exe") ? "2.9.7" : "2026.08.19") : file.EndsWith("deno.exe") ? "2.10.0" : "2026.10.16"
+            VersionOf = (file, _) => file.StartsWith("old/", StringComparison.Ordinal) ? (file.EndsWith("deno.exe", StringComparison.Ordinal) ? "2.9.7" : "2026.08.19") : file.EndsWith("deno.exe", StringComparison.Ordinal) ? "2.10.0" : "2026.10.16"
         };
         string root = Root(); var client = Client(root); var old = Tools("old");
         string obsolete = Path.Combine(new ToolUpdateStore(root).Root, "version-" + Guid.NewGuid().ToString("N"));
@@ -215,7 +215,7 @@ internal static class AutomaticToolChecks
             root = Root(); client = Client(root); corruptDeno = failure == "checksum"; badProbe = failure == "probe";
             bool rejected = false;
             try { await client.RefreshAsync(old, null, default); } catch (InvalidDataException) { rejected = true; }
-            Check(rejected && !File.Exists(Path.Combine(root, "MediaToolUpdates", "active.json")) && !Directory.GetDirectories(Path.Combine(root, "MediaToolUpdates")).Any(),
+            Check(rejected && !File.Exists(Path.Combine(root, "MediaToolUpdates", "active.json")) && Directory.GetDirectories(Path.Combine(root, "MediaToolUpdates")).Length == 0,
                 "A failed " + failure + " never promotes either component and cleans staging");
         }
         corruptDeno = badProbe = false; root = Root(); client = Client(root);
@@ -229,7 +229,7 @@ internal static class AutomaticToolChecks
         try { ToolReleaseSource.Deno.Read("{\"tag_name\":\"v2.10.0\",\"prerelease\":true}"); } catch (InvalidDataException) { prerelease = true; }
         Check(prerelease, "Automatic updates reject prereleases");
         string windowsChecksum = "\r\nAlgorithm : SHA256\r\nHash : " + Hash(zip).ToUpperInvariant() + "\r\nPath : C:\\a\\deno\\target\\release\\deno-x86_64-pc-windows-msvc.zip\r\n";
-        Check(ToolReleaseSource.Deno.ReadChecksum(windowsChecksum) == Hash(zip).ToUpperInvariant(), "Deno's actual Windows Get-FileHash checksum format is supported");
+        Check(string.Equals(ToolReleaseSource.Deno.ReadChecksum(windowsChecksum), Hash(zip), StringComparison.OrdinalIgnoreCase), "Deno's actual Windows Get-FileHash checksum format is supported");
         bool ambiguous = false;
         try { ToolReleaseSource.Deno.ReadChecksum(windowsChecksum + "Hash : " + Hash(zip) + "\r\n"); } catch (InvalidDataException) { ambiguous = true; }
         Check(ambiguous, "Multiple Windows checksum values are rejected");

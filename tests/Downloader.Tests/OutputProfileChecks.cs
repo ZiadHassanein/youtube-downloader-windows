@@ -64,18 +64,18 @@ internal static class OutputProfileChecks
             "Provider inspection exposes only container-specific source choices");
         var mkv = new DownloadOptions { Url = url, Folder = root, VideoContainer = VideoContainer.Mkv, Height = 360, Selection = video.QualitiesFor(VideoContainer.Mkv).Single().Selection };
         var result = provider.DownloadItem(mkv);
-        Check(result.FilePath.EndsWith(".mkv") && MediaFiles.IsCompleted(root, result.FilePath, mkv),
+        Check(result.FilePath.EndsWith(".mkv", StringComparison.Ordinal) && MediaFiles.IsCompleted(root, result.FilePath, mkv),
             "MKV reaches downloader arguments, output validation and completed-file handling");
         var wrong = mkv.Snapshot(); wrong.VideoContainer = VideoContainer.WebM;
         Check(Reject(() => provider.DownloadItem(wrong)), "Immutable selections cannot be reused under a different container");
         var audio = new DownloadOptions { Folder = root, Audio = true, AudioEncoding = AudioEncoding.M4a, AudioBitrate = 128, AudioSource = new("aac", 320) };
         string owned = Path.Combine(root, "owned.m4a"); File.WriteAllText(owned, "Original synthetic audio");
         File.WriteAllText(Path.Combine(root, "convert-fail.flag"), "fail");
-        Check(Reject(() => AudioBitrateConversion.Apply(owned, audio, tools, CancellationToken.None)) && File.ReadAllText(owned) == "Original synthetic audio" && !Directory.GetFiles(root, ".vifree-audio-*").Any(),
+        Check(Reject(() => AudioBitrateConversion.Apply(owned, audio, tools, CancellationToken.None)) && File.ReadAllText(owned) == "Original synthetic audio" && Directory.GetFiles(root, ".vifree-audio-*").Length == 0,
             "Failed same-codec conversion preserves the original file and removes its private partial output");
         File.Delete(Path.Combine(root, "convert-fail.flag"));
         AudioBitrateConversion.Apply(owned, audio, tools, CancellationToken.None);
-        Check(File.ReadAllText(owned) == "Original synthetic audio" && !Directory.GetFiles(root, ".vifree-audio-*").Any(),
+        Check(File.ReadAllText(owned) == "Original synthetic audio" && Directory.GetFiles(root, ".vifree-audio-*").Length == 0,
             "Successful same-codec conversion verifies the staged output before replacement");
         using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
         bool cancellationObserved = false;

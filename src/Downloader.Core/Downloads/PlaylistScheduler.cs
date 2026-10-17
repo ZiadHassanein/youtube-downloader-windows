@@ -1,149 +1,132 @@
-namespace YouTubeDownloader
+namespace YouTubeDownloader;
+public static class PlaylistScheduler
 {
-    public static class PlaylistScheduler
+    private static readonly string[] StopMarkers =
     {
-        public static bool ShouldStop(string error)
+        "429", "too many requests", "403", "confirm you're not a bot", "confirm you’re not a bot", "access is denied", "permission denied",
+        "timed out", "connection", "resolve", "network", "missing tools"
+    };
+    private static readonly string[] UnavailableMarkers = { "unavailable", "private video", "removed", "age-restricted", "not available in your country", "requested format" };
+
+    public static bool ShouldStop(string error)
+    {
+        error = (error ?? "").ToLowerInvariant();
+        return DownloadErrors.IsDiskFull(error) || StopMarkers.Any(error.Contains);
+    }
+
+    private static bool Unavailable(string error)
+    {
+        error = (error ?? "").ToLowerInvariant();
+        return UnavailableMarkers.Any(error.Contains);
+    }
+
+    public static DownloadResult Run(DownloadOptions options, IPlaylistStorage storage, Func<DownloadOptions, CancellationToken, DownloadResult> download, Action<int, int, string> itemStarted, CancellationToken token, Action<CancellationToken> pace = null)
+    {
+        var session = storage.Open(options);
+        string folder = session.Folder;
+        var completed = session.Completed;
+        var result = new DownloadResult
         {
-            error = (error ?? "").ToLowerInvariant();
-            return DownloadErrors.IsDiskFull(error) || new[]
-            {
-                "429",
-                "too many requests",
-                "403",
-                "confirm you're not a bot",
-                "confirm you’re not a bot",
-                "access is denied",
-                "permission denied",
-                "timed out",
-                "connection",
-                "resolve",
-                "network",
-                "missing tools"
-            }.Any(error.Contains);
-        }
-
-        private static bool Unavailable(string error)
+            Total = options.Playlist.Entries.Count
+        };
+        int done = 0, consecutiveFailures = 0;
+        foreach (var entry in options.Playlist.Entries)
         {
-            error = (error ?? "").ToLowerInvariant();
-            return new[]
+            if (token.IsCancellationRequested)
             {
-                "unavailable",
-                "private video",
-                "removed",
-                "age-restricted",
-                "not available in your country",
-                "requested format"
-            }.Any(error.Contains);
-        }
-
-        public static DownloadResult Run(DownloadOptions options, IPlaylistStorage storage, Func<DownloadOptions, CancellationToken, DownloadResult> download, Action<int, int, string> itemStarted, CancellationToken token, Action<CancellationToken> pace = null)
-        {
-            var session = storage.Open(options);
-            string folder = session.Folder;
-            var completed = session.Completed;
-            var result = new DownloadResult
-            {
-                Total = options.Playlist.Entries.Count
-            };
-            int done = 0, consecutiveFailures = 0;
-            foreach (var entry in options.Playlist.Entries)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    result.Cancelled = true;
-                    break;
-                }
-
-                if (itemStarted != null)
-                    itemStarted(done + 1, result.Total, entry.Title);
-                string file;
-                if (entry.Id != null && completed.TryGetValue(entry.Id, out file) && storage.IsCompleted(folder, file, options, requireCaptions: true))
-                {
-                    result.Skipped++;
-                    result.Completed++;
-                    result.Files.Add(file);
-                    result.FilePath = file;
-                    done++;
-                    continue;
-                }
-
-                try
-                {
-                    if (entry.Url == null)
-                        throw new InvalidOperationException("This video is unavailable.");
-                    // Waits are cancellable, including the gaps between processes.
-                    if (done > 0)
-                    {
-                        if (pace != null)
-                            pace(token);
-                        else if (token.WaitHandle.WaitOne(2000))
-                            token.ThrowIfCancellationRequested();
-                    }
-
-                    token.ThrowIfCancellationRequested();
-                    var item = options.Snapshot();
-                    item.Url = entry.Url;
-                    item.Folder = folder;
-                    item.Playlist = null;
-                    item.PlaylistItem = true;
-                    item.FreshMetadata = null;
-                    item.Selection = null;
-                    item.QualityKey = null;
-                    var saved = download(item, token);
-                    if (saved.Cancelled)
-                    {
-                        result.Cancelled = true;
-                        break;
-                    }
-
-                    file = saved.FilePath;
-                    if (!storage.IsCompleted(folder, file, options))
-                        throw new InvalidOperationException("The downloader did not produce a completed file.");
-                    completed[entry.Id] = file;
-                    result.Files.Add(file);
-                    result.FilePath = file;
-                    result.Completed++;
-                    if (saved.Warning != null) result.Warning = "Some requested subtitles were unavailable. The media files were saved.";
-                    consecutiveFailures = 0;
-                    try
-                    {
-                        session.Save();
-                    }
-                    catch (IOException)
-                    {
-                        result.StopReason = "Completed file saved, but resume information could not be saved.";
-                        break;
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        result.StopReason = "Completed file saved, but resume information could not be saved.";
-                        break;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    result.Cancelled = true;
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    result.Failed++;
-                    consecutiveFailures = Unavailable(ex.Message) ? 0 : consecutiveFailures + 1;
-                    if (ex is MediaToolRecoveryException || ShouldStop(ex.Message) || consecutiveFailures >= 3)
-                    {
-                        result.StopQueue = ex is MediaToolRecoveryException;
-                        result.StopReason = ex.Message;
-                        done++;
-                        break;
-                    }
-                }
-
-                done++;
+                result.Cancelled = true;
+                break;
             }
 
-            result.Remaining = Math.Max(0, result.Total - result.Completed - result.Failed);
-            result.Files = result.Files.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            return result;
+            if (itemStarted != null)
+                itemStarted(done + 1, result.Total, entry.Title);
+            string file;
+            if (entry.Id != null && completed.TryGetValue(entry.Id, out file) && storage.IsCompleted(folder, file, options, requireCaptions: true))
+            {
+                result.Skipped++;
+                result.Completed++;
+                result.Files.Add(file);
+                result.FilePath = file;
+                done++;
+                continue;
+            }
+
+            try
+            {
+                if (entry.Url == null)
+                    throw new InvalidOperationException("This video is unavailable.");
+                // Waits are cancellable, including the gaps between processes.
+                if (done > 0)
+                {
+                    if (pace != null)
+                        pace(token);
+                    else if (token.WaitHandle.WaitOne(2000))
+                        token.ThrowIfCancellationRequested();
+                }
+
+                token.ThrowIfCancellationRequested();
+                var item = options.Snapshot();
+                item.Url = entry.Url;
+                item.Folder = folder;
+                item.Playlist = null;
+                item.PlaylistItem = true;
+                item.FreshMetadata = null;
+                item.Selection = null;
+                item.QualityKey = null;
+                var saved = download(item, token);
+                if (saved.Cancelled)
+                {
+                    result.Cancelled = true;
+                    break;
+                }
+
+                file = saved.FilePath;
+                if (!storage.IsCompleted(folder, file, options))
+                    throw new InvalidOperationException("The downloader did not produce a completed file.");
+                completed[entry.Id] = file;
+                result.Files.Add(file);
+                result.FilePath = file;
+                result.Completed++;
+                if (saved.Warning != null) result.Warning = "Some requested subtitles were unavailable. The media files were saved.";
+                consecutiveFailures = 0;
+                try
+                {
+                    session.Save();
+                }
+                catch (IOException)
+                {
+                    result.StopReason = "Completed file saved, but resume information could not be saved.";
+                    break;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    result.StopReason = "Completed file saved, but resume information could not be saved.";
+                    break;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                result.Cancelled = true;
+                break;
+            }
+            catch (Exception ex)
+            {
+                result.Failed++;
+                consecutiveFailures = Unavailable(ex.Message) ? 0 : consecutiveFailures + 1;
+                if (ex is MediaToolRecoveryException || ShouldStop(ex.Message) || consecutiveFailures >= 3)
+                {
+                    result.StopQueue = ex is MediaToolRecoveryException;
+                    result.StopReason = ex.Message;
+                    done++;
+                    break;
+                }
+            }
+
+            done++;
         }
+
+        result.Remaining = Math.Max(0, result.Total - result.Completed - result.Failed);
+        result.Files = result.Files.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        return result;
     }
 }

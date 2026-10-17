@@ -1,0 +1,4 @@
+# Inherits the repository .editorconfig; only the rules below differ for test code.
+[*.cs]
+# Fixtures and assertions build literal arrays inline for readability.
+dotnet_diagnostic.CA1861.severity = suggestion

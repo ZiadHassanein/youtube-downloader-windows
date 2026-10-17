@@ -15,7 +15,7 @@ internal static class ThemeResources
         try
         {
             if (DwmSetWindowAttribute(handle, 20, ref enabled, 4) != 0)
-                DwmSetWindowAttribute(handle, 19, ref enabled, 4);
+                _ = DwmSetWindowAttribute(handle, 19, ref enabled, 4);
         }
         catch (DllNotFoundException) { }
     }

@@ -116,7 +116,7 @@ public sealed partial class MainViewModel
             await InspectAsync(inputGeneration, CancellationToken.None);
     }
 
-    private IProgress<DownloadProgress> PreparationProgress(long generation) => new Progress<DownloadProgress>(p =>
+    private Progress<DownloadProgress> PreparationProgress(long generation) => new(p =>
     {
         if (generation == inputGeneration && IsBusy && p.OperationId == downloads.Operations.CurrentId)
             ApplyProgress(p);

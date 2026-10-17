@@ -5,17 +5,17 @@ public partial class App : Application
 {
     private Mutex instance;
     private CancellationTokenSource browserLifetime;
-    protected override async void OnStartup(StartupEventArgs args)
+    protected override async void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(args);
-        if (BrowserHost.IsInvocation(args.Args))
+        base.OnStartup(e);
+        if (BrowserHost.IsInvocation(e.Args))
         {
-            await BrowserHost.RunAsync(args.Args);
+            await BrowserHost.RunAsync(e.Args);
             Shutdown();
             return;
         }
-        bool smoke = args.Args.Length == 2 && args.Args[0] == "--smoke-test";
-        if (!smoke && AppUpdates.RunHelper(args.Args))
+        bool smoke = e.Args.Length == 2 && e.Args[0] == "--smoke-test";
+        if (!smoke && AppUpdates.RunHelper(e.Args))
         {
             Shutdown();
             return;
@@ -31,7 +31,7 @@ public partial class App : Application
         ThemeResources.Apply(true);
         if (smoke)
         {
-            string root = Path.GetFullPath(args.Args[1]);
+            string root = Path.GetFullPath(e.Args[1]);
             var service = new DownloadService(new YtDlpProvider(new DependencyManager(Path.Combine(root, "Tools"), Array.Empty<string>())), new LocalPlaylistStorage(Path.Combine(root, "PlaylistState")));
             MainWindow = new MainWindow(service, new SettingsRepository(root));
             MainWindow.ContentRendered += (_, _) =>
@@ -55,11 +55,11 @@ public partial class App : Application
         }
     }
 
-    protected override void OnExit(ExitEventArgs args)
+    protected override void OnExit(ExitEventArgs e)
     {
         instance?.Dispose();
         browserLifetime?.Cancel();
         browserLifetime?.Dispose();
-        base.OnExit(args);
+        base.OnExit(e);
     }
 }

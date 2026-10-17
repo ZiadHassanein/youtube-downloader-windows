@@ -6,14 +6,23 @@ end_of_line = crlf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{cs,xaml,csproj,props,slnx}]
+[*.{cs,xaml,csproj,props,slnx,ps1}]
 indent_style = space
 indent_size = 4
 
-[*.{yml,yaml}]
+[*.{yml,yaml,js,cjs,mjs,json,html,css,svg}]
 indent_style = space
 indent_size = 2
 
 [*.cs]
-csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_using_directive_placement = outside_namespace:warning
+dotnet_sort_system_directives_first = true
 dotnet_diagnostic.IDE0005.severity = warning
+
+# Design rules that would reshape the public model or API; reported as suggestions, not build failures.
+dotnet_diagnostic.CA1051.severity = suggestion   # Core media types are plain field-based records shared with the UI.
+dotnet_diagnostic.CA1711.severity = suggestion   # DownloadQueue is the established public name.
+dotnet_diagnostic.CA1001.severity = suggestion   # App and MainViewModel live for the whole process; WPF owns their shutdown.
+dotnet_diagnostic.CA1838.severity = suggestion   # The StringBuilder P/Invoke buffer in WindowsProcessRunner is bounded and tested.
+dotnet_code_quality.CA1822.api_surface = private, internal   # Public service members stay instance members for injection.

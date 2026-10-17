@@ -15,6 +15,10 @@ Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-d
 
 <a class="download" href="https://github.com/ZiadHassanein/ViFree/releases/latest">Download Vydrop for Windows</a>
 
+[![GitHub release downloads](https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&color=CB2D42)](https://github.com/ZiadHassanein/ViFree/releases)
+
+GitHub's counter includes repeat and automated release downloads, not unique people or installations. Shields.io provides the cached badge; no app telemetry or paid analytics is used.
+
 ## At a glance
 
 {% include facts.md %}

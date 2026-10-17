@@ -27,7 +27,7 @@ internal static class AudioProfileLiveChecks
                     if (bitrate != 0) args.AddRange(new[] { "-b:a", bitrate + "k" });
                     args.AddRange(new[] { "-y", file });
                     if (runner.Run(tools.FFmpeg, args, null, Console.Error.WriteLine, deadline.Token, TimeSpan.FromSeconds(15)) != 0) throw new IOException("Encoding failed: " + encoding + "/" + bitrate);
-                    string json = new ToolProbe().Capture(tools.FFprobe, deadline.Token, "-v", "error", "-show_entries", "stream=codec_name:format=duration", "-of", "json", file);
+                    string json = ToolProbe.Capture(tools.FFprobe, deadline.Token, "-v", "error", "-show_entries", "stream=codec_name:format=duration", "-of", "json", file);
                     using var info = JsonDocument.Parse(json);
                     if (info.RootElement.GetProperty("streams")[0].GetProperty("codec_name").GetString() != codec || new FileInfo(file).Length == 0)
                         throw new IOException("Encoded output did not validate: " + encoding + "/" + bitrate);

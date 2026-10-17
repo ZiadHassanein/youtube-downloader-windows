@@ -146,19 +146,23 @@ globalThis.ViFreeVideoDetection = (() => {
     if (info.linkUrl) return info.linkUrl;
     const platform = socialPlatform(tab?.url ?? "");
     if (!platform) return tab?.url ?? "";
-    if (!Number.isInteger(tab?.id)) throw new Error("Open the video in a browser tab, then try again.");
+    const { api } = globalThis.ViFreeConnection;
+    const fail = (message, code) => Object.assign(new Error(message), { code });
+    if (!Number.isInteger(tab?.id)) throw fail("Open the video in a browser tab, then try again.", "inspect");
     let results;
-    try { results = await globalThis.ViFreeConnection.api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? ""] }); }
-    catch { throw new Error("Could not inspect this page. Reload the extension and page, then try again."); }
+    try { results = await api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? ""] }); }
+    catch { throw fail("Could not inspect this page. Reload the extension and page, then try again.", "inspect"); }
     let found = results?.find(result => result.frameId === 0)?.result;
     if (platform === "facebook" && found?.reason === "missing-link") {
       try {
-        results = await globalThis.ViFreeConnection.api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? "", true] });
+        results = await api.scripting.executeScript({ target: { tabId: tab.id }, func: inspectVideoPage, args: [info.srcUrl ?? "", true] });
         found = results?.find(result => result.frameId === 0)?.result;
-      } catch { throw new Error("Could not inspect this page. Reload the extension and page, then try again."); }
+      } catch { throw fail("Could not inspect this page. Reload the extension and page, then try again.", "inspect"); }
     }
     if (found?.url && socialPlatform(found.url) === platform) return found.url;
-    throw new Error(found?.reason === "ambiguous" ? "More than one video is visible. Open the video you want, then try again." : "Could not find this video's link. Open the video itself or use Share → Copy link.");
+    throw found?.reason === "ambiguous"
+      ? fail("More than one video is visible. Open the video you want, then try again.", "ambiguous")
+      : fail("Could not find this video's link. Open the video itself or use Share → Copy link.", "missing");
   }
   return { resolve, inspectVideoPage };
 })();

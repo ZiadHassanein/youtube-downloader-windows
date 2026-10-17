@@ -114,10 +114,20 @@
           "sha256": "fdc84da97602a917b893e86c886b998ed188838d699b4997e10157fabb579d3a"
         }
       ]
+    },
+    {
+      "files": [
+        "assets/social-card.png",
+        "docs/assets/social-card.png"
+      ],
+      "kind": "Original social-sharing card",
+      "source": "scripts/render-social-card.ps1 and approved shared vector geometry",
+      "state": "1200 by 630 pixel social card; no cursor; not an application screenshot.",
+      "sha256": "b32c9cc1b5a650d75fe7a722d7b2ed36427c7ebeb19ee557b794ed8b37e773c4"
     }
   ],
   "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",
   "product": "Vydrop",
-  "publicationStatus": "Vydrop 4.2.0 release artwork and documentation; historical ViFree v4.1.0 binary remains unchanged",
+  "publicationStatus": "Vydrop 4.2.1 release documentation; native UI renders retain their original 4.2.0 provenance; historical release binaries remain unchanged",
   "sourceBaseCommit": "a0809c85577c66560bf119286b6d43cc765cd646"
 }

@@ -453,7 +453,14 @@ internal static class UpdateTransaction
                         if (ToolUpdateStore.IsLink(path)) continue;
                         var journal = Read(path);
                         ValidateJournal(path, journal);
-                        if (journal.Phase is not ("committed" or "rolled-back")) continue;
+                        if (journal.Phase == "prepared")
+                        {
+                            // A preparation whose install never started is abandoned once it is a week old.
+                            if (Directory.GetLastWriteTimeUtc(directory) >= DateTime.UtcNow.AddDays(-7)) continue;
+                            using var parent = FindProcess(journal.ParentPid, journal.ParentStart);
+                            if (parent != null && !parent.HasExited) continue;
+                        }
+                        else if (journal.Phase is not ("committed" or "rolled-back")) continue;
                         using var helper = FindProcess(journal.HelperPid, journal.HelperStart);
                         if (helper != null && !helper.HasExited) continue;
                     }

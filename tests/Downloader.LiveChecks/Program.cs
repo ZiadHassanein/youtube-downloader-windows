@@ -34,7 +34,7 @@ internal static class Program
             )
                 foreach (int bitrate in audio ? new[]
                 {
-                    OutputProfiles.AudioBitrates(AudioEncoding.Mp3, info.AudioSource).LastOrDefault(),
+                    OutputProfiles.AudioBitrates(AudioEncoding.Mp3, info.AudioSource) is { Count: > 0 } rates ? rates[^1] : 0,
                     0
                 }
 

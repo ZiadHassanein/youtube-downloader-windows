@@ -60,7 +60,7 @@ internal static partial class Program
                 Check(window.Title == "Vydrop" && model.Url == "" && model.IsDark, "WPF starts with an English title, dark theme and empty URL");
                 Check(window.Width == 740 && window.MinWidth == 660, "The compact workspace starts narrower and permits a smaller manual window");
                 Check(window.Height <= SystemParameters.WorkArea.Height && window.ActualHeight < 900, "Native window fits content within the work area");
-                var captures = args.FirstOrDefault(arg => !arg.StartsWith("--")) ?? root;
+                var captures = args.FirstOrDefault(arg => !arg.StartsWith("--", StringComparison.Ordinal)) ?? root;
                 System.IO.Directory.CreateDirectory(captures);
                 if (args.Contains("--docs"))
                 {

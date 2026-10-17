@@ -1,6 +1,6 @@
 # Review fixes and validation — 17 October 2026
 
-These source fixes and documentation changes are based on `7527095`. Desktop fixes remain unreleased: the published Vydrop 4.2.0 ZIP has not been replaced. The supplied review brief is preserved unchanged. Documentation publishing is handled separately by the checked GitHub Pages workflow on `main`.
+These source fixes and documentation changes are based on `7527095` and form part of Vydrop 4.2.1. The checks below record their initial pre-release validation; the Vydrop 4.2.0 ZIP has not been replaced. The supplied review brief is preserved unchanged. Documentation publishing is handled separately by the checked GitHub Pages workflow on `main`.
 
 ## Findings addressed
 
@@ -50,6 +50,12 @@ The final smoke attempt initially ran out of disk space while copying its tempor
 Local, unpublished review ZIP: `dist/Vydrop-v4.2.0-win-x64.zip`, retaining the existing version stamp. SHA-256: `00fd8e337a0b97a920b8d5c5915efb5180d32b68f6223e851cbaff55df2670cd`. This is not the published 4.2.0 asset's hash. Temporary-toolchain cleanup completed; the source, native UI images, built site, review ZIP and validation logs remain.
 
 ## Owner handoff
+
+### Vydrop 4.2.1 follow-up
+
+The owner subsequently authorized publishing the fixed app as v4.2.1. Claude's changes were reviewed before release preparation: completed Arabic error coverage, localized companion popup/context menus, abandoned prepared-stage cleanup, recommended analyzers with warnings as errors, culture-safe comparisons/parsing, namespace consistency and line-ending rules. The cleanup regression also retains week-old preparations while their parent process is alive. The companion version is 1.3.1; native-host names and extension IDs/key remain unchanged.
+
+Claude's remaining social-image suggestion is addressed by an original 1200 × 630 card rendered from the approved vector logo. GitHub's existing release counters are exposed through cached Shields.io badges and `scripts/download-counts.ps1`. They measure release-asset download events, including repeats and automation, not unique people or app usage. No app telemetry or paid service is added. The release workflow verifies the package and uploaded digest before publication; Pages waits for the documented Windows release before deploying new download links.
 
 The owner authorized pushing the source fixes and documentation and publishing the Pages site on 17 October 2026. The Documentation site workflow builds and validates the site before deployment; the public URL is `https://ziadhassanein.github.io/ViFree/`, with Arabic under `/ar/`. This publication does not create or replace a desktop release.
 

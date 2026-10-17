@@ -23,19 +23,21 @@ if ($destination.private -or $destination.full_name -ne $repository -or $destina
 }
 $api = "https://api.github.com/repos/$repository/releases"
 $url = "https://github.com/$repository/releases/download/$($env:GITHUB_REF_NAME)/$expectedName"
+$changelog = Get-Content -LiteralPath (Join-Path $root 'CHANGELOG.md') -Raw
+$releaseNotes = [regex]::Match($changelog, "(?ms)^## \[$([regex]::Escape($version))\][^\r\n]*\r?\n(?<notes>.*?)(?=^## \[|\z)").Groups['notes'].Value.Trim()
+if (!$releaseNotes) { throw 'The tagged version needs a changelog section before publication.' }
 $body = @"
-Vydrop brings its red download identity and a consistent bilingual interface to public video and audio downloads from YouTube and 1,000+ sites supported by yt-dlp.
+Vydrop is a free Windows video and audio downloader for YouTube and 1,000+ public sites supported by yt-dlp, with English and Arabic interfaces.
 
 **[Download for Windows (.zip)]($url)**
 
 Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools are prepared automatically.
 
-### New in 4.2.0
+## Changes in $version
 
-- Vydrop replaces the ViFree name with the approved red V and solid white download arrow; app and browser icons use the V alone.
-- Matching dark/light wordmarks, a whole-logo hover shine without a background plate, and a theme button that keeps the content steady.
-- A refined contact menu with matching icon rows and keyboard focus.
-- Companion 1.3.0 and illustrated [Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md), in English and Arabic.
+$releaseNotes
+
+[Documentation](https://ziadhassanein.github.io/ViFree/) · [العربية](https://ziadhassanein.github.io/ViFree/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md)
 
 ### Downloads and media support
 
@@ -44,7 +46,7 @@ Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools 
 - Public media from YouTube, TikTok, Facebook, Vimeo and other yt-dlp-supported sites, plus compatible direct media links. Private, sign-in-only and DRM content is unsupported.
 - Queue, playlist selection and available SRT/VTT subtitles.
 - English/Arabic and light/dark themes.
-- Browser companion 1.3.0 inside Browser: Download by Vydrop outside the playing video's border.
+- Browser companion 1.3.1 inside Browser: Download by Vydrop outside the playing video's border, with localized popup and context menus.
 - Automatic daily verified yt-dlp/Deno checks and one compatible update-and-retry.
 - Settings keeps video errors in the download screen; manual app updates use this repository.
 

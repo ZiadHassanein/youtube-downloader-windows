@@ -19,7 +19,7 @@ internal static class ServiceChecks
         await provider.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
         oldPreparation.Report(new DownloadProgress { Stage = "late preparation" });
         oldInspection.Report(new DownloadProgress { Stage = "late inspection" });
-        if (delivered.Any(p => p.Stage.StartsWith("late")) || queued.OperationId == service.Operations.CurrentId)
+        if (delivered.Any(p => p.Stage.StartsWith("late", StringComparison.Ordinal)) || queued.OperationId == service.Operations.CurrentId)
             throw new Exception("Progress escaped its source operation identity.");
         provider.Release.SetResult();
         await download;

@@ -3,9 +3,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace YouTubeDownloader;
-internal sealed class ToolProbe
+internal static class ToolProbe
 {
-    internal string Capture(string executable, CancellationToken token, params string[] arguments)
+    private static readonly string[] YtDlpOptions = { "--no-plugin-dirs", "--no-remote-components", "--js-runtimes" };
+    private static readonly string[] Encoders = { "libmp3lame", "libopus", "flac", "pcm_s16le" };
+    private static readonly string[] Muxers = { "mp4", "matroska", "webm", "mp3", "ogg", "wav", "flac" };
+
+    internal static string Capture(string executable, CancellationToken token, params string[] arguments)
     {
         using var runner = new WindowsProcessRunner();
         var output = new StringBuilder();
@@ -15,7 +19,7 @@ internal sealed class ToolProbe
         return output.ToString();
     }
 
-    internal bool Accept(string file, string kind, CancellationToken token)
+    internal static bool Accept(string file, string kind, CancellationToken token)
     {
         try
         {
@@ -28,12 +32,7 @@ internal sealed class ToolProbe
                 if (!DateTime.TryParseExact(version, "yyyy.MM.dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) || date < new DateTime(2026, 8, 19))
                     return false;
                 string help = Capture(file, token, "--help");
-                return new[]
-                {
-                    "--no-plugin-dirs",
-                    "--no-remote-components",
-                    "--js-runtimes"
-                }.All(help.Contains);
+                return YtDlpOptions.All(help.Contains);
             }
 
             if (kind == "Deno")
@@ -54,7 +53,7 @@ internal sealed class ToolProbe
         }
     }
 
-    internal bool AcceptPair(string ffmpeg, string ffprobe, CancellationToken token)
+    internal static bool AcceptPair(string ffmpeg, string ffprobe, CancellationToken token)
     {
         try
         {
@@ -64,10 +63,10 @@ internal sealed class ToolProbe
             string b = Regex.Match(Capture(ffprobe, token, "-hide_banner", "-version"), @"ffprobe version (\S+)").Groups[1].Value;
             if (a.Length == 0 || a != b)
                 return false;
-            if (!a.StartsWith("N-") && (!int.TryParse(a.Split('.')[0], out int major) || major < 6))
+            if (!a.StartsWith("N-", StringComparison.Ordinal) && (!int.TryParse(a.Split('.')[0], out int major) || major < 6))
                 return false;
             string encoders = Capture(ffmpeg, token, "-hide_banner", "-encoders"), muxers = Capture(ffmpeg, token, "-hide_banner", "-muxers");
-            return new[] { "libmp3lame", "libopus", "flac", "pcm_s16le" }.All(encoders.Contains) && Regex.IsMatch(encoders, @"\baac\s") && new[] { "mp4", "matroska", "webm", "mp3", "ogg", "wav", "flac" }.All(format => Regex.IsMatch(muxers, @"\b" + format + @"\b"));
+            return Encoders.All(encoders.Contains) && Regex.IsMatch(encoders, @"\baac\s") && Muxers.All(format => Regex.IsMatch(muxers, @"\b" + format + @"\b"));
         }
         catch (OperationCanceledException)
         {
