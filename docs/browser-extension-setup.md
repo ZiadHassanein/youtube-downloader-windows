@@ -2,7 +2,7 @@
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-**Choose the matching package:** the current Vydrop 4.2 source build includes **Vydrop 1.3.0**. The latest published download is still **ViFree 4.1.0**, with **ViFree 1.2.1**. For that package, open **ViFree.exe** and look for **ViFree** in the browser. The folder paths and setup steps below are the same. A Vydrop binary release is still being prepared.
+**Use the matching package:** [Vydrop 4.2.0 for Windows](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip) includes companion **Vydrop 1.3.0**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
 
 [Published downloads](https://github.com/ZiadHassanein/ViFree/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
@@ -10,7 +10,7 @@ The images are cursor-free **setup illustrations**, not browser screenshots; con
 
 ## 1. Extract and keep the app folder
 
-Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop**. Open **Vydrop.exe** from that folder and keep **Browser** beside it. For the published 4.1.0 package, open **ViFree.exe** instead. Keep the extracted files after setup.
+Extract the app ZIP into a permanent writable folder, such as **Documents\Vydrop**. Open **Vydrop.exe** from that folder and keep **Browser** beside it. Keep the extracted files after setup.
 
 ![Folder illustration: the executable stays beside Browser; Chromium browsers select Browser/chromium and Firefox selects Browser/firefox/manifest.json](images/extension/01-folders.svg)
 
@@ -59,7 +59,7 @@ See Microsoft's [official Edge sideloading instructions](https://learn.microsoft
 
 ## 5. Send the playing video
 
-Play a video, then click **Download by Vydrop** just outside its top-right border. The older published companion says **Download by ViFree**. The button can use clear space immediately to the right when the upper position is blocked. If neither placement is available, use the companion's toolbar popup.
+Play a video, then click **Download by Vydrop** just outside its top-right border. The button can use clear space immediately to the right when the upper position is blocked. If neither placement is available, use the companion's toolbar popup.
 
 ![Playback illustration with the V-only icon and Download by Vydrop above the video's right border](images/extension/04-send-video.svg)
 
@@ -95,7 +95,7 @@ The companion locates visible players and sends a public link after your click. 
 
 <div dir="rtl">
 
-الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. بناء الشيفرة الحالي **Vydrop 4.2** يتضمن إضافة **Vydrop 1.3.0**، بينما آخر ملف منشور هو **ViFree 4.1.0** مع إضافة **ViFree 1.2.1**. إذا حمّلت الإصدار المنشور، افتح **ViFree.exe**؛ مسارات المجلدات والخطوات نفسها.
+الإضافة اختيارية ومجانية. الصور أعلاه رسومات توضيحية دون مؤشر ماوس. يتضمن إصدار **Vydrop 4.2.0** إضافة **Vydrop 1.3.0**. فكّ ضغط حزمة البرنامج وافتح **Vydrop.exe**. عند الترقية من ViFree، فعّل الاتصال من Vydrop وأعد تحميل الإضافة من مجلد **Browser** الجديد.
 
 1. **فك الضغط:** احتفظ بمجلد البرنامج في مكان دائم، وبمجلد **Browser** بجوار الملف التنفيذي.
 2. **فعّل الاتصال:** اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر رسالة التأكيد.
@@ -103,7 +103,7 @@ The companion locates visible players and sends a public link after your click. 
 4. **Edge:** افتح `edge://extensions` وفعّل **Developer mode**، ثم اختر **Load unpacked** وحدد **Browser\chromium** نفسه. [صورة Edge](images/extension/04-edge-setup.svg).
 5. **Firefox:** افتح `about:debugging#/runtime/this-firefox`، واختر **Load Temporary Add-on**، ثم ملف **Browser\firefox\manifest.json**. [صورة Firefox](images/extension/05-firefox-setup.svg). هذه إضافة مؤقتة وتحتاج إلى تحميلها مجددًا بعد إعادة تشغيل Firefox؛ الحزمة الحالية ليست إضافة موقعة للتثبيت الدائم.
 6. **السماح للمواقع:** فعّل الإضافة واسمح لها بالعمل على المواقع المطلوبة، ثم حدّث صفحات الفيديو المفتوحة.
-7. **شغّل ثم راجع:** اضغط **تنزيل بواسطة Vydrop** خارج إطار الفيديو، أو استخدم زر الإضافة من شريط المتصفح. في الإصدار المنشور سيظهر اسم **ViFree**. راجع الرابط والصيغة والجودة ومجلد الحفظ داخل البرنامج، ثم اضغط **تنزيل**.
+7. **شغّل ثم راجع:** اضغط **تنزيل بواسطة Vydrop** خارج إطار الفيديو، أو استخدم زر الإضافة من شريط المتصفح. راجع الرابط والصيغة والجودة ومجلد الحفظ داخل البرنامج، ثم اضغط **تنزيل**.
 
 إذا نقلت مجلد البرنامج، فعّل الاتصال مجددًا. عند تحديث الإضافة، أعد تحميلها وحدّث صفحة الفيديو. تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو؛ لا تستورد الإضافة حساباتك أو ملفات تعريف الارتباط.
 

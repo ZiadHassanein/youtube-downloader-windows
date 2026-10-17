@@ -76,6 +76,6 @@
   ],
   "publication": "Only cursor-free images are referenced. Native renders stay at captured resolution without UI reconstruction or upscaling. Setup diagrams are labeled illustrations. Published ViFree v4.1.0 ZIP remains unchanged.",
   "product": "Vydrop",
-  "publicationStatus": "Approved Vydrop 4.2 source artwork and documentation; published ViFree v4.1.0 binary remains unchanged",
+  "publicationStatus": "Vydrop 4.2.0 release artwork and documentation; historical ViFree v4.1.0 binary remains unchanged",
   "sourceBaseCommit": "a0809c85577c66560bf119286b6d43cc765cd646"
 }

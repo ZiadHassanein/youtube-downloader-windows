@@ -7,25 +7,25 @@
   <a href="docs/images/app-overview-light.svg"><img src="docs/images/app-overview-light.svg" width="48%" alt="Illustrated Vydrop white interface with the same logo and download controls"></a>
 </p>
 
-<p align="center"><em>Current Vydrop 4.2 source interface — labelled illustrations, not screenshots. Click to view at full size.</em></p>
+<p align="center"><em>Vydrop 4.2.0 interface — labelled illustrations, not screenshots. Click to view at full size.</em></p>
 
 # Vydrop — Free Video & Audio Downloader for Windows
 
 **Vydrop (formerly ViFree)** is a free, open-source Windows desktop app by **Ziad Hassanein** for downloading YouTube videos, Shorts and playlists, saving audio, and organizing multiple downloads. It supports English and Arabic interfaces, light and dark themes, subtitles, and an optional browser extension. Other public websites depend on yt-dlp support and access.
 
-**[Download the latest published Windows release — ViFree v4.1.0 (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.1.0/ViFree-v4.1.0-win-x64.zip)**
+**[Download Vydrop v4.2.0 for Windows (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip)**
 
 [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
 
-## Releases and current source
+## Latest release: Vydrop 4.2.0
 
-The current source builds **Vydrop 4.2.0**, with a red download logo, matching light/dark colors and companion **1.3.0**. This is the current source version; a Vydrop binary release has not been published yet. The download above remains the previously published ViFree 4.1.0.
+**Vydrop 4.2.0** introduces the red V/download identity, matching light/dark wordmarks and browser companion **1.3.0**. The full wordmark shines on hover without a background plate. The theme button keeps its icon clear and the content steady when focused or clicked, and the contact menu has matching icon rows.
 
 | Channel | Version | What to use |
 | --- | --- | --- |
-| Current source | Vydrop 4.2.0 | Approved Vydrop identity; build from source until its binary release is published. |
-| Latest published release | ViFree 4.1.0 | The Windows ZIP linked above. |
-| Accepted preview baseline | 4.1.0 Preview 30 | Promoted to stable 4.1.0; see [Preview 30 validation](PREVIEW.md). |
+| Latest stable release | Vydrop 4.2.0 | The Windows ZIP linked above; extract it and open Vydrop.exe. |
+| Included companion | Vydrop 1.3.0 | Chrome, Edge and Firefox folders inside Browser. |
+| Previous release | ViFree 4.1.0 | Superseded by Vydrop; earlier validation is preserved in [Preview 30 details](PREVIEW.md). |
 
 This is the official repository for Vydrop source code, Windows downloads, release notes and support. The source is MIT licensed.
 
@@ -47,7 +47,7 @@ Quality depends on the source. A higher output bitrate or a lossless file does n
 
 ## Browser extension: Download by Vydrop
 
-The optional **Chrome, Microsoft Edge and Firefox** companion is in the app ZIP's `Browser` folder. The Vydrop 4.2 source build packages companion **1.3.0**. The currently published ViFree 4.1.0 ZIP packages **ViFree 1.2.1**, with the same setup paths and older name. The companion shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
+The optional **Chrome, Microsoft Edge and Firefox** companion **1.3.0** is in the Vydrop 4.2.0 ZIP's `Browser` folder. The companion shows a **Download by Vydrop** tab outside a playing video's top-right border. Clicking it copies the resolved link and opens Vydrop for review; downloading still requires your action in the app.
 
 Facebook, TikTok and YouTube detection uses the selected player's public permalink. Other HTML5 players may provide a direct media URL or a single-video page link. Available space, custom players and site restrictions can limit detection. Use the toolbar popup when the tab cannot be placed safely.
 
@@ -72,15 +72,13 @@ Keep the extracted folder, allow access to the desired websites and refresh open
 
 ## Getting started
 
-1. Download the [official stable Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/latest), extract it into a writable folder, and open **ViFree.exe** for the published 4.1.0 package, or **Vydrop.exe** for the new branding build. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
+1. Download the [official stable Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip), extract it into a writable folder, and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
 2. Paste a video or playlist link, choose output, quality and a save folder, then click **Download**.
 3. Choose the Video/Audio format buttons and **Subtitles** for captions. Use **Choose videos** for playlist entries and **Queue** for multiple links.
 
 Internet access is required for downloads and missing-tool preparation. No account, API key or paid service is required. Only save media you have permission to download; DRM-protected and sign-in-only content is unsupported.
 
 **Upgrading from ViFree or YouTube Downloader to Vydrop:** close the old app and extract the Vydrop ZIP into a new writable folder once. Stable preferences, history and verified media tools retain their existing storage location. Enable Browser integration from Vydrop to refresh the executable path. Existing companion IDs and permissions are retained.
-
-**Upgrading to the previously published ViFree 4.1.0:** close the old app, download this ZIP once and extract it into a new writable folder. Older copies still check the retired downloads repository; v4.1.0 and later check this repository. Stable settings, history and downloaded media are retained; preview preferences stay separate. Enable Browser integration from the new stable app when using its companion.
 
 ## Frequently asked questions
 
@@ -117,7 +115,7 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل فيديوهات يوتيوب والمقاطع القصيرة وقوائم التشغيل وحفظ الصوت. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-اسم البرنامج الجديد هو **Vydrop**، وإصدار إعادة الهوية **4.2.0** متاح في الشيفرة الحالية ولم يُنشر ملفه التنفيذي بعد. آخر إصدار منشور متاح للتنزيل هو **ViFree 4.1.0**، المبني على **Preview 30** المقبول. هذا المستودع هو المكان الرسمي للشيفرة والتنزيلات والدعم. فكّ ضغط ZIP وافتح **Vydrop.exe** في الإصدار الجديد، أو **ViFree.exe** في الإصدار المنشور 4.1.0. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. إضافة المتصفح اختيارية، وتختلف الميزات المتاحة حسب الإصدار والموقع وجودة المصدر.
+الإصدار الحالي هو **Vydrop 4.2.0**، ويشمل الهوية الحمراء الجديدة وإضافة المتصفح **1.3.0**. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.0/Vydrop-v4.2.0-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. عند الترقية من ViFree، احتفظ بالإعدادات والملفات الحالية، وفعّل الربط بالمتصفح من Vydrop ثم أعد تحميل الإضافة. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](docs/browser-extension-setup.md#arabic). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
 </div>
 

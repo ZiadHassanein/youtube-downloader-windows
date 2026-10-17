@@ -60,7 +60,7 @@ for theme,page,ink,field,border,accent,selected,muted in [('dark','#181B20','#F6
     body+=text(110,540,'Quality',20,ink,600)+rect(110,562,590,56,field,border)+text(130,598,'Best available',20,ink)+rect(720,562,170,56,field,border)+text(805,598,'Subtitles',20,ink,500,'middle')
     body+=text(110,682,'Save to',20,ink,600)+rect(110,704,610,56,field,border)+text(134,740,'Downloads',20,ink)+rect(736,704,154,56,field,border)+text(813,740,'Change',20,ink,500,'middle')
     body+=text(110,821,'+ Add to queue',19,muted)+text(890,821,'Queue (0)',19,ink,400,'end')+rect(330,858,340,62,accent,accent)+text(500,898,'Download',24,'#FFFFFF',600,'middle')
-    body+='<path d="M0 975H1000" stroke="'+border+'"/>'+text(34,1011,'Settings',17,ink)+text(966,1011,'Contact',17,ink,400,'end')+text(500,1070,'UI illustration · Vydrop 4.2 source build · not a screenshot',18,'#655963',400,'middle')
-    save(ROOT/f'docs/images/app-overview-{theme}.svg',f'Vydrop {theme} interface overview','Labelled illustration of the current source interface, integrated white-outlined V wordmark, video/audio choice, subtitles, output folder and centered Download action. Not a native app screenshot.',body,1000,1090)
+    body+='<path d="M0 975H1000" stroke="'+border+'"/>'+text(34,1011,'Settings',17,ink)+text(966,1011,'Contact',17,ink,400,'end')+text(500,1070,'UI illustration · Vydrop 4.2.0 · not a screenshot',18,'#655963',400,'middle')
+    save(ROOT/f'docs/images/app-overview-{theme}.svg',f'Vydrop {theme} interface overview','Labelled illustration of the Vydrop 4.2.0 interface, red V wordmark with a solid white arrow, video/audio choice, subtitles, output folder and centered Download action. Not a native app screenshot.',body,1000,1090)
 
 print('Rendered Chrome, Edge, Firefox and playback guides, plus both labelled app overviews.')

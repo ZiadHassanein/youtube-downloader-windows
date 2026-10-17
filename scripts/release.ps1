@@ -28,6 +28,15 @@ $body = @"
 
 Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools are prepared automatically.
 
+### New in 4.2.0
+
+- Vydrop replaces the ViFree name with the approved red V and solid white download arrow; app and browser icons use the V alone.
+- Matching dark/light wordmarks, a whole-logo hover shine without a background plate, and a theme button that keeps the content steady.
+- A refined contact menu with matching icon rows and keyboard focus.
+- Companion 1.3.0 and illustrated [Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md), in English and Arabic.
+
+### Downloads and media support
+
 - MP4, MKV and WebM video where inspected streams are compatible.
 - MP3, M4A, Opus, WAV and FLAC audio with source-aware conversion choices.
 - Queue, playlist selection, SRT/VTT subtitles and supported public sites.
