@@ -4,7 +4,7 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const site = path.resolve(process.argv[2] || 'build/site');
 const origin = 'https://ziadhassanein.github.io';
-const base = '/ViFree';
+const base = '/Vydrop';
 function walk(folder) { return fs.readdirSync(folder, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(folder, e.name)) : path.join(folder, e.name)); }
 const htmlFiles = walk(site).filter(file => file.endsWith('.html'));
 const entities = text => text.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");

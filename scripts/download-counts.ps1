@@ -4,7 +4,7 @@ $downloadRows = [Collections.Generic.List[object]]::new()
 $downloadHeaders = @{ Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'; 'User-Agent' = 'Vydrop-download-counts' }
 $downloadPage = 1
 do {
-    $downloadReleases = Invoke-RestMethod -Uri "https://api.github.com/repos/ZiadHassanein/ViFree/releases?per_page=100&page=$downloadPage" -Headers $downloadHeaders -TimeoutSec 30
+    $downloadReleases = Invoke-RestMethod -Uri "https://api.github.com/repos/ZiadHassanein/Vydrop/releases?per_page=100&page=$downloadPage" -Headers $downloadHeaders -TimeoutSec 30
     foreach ($downloadRelease in @($downloadReleases)) {
         if ($downloadRelease.draft) { continue }
         foreach ($downloadAsset in $downloadRelease.assets) {

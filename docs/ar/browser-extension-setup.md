@@ -14,7 +14,7 @@ arabic: /ar/browser-extension-setup.html
 
 ## جهّز التطبيق
 
-نزّل [أحدث إصدار رسمي](https://github.com/ZiadHassanein/ViFree/releases/latest) وفكّ الضغط في مجلد دائم قابل للكتابة، ثم افتح Vydrop.exe واحتفظ بمجلد Browser بجانبه. اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر تأكيد التفعيل. عند نقل التطبيق فعّل الربط من مكانه الجديد.
+نزّل [أحدث إصدار رسمي](https://github.com/ZiadHassanein/Vydrop/releases/latest) وفكّ الضغط في مجلد دائم قابل للكتابة، ثم افتح Vydrop.exe واحتفظ بمجلد Browser بجانبه. اختر **الإعدادات ← الربط بالمتصفح ← تفعيل الاتصال** وانتظر تأكيد التفعيل. عند نقل التطبيق فعّل الربط من مكانه الجديد.
 
 ![توضيح المجلدات: التطبيق بجانب Browser](../images/extension/01-folders.svg)
 

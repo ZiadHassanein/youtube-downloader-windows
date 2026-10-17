@@ -1,6 +1,6 @@
 # Security
 
-Report a suspected vulnerability privately through [GitHub security reporting](https://github.com/ZiadHassanein/ViFree/security/advisories/new). If private reporting is unavailable, contact the email listed in the app; do not put credentials, private media URLs, or exploitable details in a public issue.
+Report a suspected vulnerability privately through [GitHub security reporting](https://github.com/ZiadHassanein/Vydrop/security/advisories/new). If private reporting is unavailable, contact the email listed in the app; do not put credentials, private media URLs, or exploitable details in a public issue.
 
 Include the Vydrop version, Windows version, affected feature, and concise reproduction steps. Redact personal paths and tokens. Support focuses on the latest stable release and the active preview.
 

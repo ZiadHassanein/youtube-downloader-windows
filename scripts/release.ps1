@@ -3,7 +3,7 @@ if ($env:GITHUB_EVENT_NAME -ne 'push' -or $env:GITHUB_REF_TYPE -ne 'tag' -or
     $env:GITHUB_REF_NAME -notmatch '^v\d+\.\d+\.\d+$' -or !$env:GH_RELEASE_TOKEN) {
     throw 'Release publishing requires an explicit version tag and the job token.'
 }
-$sourceRepository = 'ZiadHassanein/ViFree'
+$sourceRepository = 'ZiadHassanein/Vydrop'
 $repository = $sourceRepository
 if ($env:GITHUB_REPOSITORY -ne $sourceRepository) { throw 'Unexpected source repository.' }
 & git merge-base --is-ancestor HEAD origin/main
@@ -37,7 +37,7 @@ Extract the ZIP and open **Vydrop.exe**. Windows 10/11 x64. Missing media tools 
 
 $releaseNotes
 
-[Documentation](https://ziadhassanein.github.io/ViFree/) · [العربية](https://ziadhassanein.github.io/ViFree/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md)
+[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Illustrated Chrome, Edge and Firefox setup](https://github.com/$repository/blob/$($env:GITHUB_REF_NAME)/docs/browser-extension-setup.md)
 
 ### Downloads and media support
 

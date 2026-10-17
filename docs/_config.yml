@@ -1,7 +1,7 @@
 title: Vydrop
 description: Free open-source Windows downloader for video and audio from YouTube, TikTok, Facebook and 1,000+ sites via yt-dlp. English and Arabic.
 url: https://ziadhassanein.github.io
-baseurl: /ViFree
+baseurl: /Vydrop
 lang: en
 markdown: kramdown
 kramdown:

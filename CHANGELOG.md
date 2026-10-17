@@ -4,6 +4,10 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 ## [Unreleased]
 
+### Changed
+- Use the owner-approved Vydrop repository and Pages URLs. The canonical app-update endpoint is prepared in source; installed versions through 4.2.1 need manual app updates after the rename.
+- Use a compact download button with the release-download count directly underneath on GitHub and the documentation site.
+
 ## [4.2.1] - 2026-10-17
 
 ### Fixed
@@ -44,10 +48,10 @@ All notable user-facing changes are recorded here. Use the versioned release lin
 
 See the published release bodies for historical validation and download details.
 
-[Unreleased]: https://github.com/ZiadHassanein/ViFree/compare/v4.2.1...HEAD
-[4.2.1]: https://github.com/ZiadHassanein/ViFree/releases/tag/v4.2.1
-[4.2.0]: https://github.com/ZiadHassanein/ViFree/releases/tag/v4.2.0
-[4.1.0]: https://github.com/ZiadHassanein/ViFree/releases/tag/v4.1.0
+[Unreleased]: https://github.com/ZiadHassanein/Vydrop/compare/v4.2.1...HEAD
+[4.2.1]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.1
+[4.2.0]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.0
+[4.1.0]: https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.1.0
 
 ## ملخص بالعربية
 

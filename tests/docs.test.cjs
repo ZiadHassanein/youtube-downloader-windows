@@ -58,7 +58,7 @@ for (const page of pages) for (const locale of ['en', 'ar']) test(`Public page h
 });
 
 test('Documentation retains update identities and states current security limitations', () => {
-  assert.ok(read('CONTRIBUTING.md').includes('Keep the repository slug `ViFree`'));
+  assert.ok(read('CONTRIBUTING.md').includes('The canonical repository slug is `Vydrop`'));
   assert.ok(!read('ARCHITECTURE.md').includes('No persistent content scripts'));
   assert.ok(read('ARCHITECTURE.md').includes('Content scripts run on HTTP(S) pages and frames'));
   assert.ok(read('SECURITY.md').includes('not Authenticode-signed'));
@@ -74,7 +74,7 @@ test('Site has no remote scripts, tracking or unsupported review ratings', () =>
   assert.ok(read('docs/_includes/jsonld.html').includes('site.data.product.version'));
   assert.ok(read('docs/_includes/jsonld.html').includes('site.data.faq[page.lang]'));
   for (const bot of ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'Bingbot']) assert.ok(read('docs/robots.txt').includes(`User-agent: ${bot}\nAllow: /`));
-  assert.ok(read('docs/_config.yml').includes('baseurl: /ViFree'));
+  assert.ok(read('docs/_config.yml').includes('baseurl: /Vydrop'));
   assert.ok(read('docs/_config.yml').includes('jekyll-relative-links'));
 });
 

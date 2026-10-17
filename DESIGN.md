@@ -117,8 +117,8 @@ typography:
     fontSize: ".9rem"
     lineHeight: 1.75
   web-download:
-    fontSize: "1.4rem"
-    fontWeight: 750
+    fontSize: "1.2rem"
+    fontWeight: 700
     lineHeight: 1.35
 rounded:
   control: "8px"
@@ -202,13 +202,13 @@ components:
     textColor: "{colors.on-accent-light}"
     typography: "{typography.web-download}"
     rounded: "{rounded.web-download}"
-    padding: "1rem 1.4rem"
+    padding: ".75rem 1.1rem"
   web-download-dark:
     backgroundColor: "{colors.action-dark}"
     textColor: "{colors.on-accent-dark}"
     typography: "{typography.web-download}"
     rounded: "{rounded.web-download}"
-    padding: "1rem 1.4rem"
+    padding: ".75rem 1.1rem"
   web-navigation:
     textColor: "{colors.web-accent-light}"
     typography: "{typography.web-navigation-table}"
@@ -361,7 +361,7 @@ Use the same symbol and custom vector wordmark as a unified lockup in desktop an
 
 ### Documentation navigation and download
 
-The docs header pairs the approved theme-aware logo with links to supported sites, browser setup, GitHub and the alternate language. A keyboard-visible skip link reaches the semantic main/article. The home page's app-download CTA links directly to the current Windows ZIP. Its red action face and white text match the native action palette; a 90px minimum height, 26rem maximum width, download icon and smaller version/platform line make it prominent. The release-download badge is centered directly underneath. Count details use a native disclosure. The localized footer carries authorship, MIT licensing and security/privacy access. The page works without client scripts, external fonts or app telemetry.
+The docs header pairs the approved theme-aware logo with links to supported sites, browser setup, GitHub and the alternate language. A keyboard-visible skip link reaches the semantic main/article. The home page's app-download CTA links directly to the current Windows ZIP. Its red action face and white text match the native action palette; a 72px minimum height, 20rem maximum width, download icon and smaller version/platform line make it prominent. The release-download badge is centered directly underneath. Count details use a native disclosure. The localized footer carries authorship, MIT licensing and security/privacy access. The page works without client scripts, external fonts or app telemetry.
 
 ### Documentation tables and figures
 

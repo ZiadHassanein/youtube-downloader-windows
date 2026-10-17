@@ -12,7 +12,7 @@ Vydrop's source is MIT licensed. Dependencies retain their own licenses; keep th
 
 ## Release compatibility
 
-Keep the repository slug `ViFree`; installed updaters pin it and refuse API redirects. Preserve native-host names, Chromium public key and Firefox add-on IDs. Brand the repository through documentation and metadata instead.
+The canonical repository slug is `Vydrop`, following the owner-approved rename. Installed versions through 4.2.1 pin the former ViFree API and refuse its redirect; use the releases page for manual app updates until a new desktop release ships the canonical endpoint. New source pins the Vydrop API. Preserve native-host names, Chromium public key and Firefox add-on IDs. Brand the repository through documentation and metadata instead.
 
 Run `./scripts/check.ps1` and `node --test tests/browser.test.cjs tests/browser-video.test.cjs tests/docs.test.cjs tests/localization.test.cjs`. For 100% display compatibility also run the WPF test executable with `--dpi-unaware`; the default run follows the current display scale. Do not change the desktop's scale for tests.
 

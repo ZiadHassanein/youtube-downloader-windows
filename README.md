@@ -1,9 +1,9 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-dark.svg"><img src="assets/brand-logo-light.svg" width="238" alt="Vydrop video downloader logo"></picture></p>
 
 <p align="center">
-  <a href="https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip"><img src="assets/download-windows.svg" width="420" alt="Download Vydrop v4.2.1 for Windows — ZIP"></a>
+  <a href="https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip"><img src="assets/download-windows.svg" width="320" alt="Download Vydrop v4.2.1 for Windows — ZIP"></a>
   <br><br>
-  <a href="https://github.com/ZiadHassanein/ViFree/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads"></a>
+  <a href="https://github.com/ZiadHassanein/Vydrop/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/Vydrop/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads"></a>
 </p>
 
 <a id="theme-previews"></a>
@@ -26,7 +26,7 @@ GitHub counts release downloads, including repeats and automated downloads; this
 
 </details>
 
-[Documentation](https://ziadhassanein.github.io/ViFree/) · [العربية](https://ziadhassanein.github.io/ViFree/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
+[Documentation](https://ziadhassanein.github.io/Vydrop/) · [العربية](https://ziadhassanein.github.io/Vydrop/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/Vydrop/issues)
 
 ## Latest release: Vydrop 4.2.1
 
@@ -90,13 +90,15 @@ Keep the extracted folder, allow access to the desired websites and refresh open
 
 ## Getting started
 
-1. Download the [official stable Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip), extract it into a writable folder, and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
+1. Download the [official stable Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip), extract it into a writable folder, and open **Vydrop.exe**. Target platform: Windows 10/11 x64; the .NET runtime is bundled.
 2. Paste a video or playlist link, choose output, quality and a save folder, then click **Download**.
 3. Choose the Video/Audio format buttons and **Subtitles** for captions. Use **Choose videos** for playlist entries and **Queue** for multiple links.
 
 Internet access is required for downloads and missing-tool preparation. No account, API key or paid service is required. Only save media you have permission to download; DRM-protected and sign-in-only content is unsupported.
 
 **Upgrading from ViFree or YouTube Downloader to Vydrop:** close the old app and extract the Vydrop ZIP into a new writable folder once. Stable preferences, history and verified media tools retain their existing storage location. Enable Browser integration from Vydrop to refresh the executable path. Existing companion IDs and permissions are retained.
+
+**App updates after the repository rename:** versions through 4.2.1 still check the former ViFree API. Use the [releases page](https://github.com/ZiadHassanein/Vydrop/releases) for manual app updates. The new endpoint is prepared in source for a future desktop release; the published v4.2.1 ZIP is unchanged.
 
 ## Frequently asked questions
 
@@ -160,7 +162,7 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 **Vydrop** برنامج مجاني ومفتوح المصدر من تطوير **زياد حسنين**، لتنزيل الفيديو والصوت من الصفحات العامة في يوتيوب وتيك توك وفيسبوك وVimeo وأكثر من ١٠٠٠ موقع مدعوم عبر yt-dlp، إضافة إلى روابط الوسائط المباشرة. يدعم العربية والإنجليزية والمظهرين الفاتح والداكن، مع قائمة تنزيلات واختيار فيديوهات القائمة وحفظ الترجمة المتاحة.
 
-الإصدار الحالي هو **Vydrop 4.2.1**، ويحسّن تنظيف ملفات التحديث والربط بالمتصفح ورسائل الأخطاء العربية، ويشمل إضافة المتصفح **1.3.1**. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. عند الترقية من ViFree، احتفظ بالإعدادات والملفات الحالية، وفعّل الربط بالمتصفح من Vydrop ثم أعد تحميل الإضافة. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](docs/browser-extension-setup.md#arabic). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
+الإصدار الحالي هو **Vydrop 4.2.1**، ويحسّن تنظيف ملفات التحديث والربط بالمتصفح ورسائل الأخطاء العربية، ويشمل إضافة المتصفح **1.3.1**. [نزّل ملف Windows ZIP](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip)، ثم فكّ الضغط وافتح **Vydrop.exe**. تُجهّز الأدوات الناقصة تلقائيًا، ولا يلزم حساب أو مفتاح API أو خدمة مدفوعة. عند الترقية من ViFree، احتفظ بالإعدادات والملفات الحالية، وفعّل الربط بالمتصفح من Vydrop ثم أعد تحميل الإضافة. راجع [دليل تفعيل Chrome وEdge وFirefox بالصور](docs/browser-extension-setup.md#arabic). تختلف إمكانية التنزيل حسب الموقع وإتاحة الفيديو وجودة المصدر.
 
 ### أسئلة شائعة
 
@@ -200,4 +202,4 @@ Preview builds use separate settings and tool state. Read [Contributing](CONTRIB
 
 Created by **Ziad Hassanein**. [GitHub](https://github.com/ZiadHassanein) · [LinkedIn](https://www.linkedin.com/in/ziad-hassanein/) · [Email](mailto:ziadmuhammed501@gmail.com).
 
-Use [GitHub issues](https://github.com/ZiadHassanein/ViFree/issues) for app problems and development reports. Include your app version, Windows version and the public link involved; never post passwords or cookies.
+Use [GitHub issues](https://github.com/ZiadHassanein/Vydrop/issues) for app problems and development reports. Include your app version, Windows version and the public link involved; never post passwords or cookies.

@@ -2,9 +2,9 @@
 
 ## Stable promotion
 
-Preview 30 was promoted to stable **v4.1.0** on 16 October 2026. Source, [releases and Windows downloads](https://github.com/ZiadHassanein/ViFree/releases/tag/v4.1.0), support and future app-update checks use [ZiadHassanein/ViFree](https://github.com/ZiadHassanein/ViFree). The promotion changes version/channel identity and the release destination, preserving the accepted interface and download behavior. Older versions that check the separate downloads repository require one manual ZIP upgrade; preview preferences remain separate from stable preferences.
+Preview 30 was promoted to stable **v4.1.0** on 16 October 2026. Source, [releases and Windows downloads](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.1.0), support and future app-update checks use [ZiadHassanein/ViFree](https://github.com/ZiadHassanein/ViFree). The promotion changes version/channel identity and the release destination, preserving the accepted interface and download behavior. Older versions that check the separate downloads repository require one manual ZIP upgrade; preview preferences remain separate from stable preferences.
 
-The [tagged release workflow](https://github.com/ZiadHassanein/ViFree/actions/runs/38933637137) passed full regression, package, bundled-runtime startup and native-host checks before publishing. The public 61,902,718-byte ZIP was independently downloaded and passed package validation; SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`. Its source tag points to `8f3a272849142bbb4554c147ef626c37feccb48f`. Clean Windows VM compatibility remains unverified.
+The [tagged release workflow](https://github.com/ZiadHassanein/Vydrop/actions/runs/38933637137) passed full regression, package, bundled-runtime startup and native-host checks before publishing. The public 61,902,718-byte ZIP was independently downloaded and passed package validation; SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`. Its source tag points to `8f3a272849142bbb4554c147ef626c37feccb48f`. Clean Windows VM compatibility remains unverified.
 
 ## Preview acceptance and validation history
 

@@ -27,7 +27,7 @@ The new executable is `Vydrop.exe`. Stable preferences, history and media-tool s
 
 Screenshots and logo rasters carry embedded origin metadata; [capture notes](images/capture-notes.json) distinguish current Vydrop renders, historical ViFree 4.1.0 native screenshots and labeled setup illustrations. No pointer is shown in the published image assets.
 
-The published ZIP SHA-256 is recorded in the [Vydrop 4.2.0 release notes](https://github.com/ZiadHassanein/ViFree/releases/tag/v4.2.0). The release job verifies that digest against the uploaded asset before publication.
+The published ZIP SHA-256 is recorded in the [Vydrop 4.2.0 release notes](https://github.com/ZiadHassanein/Vydrop/releases/tag/v4.2.0). The release job verifies that digest against the uploaded asset before publication.
 
 The previously published ViFree 4.1.0 ZIP remains byte-identical: SHA-256 `16DA65E3AF49D767ABD6A5359B99A6F814F723DF0C46EE9A96DB055EFF15ED05`.
 

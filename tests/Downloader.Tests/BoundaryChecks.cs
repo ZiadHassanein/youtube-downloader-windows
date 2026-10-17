@@ -300,7 +300,7 @@ internal static class BoundaryChecks
         }
 
         Check(oldRelease, "Legacy release names cannot be installed as native desktop payloads");
-        Check(AppUpdates.Repository == "https://github.com/ZiadHassanein/ViFree",
+        Check(AppUpdates.Repository == "https://github.com/ZiadHassanein/Vydrop",
             "Updates use the main Vydrop repository for releases and source");
         string releaseJson = System.Text.Json.JsonSerializer.Serialize(new
         {

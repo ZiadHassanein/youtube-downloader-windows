@@ -12,9 +12,9 @@ arabic: /ar/browser-extension-setup.html
 
 Use the optional companion to send the video you are watching to the desktop app, then review it before downloading. Setup is free. You can also paste a link directly into the app.
 
-**Use the matching package:** [Vydrop 4.2.1 for Windows](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip) includes companion **Vydrop 1.3.1**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
+**Use the matching package:** [Vydrop 4.2.1 for Windows](https://github.com/ZiadHassanein/Vydrop/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip) includes companion **Vydrop 1.3.1**. Open **Vydrop.exe** and use its included **Browser** folder. When upgrading from ViFree, enable the connection from Vydrop and reload the companion from the new folder.
 
-[Published downloads](https://github.com/ZiadHassanein/ViFree/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
+[Published downloads](https://github.com/ZiadHassanein/Vydrop/releases/latest) · [Chrome](#chrome) · [Edge](#edge) · [Firefox](#firefox) · [Troubleshooting](#troubleshooting) · [العربية](#arabic)
 
 The images are cursor-free **setup illustrations**, not browser screenshots; control positions can vary by browser version.
 
@@ -92,12 +92,12 @@ To disconnect, choose **Disable connection** in the app and remove the browser c
 | The app does not open | Open it manually, then use Settings → Browser integration → Enable connection again. Keep its folder in place. |
 | No tab appears beside the video | Check the companion is enabled and allowed on that site, refresh the page and play the visible video. Try its toolbar popup outside native fullscreen or picture-in-picture. |
 | Several videos are present, or the wrong link appears | Open the specific video's public page, or paste the site's Share → Copy link into the app. |
-| The right video opens, but downloading fails | DRM, private/sign-in-only media, custom players and site restrictions can prevent downloading. Report the public link and app version in [GitHub issues](https://github.com/ZiadHassanein/ViFree/issues). |
+| The right video opens, but downloading fails | DRM, private/sign-in-only media, custom players and site restrictions can prevent downloading. Report the public link and app version in [GitHub issues](https://github.com/ZiadHassanein/Vydrop/issues). |
 | Firefox loses the companion after restarting | Expected for a temporary add-on; load Browser\firefox\manifest.json again. |
 | The app opens Preview | Load the regular companion from the matching desktop package and enable the connection from that app. |
 | The icon or name looks old after an update | Reload the companion, then refresh the video page. The current Vydrop icon is the red V alone. |
 
-The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/ViFree/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
+The companion locates visible players and sends a public link after your click. It does not import accounts or cookies. Read the [permissions and limitations](https://github.com/ZiadHassanein/Vydrop/blob/main/browser/README.md). These local packages are not Chrome, Edge or Firefox store listings.
 
 <a id="arabic"></a>
 

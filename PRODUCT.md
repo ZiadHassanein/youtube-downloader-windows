@@ -1,6 +1,6 @@
 # Vydrop
 
-Vydrop is a free, MIT-licensed Windows 10/11 x64 desktop video and audio downloader by Ziad Hassanein. Former names are ViFree and YouTube Downloader. The repository slug remains ViFree for installed updater compatibility.
+Vydrop is a free, MIT-licensed Windows 10/11 x64 desktop video and audio downloader by Ziad Hassanein. Former names are ViFree and YouTube Downloader. The canonical repository slug is Vydrop. Installed versions through 4.2.1 still pin the former ViFree API and require manual app updates after the repository rename until the canonical endpoint ships in a future desktop release.
 
 The primary task is to paste or send a public media link, inspect actual source choices, choose output and save it locally. Users can select playlist entries, queue several links, save available captions and review completed files. English and Arabic have equal support, with light and dark themes. Fresh profiles start in English and dark mode.
 

@@ -4,8 +4,8 @@ type: software
 title: "Vydrop: Windows video and audio downloader"
 version: "4.2.1"
 license: MIT
-repository-code: "https://github.com/ZiadHassanein/ViFree"
-url: "https://github.com/ZiadHassanein/ViFree"
+repository-code: "https://github.com/ZiadHassanein/Vydrop"
+url: "https://github.com/ZiadHassanein/Vydrop"
 authors:
   - family-names: Hassanein
     given-names: Ziad

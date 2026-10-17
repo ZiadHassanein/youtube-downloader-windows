@@ -51,13 +51,17 @@ Local, unpublished review ZIP: `dist/Vydrop-v4.2.0-win-x64.zip`, retaining the e
 
 ## Owner handoff
 
+### Owner-approved repository rename
+
+After publication, the owner renamed the repository and explicitly chose to keep `Vydrop`. This supersedes the earlier ViFree-slug recommendation. Canonical repository, Pages, download and build-workflow URLs now use Vydrop. The canonical app-update endpoint is prepared in source; already published versions through 4.2.1 still pin the former API and require manual app updates. No released binary, local data path, native-host name, extension ID or Chromium key is replaced by this site migration.
+
 ### Vydrop 4.2.1 follow-up
 
 The owner subsequently authorized publishing the fixed app as v4.2.1. Claude's changes were reviewed before release preparation: completed Arabic error coverage, localized companion popup/context menus, abandoned prepared-stage cleanup, recommended analyzers with warnings as errors, culture-safe comparisons/parsing, namespace consistency and line-ending rules. The cleanup regression also retains week-old preparations while their parent process is alive. The companion version is 1.3.1; native-host names and extension IDs/key remain unchanged.
 
 Claude's remaining social-image suggestion is addressed by an original 1200 × 630 card rendered from the approved vector logo. GitHub's existing release counters are exposed through cached Shields.io badges and `scripts/download-counts.ps1`. They measure release-asset download events, including repeats and automation, not unique people or app usage. No app telemetry or paid service is added. The release workflow verifies the package and uploaded digest before publication; Pages waits for the documented Windows release before deploying new download links.
 
-The owner authorized pushing the source fixes and documentation and publishing the Pages site on 17 October 2026. The Documentation site workflow builds and validates the site before deployment; the public URL is `https://ziadhassanein.github.io/ViFree/`, with Arabic under `/ar/`. This publication does not create or replace a desktop release.
+The owner authorized pushing the source fixes and documentation and publishing the Pages site on 17 October 2026. The Documentation site workflow builds and validates the site before deployment; the public URL is `https://ziadhassanein.github.io/Vydrop/`, with Arabic under `/ar/`. This publication does not create or replace a desktop release.
 
 A ViFree bridge release or pinned migration notice, signing policy and external directory submissions remain separate owner decisions. The maintenance instructions are in `seo-maintenance.md`; press text is in `press.md`. Ignored `build/winget/` contains verified-hash drafts, explicitly not submission-ready until Browser-folder preservation and a clean package-manager install are validated. Existing native-host names, extension IDs/key and the `ViFree` repository slug remain intact.
 

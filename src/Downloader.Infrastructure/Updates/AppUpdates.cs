@@ -20,9 +20,10 @@ public sealed class PackageManifest
 
 public static class AppUpdates
 {
-    // Keep the ViFree slug: installed clients pin this API and reject repository-rename redirects.
-    public const string Repository = "https://github.com/ZiadHassanein/ViFree";
-    private const string Api = "https://api.github.com/repos/ZiadHassanein/ViFree/releases/latest";
+    // Canonical endpoint after the owner-approved rename. Installed versions through 4.2.1
+    // still pin ViFree and need a manual upgrade; keep redirect validation strict.
+    public const string Repository = "https://github.com/ZiadHassanein/Vydrop";
+    private const string Api = "https://api.github.com/repos/ZiadHassanein/Vydrop/releases/latest";
     internal static readonly string[] PackageFiles =
     {
         "Vydrop.exe",
