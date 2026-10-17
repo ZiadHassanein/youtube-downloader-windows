@@ -1,5 +1,11 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-dark.svg"><img src="assets/brand-logo-light.svg" width="238" alt="Vydrop video downloader logo"></picture></p>
 
+<p align="center">
+  <a href="https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip"><img src="assets/download-windows.svg" width="420" alt="Download Vydrop v4.2.1 for Windows — ZIP"></a>
+  <br><br>
+  <a href="https://github.com/ZiadHassanein/ViFree/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads"></a>
+</p>
+
 <a id="theme-previews"></a>
 
 <p align="center">
@@ -13,11 +19,12 @@
 
 **Vydrop (formerly ViFree)** is a free, open-source Windows video and audio downloader by **Ziad Hassanein**. Download public media from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites supported by yt-dlp, plus compatible direct media links. English and Arabic, playlists, queues, subtitles and an optional browser companion are included.
 
-**[Download Vydrop v4.2.1 for Windows (.zip)](https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip)**
-
-[![GitHub release downloads](https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&color=CB2D42)](https://github.com/ZiadHassanein/ViFree/releases)
+<details>
+<summary>About the download count</summary>
 
 GitHub counts release downloads, including repeats and automated downloads; this is not a count of unique people, installations or active users. The cached badge is provided by Shields.io. For ZIP counts by version, run `./scripts/download-counts.ps1`. No app telemetry, paid service or API key is added.
+
+</details>
 
 [Documentation](https://ziadhassanein.github.io/ViFree/) · [العربية](https://ziadhassanein.github.io/ViFree/ar/) · [Setup guide](#getting-started) · [Theme previews](#theme-previews) · [Extension setup with pictures](docs/browser-extension-setup.md) · [Report a download problem](https://github.com/ZiadHassanein/ViFree/issues)
 

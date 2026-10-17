@@ -45,6 +45,7 @@ colors:
   web-line-dark: "#655660"
   web-surface-light: "#eee6eb"
   web-surface-dark: "#282b32"
+  web-download-pressed: "#8F1D30"
 typography:
   headline:
     fontFamily: "Inter"
@@ -116,9 +117,9 @@ typography:
     fontSize: ".9rem"
     lineHeight: 1.75
   web-download:
-    fontSize: "1.0625rem"
-    fontWeight: 650
-    lineHeight: 1.75
+    fontSize: "1.4rem"
+    fontWeight: 750
+    lineHeight: 1.35
 rounded:
   control: "8px"
   control-inset: "7px"
@@ -126,7 +127,7 @@ rounded:
   count-badge: "10px"
   web-focus: "2px"
   web-code: "3px"
-  web-download: "7px"
+  web-download: "10px"
 spacing:
   menu-inset: "4px"
   row: "8px"
@@ -197,17 +198,17 @@ components:
     textColor: "{colors.ink-light}"
     padding: "24px 30px"
   web-download:
-    backgroundColor: "{colors.web-accent-light}"
-    textColor: "{colors.web-page-light}"
+    backgroundColor: "{colors.action-light}"
+    textColor: "{colors.on-accent-light}"
     typography: "{typography.web-download}"
     rounded: "{rounded.web-download}"
-    padding: ".65rem 1.15rem"
+    padding: "1rem 1.4rem"
   web-download-dark:
-    backgroundColor: "{colors.web-accent-dark}"
-    textColor: "{colors.web-page-dark}"
+    backgroundColor: "{colors.action-dark}"
+    textColor: "{colors.on-accent-dark}"
     typography: "{typography.web-download}"
     rounded: "{rounded.web-download}"
-    padding: ".65rem 1.15rem"
+    padding: "1rem 1.4rem"
   web-navigation:
     textColor: "{colors.web-accent-light}"
     typography: "{typography.web-navigation-table}"
@@ -360,7 +361,7 @@ Use the same symbol and custom vector wordmark as a unified lockup in desktop an
 
 ### Documentation navigation and download
 
-The docs header pairs the approved theme-aware logo with links to supported sites, browser setup, GitHub and the alternate language. A keyboard-visible skip link reaches the semantic main/article. The home page's app-download CTA is an ordinary link to the latest GitHub release, using the web download tokens; it does not adopt the native button's fixed size. The localized footer carries authorship, MIT licensing and security/privacy access. The page works without client scripts, external fonts or tracking.
+The docs header pairs the approved theme-aware logo with links to supported sites, browser setup, GitHub and the alternate language. A keyboard-visible skip link reaches the semantic main/article. The home page's app-download CTA links directly to the current Windows ZIP. Its red action face and white text match the native action palette; a 90px minimum height, 26rem maximum width, download icon and smaller version/platform line make it prominent. The release-download badge is centered directly underneath. Count details use a native disclosure. The localized footer carries authorship, MIT licensing and security/privacy access. The page works without client scripts, external fonts or app telemetry.
 
 ### Documentation tables and figures
 

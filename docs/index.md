@@ -13,11 +13,14 @@ home: true
 
 Download from YouTube, TikTok, Facebook, Vimeo and 1,000+ sites, powered by yt-dlp. Free, open source, with English and Arabic interfaces.
 
-<a class="download" href="https://github.com/ZiadHassanein/ViFree/releases/latest">Download Vydrop for Windows</a>
-
-[![GitHub release downloads](https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&color=CB2D42)](https://github.com/ZiadHassanein/ViFree/releases)
-
-GitHub's counter includes repeat and automated release downloads, not unique people or installations. Shields.io provides the cached badge; no app telemetry or paid analytics is used.
+<div class="download-block">
+  <a class="download" href="https://github.com/ZiadHassanein/ViFree/releases/download/v4.2.1/Vydrop-v4.2.1-win-x64.zip">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4v17m-7-7 7 7 7-7M5 23v5h22v-5"/></svg>
+    <span class="download-copy"><span class="download-title">Download Vydrop</span><span class="download-meta">Windows 10/11 x64 · v4.2.1 · ZIP</span></span>
+  </a>
+  <a class="download-count" href="https://github.com/ZiadHassanein/ViFree/releases"><img src="https://img.shields.io/github/downloads/ZiadHassanein/ViFree/total?label=release%20downloads&amp;color=CB2D42" alt="Total GitHub release downloads" height="20"></a>
+  <details class="download-details"><summary>About this count</summary><p>GitHub's counter includes repeat and automated release downloads, not unique people or installations. Shields.io provides the cached badge; no app telemetry or paid analytics is used.</p></details>
+</div>
 
 ## At a glance
 
